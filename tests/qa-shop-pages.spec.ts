@@ -1387,3 +1387,61 @@ test('/qa-shop — vitrin kavramları akışın içinde okunabilir ve tıklamay�
     await expect(page.locator('[data-testid="siparis-listesi"]')).toBeVisible({ timeout: 40_000 });
     await balonuAcVeOlc('siparisDurumlari', /kargo|ship/i);
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Boş/ayrıştırılamayan cevap gövdesi sayfayı ÇÖKERTMEMELİ
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// Gerçek hata (2026-08-28, paralel koşumda yakalandı): konsola iki sayfa
+// hatası düşüyordu —
+//   TypeError: Cannot read properties of null (reading 'items')
+//   TypeError: Cannot read properties of null (reading 'categories')
+//
+// Kök neden: istek yardımcısı gövdeyi ayrıştıramadığında (boş cevap, 204,
+// yarıda kesilen bağlantı) `null` döndürür. Çağıranlar `govde.items ?? []`
+// yazmıştı — koruma YANLIŞ TARAFTAYDI: eksik `items` alanına karşı korur,
+// null gövdeye karşı korumaz. Nadiren göründüğü için "kalıcı olmayan test"
+// gibi okunuyordu; oysa üründe gerçek bir çökme yolu vardı.
+//
+// Burada gövde BİLEREK boş bırakılır. Sayfa boş vitrini göstermeli ve tek bir
+// sayfa hatası bile üretmemelidir.
+test('/qa-shop — boş cevap gövdesi sayfayı çökertmiyor', async ({ browser }) => {
+    test.setTimeout(120_000);
+
+    // Servis çalışanı kapalı: aksi hâlde istekleri o ele alır ve ele geçirme
+    // sessizce çalışmaz (ürün doğruyken test yanlış tarafa bakar).
+    const context = await browser.newContext({ serviceWorkers: 'block' });
+    const SAHTE_API = 'http://127.0.0.1:45998';
+    await context.addInitScript((adres) => {
+        localStorage.setItem('qaShopApiBase', adres);
+    }, SAHTE_API);
+
+    const page = await context.newPage();
+    const hatalar: string[] = [];
+    page.on('pageerror', (e) => hatalar.push(String(e)));
+
+    await page.route(`${SAHTE_API}/**`, async (route) => {
+        const yol = new URL(route.request().url()).pathname;
+        if (yol.endsWith('/health')) {
+            // Sağlıklı görün ki uygulama tarayıcı kipine düşmesin — sınanan
+            // şey yerel kipteki gövde işleme yolu.
+            await route.fulfill({
+                status: 200, contentType: 'application/json',
+                body: JSON.stringify({ status: 'ok', database: 'up' }),
+            });
+            return;
+        }
+        // Katalog ve kategori: 200 ama GÖVDE YOK.
+        await route.fulfill({ status: 200, contentType: 'application/json', body: '' });
+    });
+
+    await page.goto('/qa-shop');
+    await waitForAppReady(page, { timeout: 60_000 });
+
+    // Vitrin ayakta: ürün yok durumu görünüyor, beyaz ekran değil.
+    await expect(page.locator('[data-testid="vitrin-basligi"]')).toBeVisible({ timeout: 30_000 });
+    await expect(page.locator('[data-testid="urun-bulunamadi"]')).toBeVisible({ timeout: 30_000 });
+
+    expect(hatalar, `boş gövdede sayfa hatası: ${hatalar.join(' | ')}`).toHaveLength(0);
+    await context.close();
+});

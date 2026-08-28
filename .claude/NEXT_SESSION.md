@@ -25,30 +25,33 @@ TEMİZ — üç oturumun 79 dosyalık birikimi commit edildi.
   deploy'unu tetikler; bu kullanıcının kararı.
 - **Etiket `qa-shop-v1.0.0` push edildi** → imaj yayını iş akışı tetiklendi.
 
-### 🔴 KULLANICININ ELLE YAPMASI GEREKEN — GÜNCEL DURUM
+### ✅ ELLE YAPILACAK İŞ KALMADI
 
-**✅ Yapıldı:** `alter table profiles add column if not exists qa_shop_sandbox_key text;`
-iki projede de (`learnqa-test` ve `learnqa-prod`) koşturuldu; sütun doğrulandı.
+**Yapıldı ve ÖLÇÜLDÜ:**
 
-**✅ Yapıldı:** GHCR paketleri Public. Ölçüldü — `docker login` OLMADAN
-`qa-shop-db` ve `qa-shop-api` imajlarının `1.0.0` ve `latest` etiketleri
-çekilebiliyor, ikisi de `linux/amd64` + `linux/arm64` taşıyor.
+- `alter table profiles add column ... qa_shop_sandbox_key text;` — iki projede.
+- `grant update (qa_shop_sandbox_key) on public.profiles to authenticated;` —
+  iki projede. Üye senkronunun mutlu yolu artık uçtan uca yeşil: üye alan
+  açınca anahtar profile yazılıyor, TEMİZ bir tarayıcı aynı alana dönüyor.
+  Yazma çağrısı bilerek koparılarak kırmızıya döndürüldü.
+- GHCR paketleri Public. `docker login` OLMADAN `qa-shop-db` ve `qa-shop-api`
+  imajlarının `1.0.0` ve `latest` etiketleri çekilebiliyor; ikisi de
+  `linux/amd64` + `linux/arm64` taşıyor.
 
-**🔴 KALAN TEK ADIM — bir satır, iki projede de:**
+⚠ Sütun düzeyinde yetki tuzağı kalıcı derse yazıldı (`CLAUDE.md` §23.25):
+bu projede `profiles` update yetkisi TABLO değil SÜTUN düzeyinde; yeni bir
+üye alanı eklerken `alter` + `grant` TEK göç adımıdır.
 
-```sql
-grant update (qa_shop_sandbox_key) on public.profiles to authenticated;
-```
+### 🐞 Doğrulama sırasında bulunan gerçek ürün hatası
 
-Sebep ölçüldü: bu projede `profiles` üzerindeki update yetkisi TABLO değil
-**SÜTUN** düzeyinde. Sütunu eklemek okumayı açar ama yazmayı açmaz —
-üye alan açtığında anahtar profile YAZILMAZ ve senkron sessizce ölür.
-Ayırt etme: aynı oturumla `career_goal` güncellenebiliyor (204), yeni sütun
-reddediliyor (403 · `42501`). Kalıcı ders: `CLAUDE.md` §23.25.
+Paralel koşumda konsola iki sayfa hatası düşüyordu:
+`Cannot read properties of null (reading 'items' / 'categories')`.
+İstek yardımcısı gövdeyi ayrıştıramadığında `null` döndürüyor; çağıranlar
+`govde.items ?? []` yazmıştı — koruma YANLIŞ TARAFTAYDI. 14 kullanımın hepsi
+`govde?.` yapıldı, sipariş akışında erken çıkış eklendi.
 
-Bu satır koşturulduğunda `tests/qa-shop-uye-senkronu.spec.ts` kendiliğinden
-mutlu yolu sınar; şu an o test yetki eksiğini ADIYLA söyleyerek düşüyor
-(bilerek — sessiz geçmesindense kırmızı kalması doğru).
+Boş gövdeyi bilerek üreten bir test yazıldı; düzeltme geri alındığında AYNI
+iki hatayı üretiyor. Kalıcı ders: `CLAUDE.md` §23.26.
 
 ### 📋 Bu Oturumda Yapılanlar
 

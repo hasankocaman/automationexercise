@@ -1284,6 +1284,31 @@ listesi ilk yeni sayfada sessizce eskiyordu, kod eskiyemez.
   "beklenen X, gelen null" der ve saatlerce yanlış yerde aranır; yazma iznini
   ayrıca yoklayan bir kontrol eksik satırı adıyla söyler.
 
+### 23.26. `govde.alan ?? []` KORUMA DEĞİLDİR — koruma yanlış tarafta
+
+- **Belirti:** Konsolda ara sıra `TypeError: Cannot read properties of null
+  (reading 'items')` görünüyor; test paketinde nadiren "kalıcı olmayan" bir
+  düşüş oluyor ve tekrar koşunca geçiyor.
+- **Kök neden (ölçüldü, 2026-08-28):** İstek yardımcısı cevabı ayrıştıramadığında
+  gövdeyi `null` yapıyor (`try { govde = await res.json() } catch { govde = null }`,
+  ayrıca 204'te bilerek `null`). Çağıranlar `sonuc.govde.items ?? []` yazmıştı:
+  bu ifade EKSİK `items` alanına karşı korur, NULL gövdeye karşı korumaz —
+  çünkü `??` değerlendirilmeden önce `govde.items` zaten okunmuştur.
+  `sonuc.ok` doğruyken bile gövde null olabilir; yani "istek başarılı" kontrolü
+  bu yolu kapatmaz.
+- **Çözüm:** Korumayı zincirin İLK halkasına al: `sonuc.govde?.items ?? []`.
+  Zincir devam ediyorsa her halkayı koru (`govde?.cart?.id`) ve türetilen değer
+  bir sonraki satırda okunacaksa erken çık (`if (!siparis?.id) return`).
+- **Önleme:** Boş gövdeyi BİLEREK üreten bir test yaz — ağı kesmek gerekmez,
+  ele geçirilen uçtan `body: ''` döndürmek yeterlidir (servis çalışanı kapalı
+  bir bağlamda, bkz. §23.15). Bu hata trafiğe bağlı olduğu için ancak böyle
+  kararlı hâle gelir; aksi hâlde paket "bazen kırmızı" olur ve zamanla
+  ürün hatası değil test kusuru sanılır.
+- **Yan ders:** Kalıcı olmayan bir düşüşü "testin yarışı" diye geçme. Bu
+  oturumda iki kalıcı olmayan düşüş çıktı; biri gerçekten testin yarışıydı
+  (DOM'dan kopan öğe), öbürü ÜRÜNÜN çökme yoluydu. İkisini ayıran tek şey
+  düşüşün mesajını okumaktı.
+
 ### 23.20. `[data-testid$=""]` hiçbir şeyle eşleşmez
 
 - **Belirti:** Playwright locator'ı "element bulunamadı" diyor, `count()` 0

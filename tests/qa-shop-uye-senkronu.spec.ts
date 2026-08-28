@@ -73,6 +73,25 @@ test.describe('QA Shop — alan anahtarı üye hesabında hatırlanıyor', () =>
 
         const sutun = await profilAnahtariniOku();
 
+        // Sütuna YAZMA izni, okuma izninden AYRI bir şeydir: bu projede
+        // `profiles` üzerindeki update yetkisi TABLO değil SÜTUN düzeyinde.
+        // Sütunu eklemek okumayı açar, yazmayı açmaz; senkron o hâlde
+        // sessizce ölür. Yoklama NÖTR bir değerle (null) yapılır — anahtarın
+        // kendisiyle yapılsaydı, testin ilerideki "uygulama yazdı mı"
+        // iddiası kendi yoklamasıyla karşılanır ve BOŞA DÖNERDİ.
+        async function yazmaIzniniYokla() {
+            return fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${oturum.user.id}`, {
+                method: 'PATCH',
+                headers: {
+                    apikey: SUPABASE_ANON_KEY!,
+                    Authorization: `Bearer ${oturum.access_token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ [SUTUN]: null }),
+            });
+        }
+
+
         async function dukkanAc(temizDepo: boolean) {
             const context = await browser.newContext({ serviceWorkers: 'block' });
             await context.addInitScript(([anahtar, oturumJson, temiz]) => {
@@ -91,6 +110,18 @@ test.describe('QA Shop — alan anahtarı üye hesabında hatırlanıyor', () =>
             return { context, page, hatalar };
         }
 
+        // ── 0) Zemini temizle ve yazma iznini ölç ───────────────────────────
+        if (sutun.varMi) {
+            const izin = await yazmaIzniniYokla();
+            expect(izin.ok,
+                `Üyenin bu sütuna yazma yetkisi yok (HTTP ${izin.status}). Tek satırlık eksik:
+` +
+                `  grant update (${SUTUN}) on public.profiles to authenticated;`,
+            ).toBe(true);
+            // Kayıt artık BOŞ. Bundan sonra oraya bir değer yazabilecek tek
+            // taraf uygulamanın kendisidir — iddia bu yüzden anlamlı.
+            expect((await profilAnahtariniOku()).deger).toBeNull();
+        }
         // ── 1) Üye kendi alanını açıyor ─────────────────────────────────────
         const birinci = await dukkanAc(true);
         await birinci.page.getByTestId('qa-paneli-ac').click();
@@ -112,29 +143,6 @@ test.describe('QA Shop — alan anahtarı üye hesabında hatırlanıyor', () =>
             return;
         }
 
-        // ── 1.5) Yazma izni ayrı bir şeydir ─────────────────────────────────
-        // Bu projede `profiles` üzerinde SÜTUN DÜZEYİNDE update yetkisi var:
-        // sütunu eklemek yetmez, yeni sütun için ayrıca yetki verilmelidir.
-        // Verilmediğinde okuma çalışır, yazma 42501 ile reddedilir ve senkron
-        // sessizce ölür — bu ayrımı söylemeyen bir düşüş "null geldi" der ve
-        // saatlerce yanlış yerde aranır.
-        const izin = await fetch(
-            `${SUPABASE_URL}/rest/v1/profiles?id=eq.${oturum.user.id}`,
-            {
-                method: "PATCH",
-                headers: {
-                    apikey: SUPABASE_ANON_KEY!,
-                    Authorization: `Bearer ${oturum.access_token}`,
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ [SUTUN]: acilanAnahtar }),
-            },
-        );
-        expect(izin.ok,
-            `Üyenin bu sütuna yazma yetkisi yok (HTTP ${izin.status}). Tek satırlık eksik:
-` +
-            `  grant update (${SUTUN}) on public.profiles to authenticated;`,
-        ).toBe(true);
         // ── 2) Anahtar hesaba yazıldı mı ────────────────────────────────────
         await expect.poll(async () => (await profilAnahtariniOku()).deger, { timeout: 20_000 })
             .toBe(acilanAnahtar);

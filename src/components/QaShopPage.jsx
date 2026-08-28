@@ -511,8 +511,8 @@ export default function QaShopPage() {
             : `/products?${q}`
         const sonuc = await istek(yol)
         if (sonuc.ok) {
-            setUrunler(sonuc.govde.items ?? [])
-            setToplamUrun(sonuc.govde.total ?? 0)
+            setUrunler(sonuc.govde?.items ?? [])
+            setToplamUrun(sonuc.govde?.total ?? 0)
         }
     }, [istek, siralama, arama, aktifKategori])
 
@@ -523,7 +523,7 @@ export default function QaShopPage() {
         // sekmesine basan kullanıcı boş vitrin görür ve bunu hata sanır.
         const duz = []
         const gez = (c) => { if (c.product_count > 0) duz.push(c); (c.children ?? []).forEach(gez) }
-        ;(sonuc.govde.categories ?? []).forEach(gez)
+        ;(sonuc.govde?.categories ?? []).forEach(gez)
         setKategoriler(duz)
     }, [istek])
 
@@ -708,7 +708,7 @@ export default function QaShopPage() {
 
         setMesgul(false)
         if (sonuc.ok) {
-            setToken(sonuc.govde.token)
+            setToken(sonuc.govde?.token)
             setUser({ email: epostaGirdi })
             setGirisAcik(false)
             setMesaj({ tip: 'basari', metin: isTr ? 'Giriş yapıldı.' : 'Signed in.' })
@@ -732,13 +732,13 @@ export default function QaShopPage() {
             istek(`/products/${urun.id}/reviews`),
         ])
         if (v.ok) {
-            const liste = v.govde.variants ?? []
+            const liste = v.govde?.variants ?? []
             setDetayVaryantlar(liste)
             // İlk SATILABİLİR varyant otomatik seçilir: gerçek dükkânlarda da
             // beden seçili gelir, kullanıcı hiçbir şey seçmeden fiyat görür.
             setSecilenVaryant(liste.find((x) => x.available > 0) ?? liste[0] ?? null)
         }
-        if (y.ok) setYorumlar(y.govde.items ?? [])
+        if (y.ok) setYorumlar(y.govde?.items ?? [])
     }
 
     // ── Sepet ────────────────────────────────────────────────────────────────
@@ -747,7 +747,7 @@ export default function QaShopPage() {
         const sonuc = await istek('/carts', { method: 'POST', auth: true })
         if (!sonuc.ok) { hataGoster(sonuc, 'cart'); return null }
         setCart(sonuc.govde)
-        return sonuc.govde.cart.id
+        return sonuc.govde?.cart?.id
     }
 
     const sepeteEkle = async (variantId, qty = 1) => {
@@ -765,7 +765,7 @@ export default function QaShopPage() {
             if (secilenUrun) {
                 const v = await istek(`/products/${secilenUrun.id}/variants`)
                 if (v.ok) {
-                    const liste = v.govde.variants ?? []
+                    const liste = v.govde?.variants ?? []
                     setDetayVaryantlar(liste)
                     setSecilenVaryant((s) => liste.find((x) => x.id === s?.id) ?? s)
                 }
@@ -779,7 +779,7 @@ export default function QaShopPage() {
         if (!token) { setGirisAcik(true); setMesaj({ tip: 'hata', metin: tx(M.girisGerekli, isTr) }); return }
         const v = await istek(`/products/${urun.id}/variants`)
         if (!v.ok) return
-        const uygun = (v.govde.variants ?? []).find((x) => x.available > 0)
+        const uygun = (v.govde?.variants ?? []).find((x) => x.available > 0)
         if (!uygun) { setMesaj({ tip: 'hata', metin: tx(M.tukendi, isTr) }); return }
         await sepeteEkle(uygun.id, 1)
     }
@@ -816,7 +816,7 @@ export default function QaShopPage() {
         if (!token) return
         const sonuc = await istek('/addresses', { auth: true })
         if (!sonuc.ok) return
-        const liste = sonuc.govde.items ?? sonuc.govde.addresses ?? []
+        const liste = sonuc.govde?.items ?? sonuc.govde?.addresses ?? []
         setAdresler(liste)
         setSecilenAdres((s) => s ?? liste.find((a) => a.is_default) ?? liste[0] ?? null)
     }, [istek, token])
@@ -835,7 +835,7 @@ export default function QaShopPage() {
     const siparisleriYukle = useCallback(async () => {
         if (!token) { setSiparisler([]); return }
         const sonuc = await istek('/orders?size=10', { auth: true })
-        if (sonuc.ok) setSiparisler(sonuc.govde.items ?? [])
+        if (sonuc.ok) setSiparisler(sonuc.govde?.items ?? [])
     }, [istek, token])
 
     // Açılışta oturumu geri yükle: saklanan token hâlâ geçerliyse kullanıcı
@@ -873,7 +873,14 @@ export default function QaShopPage() {
         const olustur = await istek('/orders', { method: 'POST', auth: true, body: { cartId } })
         if (!olustur.ok) { setMesgul(false); hataGoster(olustur, isTr ? 'Sipariş oluşturulamadı' : 'Could not create the order'); return }
 
-        const siparis = olustur.govde.order
+        const siparis = olustur.govde?.order
+        // Gövde beklenen şekli taşımıyorsa burada durulur: aşağıdaki satır
+        // siparis.id okuyor ve boş bir cevapta sayfa hatası fırlatırdı.
+        if (!siparis?.id) {
+            setMesgul(false)
+            hataGoster(olustur, isTr ? 'Sipariş oluşturulamadı' : 'Could not create the order')
+            return
+        }
         const ode = await istek(`/orders/${siparis.id}/pay`, {
             method: 'POST', auth: true,
             body: { method: odemeYontemi, simulateFailure: odemeBasarisiz || undefined },
@@ -899,7 +906,7 @@ export default function QaShopPage() {
             body: eylem === 'pay' ? { method: 'card' } : undefined,
         })
         if (sonuc.ok) {
-            setMesaj({ tip: 'basari', metin: `${eylem} → ${sonuc.govde.order?.status ?? 'ok'}` })
+            setMesaj({ tip: 'basari', metin: `${eylem} → ${sonuc.govde?.order?.status ?? 'ok'}` })
             siparisleriYukle()
         } else hataGoster(sonuc, eylem)
     }
