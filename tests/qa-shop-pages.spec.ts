@@ -1270,7 +1270,10 @@ test('/qa-shop — kavram baloncukları görüş alanının içinde kalıyor (ok
 
     for (const id of ['kavram-apiAdresi', 'kavram-docker', 'kavram-sandboxAnahtari',
                       'kavram-alanAc', 'kavram-veriSifirla', 'kavram-anahtariUnut']) {
-        await page.locator(`[data-testid="${id}"]`).scrollIntoViewIfNeeded();
+        // scrollIntoViewIfNeeded BİLEREK YOK: sayfa arka planda sağlık ve
+        // defect listesini tazeliyor, araya giren bir render öğeyi DOM'dan
+        // koparıyordu ("Element is not attached"). click() zaten kendisi
+        // kaydırıyor ve kopma durumunda öğeyi yeniden çözüyor.
         await balonuOlc(id, id);
     }
 
@@ -1279,7 +1282,6 @@ test('/qa-shop — kavram baloncukları görüş alanının içinde kalıyor (ok
     // baloncuk kolayca kenardan taşar.
     await page.setViewportSize({ width: 375, height: 667 });
     Object.assign(gorus, { width: 375, height: 667 });
-    await page.locator('[data-testid="kavram-alanAc"]').scrollIntoViewIfNeeded();
     await balonuOlc('kavram-alanAc', 'mobil 375px');
 });
 
@@ -1315,7 +1317,6 @@ test('/qa-shop — vitrin kavramları akışın içinde okunabilir ve tıklamay�
     async function balonuAcVeOlc(anahtar: string, beklenen: RegExp) {
         const rozet = page.locator(`[data-testid="kavram-${anahtar}"]`);
         await expect(rozet, `${anahtar}: kavram rozeti yok`).toBeVisible();
-        await rozet.scrollIntoViewIfNeeded();
         await rozet.click();
 
         const balon = page.locator(`[data-testid="kavram-balonu-${anahtar}"]`);

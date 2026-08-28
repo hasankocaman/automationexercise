@@ -31,6 +31,8 @@ import QaShopGecis from './QaShopGecis'
 import QaShopHizliGecis from './QaShopHizliGecis'
 import StoryIpucu, { useStoryModu, StoryModuAnahtari, StoryModuSeridi } from './QaShopStoryIpucu'
 import Kavram from './QaShopKavram'
+import { useAuth } from '../context/AuthContext'
+import { uyeAlanAnahtariniOku, uyeAlanAnahtariniYaz } from '../lib/qaShopSandboxSync'
 
 // Tarayıcı katmanı (sql.js WASM + 328 KB tohum veri) YALNIZCA gerekince
 // yüklenir; ana sayfa paketine girmemesi için statik import edilmez.
@@ -308,6 +310,7 @@ function ScrollProgressBar() {
 
 export default function QaShopPage() {
     const { language } = useLanguage()
+    const { session: uyeOturumu } = useAuth()
     const isTr = language === 'tr'
     const [darkMode, setDarkMode] = useKaranlikMod()
     const [odakModu, setOdakModu] = useOdakModu()
@@ -322,46 +325,29 @@ export default function QaShopPage() {
         else localStorage.removeItem(DEPO_TOKEN)
     }, [token])
 
-    // Supabase üyesi → otomatik QA Shop girişi
-    // Supabase token localStorage'da varsa (site üyesi), QA Shop sandbox'ı
-    // otomatik oluştur ve giriş yap. Yoksa manuel giriş akışı devam eder.
+    // Üye girişi → kendi alanının anahtarını geri getir
+    //
+    // Anahtar tarayıcıda saklanır; başka bir makineye geçen ya da tarayıcı
+    // verisini temizleyen üye alanını kaybediyordu. Üye isen anahtar profilinde
+    // de tutulur ve burada geri alınır. Anonim kullanıcıda hiçbir şey değişmez.
+    //
+    // ⚠ ÖNCEKİ SÜRÜM ÖLÜ KODDU: `localStorage`'daki `sb-token`/`sb-user-email`
+    // anahtarlarını okuyup API'deki bir köprü ucunu çağırıyordu, ama sitenin
+    // hiçbir yeri o anahtarları YAZMIYORDU — koşul hiç sağlanmadı. Üstelik
+    // dönen değer alan kimliğiydi, alan ANAHTARI değil; sağlansaydı da
+    // kimlik doğrulamazdı. Kimliği doğrulanmış tarafta (üye profili)
+    // saklamak hem çalışır hem yığının bağımsızlığını bozmaz.
     useEffect(() => {
-        const trySupabaseBridge = async () => {
-            if (token) return // Zaten giriş yapmışsa, tekrar yapma
-
-            try {
-                // Supabase token'ı kontrol et
-                const supabaseToken = localStorage.getItem('sb-token')
-                const supabaseUser = localStorage.getItem('sb-user-email')
-                const supabaseUserName = localStorage.getItem('sb-user-name')
-
-                if (!supabaseToken || !supabaseUser || !supabaseUserName) return
-
-                // Bridge endpoint'i çağır
-                const res = await fetch(`${apiBase}/api/v1/auth/supabase-bridge`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        supabaseToken,
-                        userEmail: supabaseUser,
-                        userName: supabaseUserName,
-                    }),
-                })
-
-                if (!res.ok) return // Başarısız olursa, manuel giriş
-
-                const data = await res.json()
-                setToken(data.token)
-                setSandboxKey(data.sandboxId)
-                setUser({ email: supabaseUser, name: supabaseUserName })
-            } catch (e) {
-                // Hata olsa bile devam et — manuel giriş yapabilir
-                console.debug('Supabase bridge failed (normal), manual login available')
-            }
-        }
-
-        if (apiBase) trySupabaseBridge()
-    }, [apiBase])
+        if (!uyeOturumu || sandboxKey) return
+        let iptal = false
+        ;(async () => {
+            const kayitli = await uyeAlanAnahtariniOku(uyeOturumu)
+            if (iptal || !kayitli) return
+            setSandboxKey(kayitli)
+            localStorage.setItem(DEPO_ANAHTARI, kayitli)
+        })()
+        return () => { iptal = true }
+    }, [uyeOturumu, sandboxKey])
 
     const [saglik, setSaglik] = useState('bilinmiyor')   // bilinmiyor | ok | kapali
     // mod: 'yukleniyor' | 'tarayici' | 'yerel'
@@ -573,6 +559,9 @@ export default function QaShopPage() {
         const b = await res.json()
         setSandboxKey(b.apiKey)
         localStorage.setItem(DEPO_ANAHTARI, b.apiKey)
+        // Üyeyse anahtar profiline de yazılır: başka bir makinede aynı alana
+        // dönebilsin. Yazma başarısız olursa dükkân çalışmaya devam eder.
+        void uyeAlanAnahtariniYaz(uyeOturumu, b.apiKey)
         if (!sessiz) {
             setMesaj({
                 tip: 'basari',
@@ -617,6 +606,9 @@ export default function QaShopPage() {
     const anahtariUnut = () => {
         setSandboxKey(''); setToken(''); setUser(null); setCart(null); setSiparisler([])
         localStorage.removeItem(DEPO_ANAHTARI)
+        // Üyede kayıt da silinir; yoksa sayfa yenilenince anahtar geri gelir ve
+        // "unut" hiçbir işe yaramaz.
+        void uyeAlanAnahtariniYaz(uyeOturumu, null)
         setKusurlar([]); setKusurModu('demo-readonly'); setKusurGizli(false); setCevap(null)
     }
 

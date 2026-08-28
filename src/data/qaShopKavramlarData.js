@@ -104,12 +104,12 @@ export const QA_SHOP_KAVRAMLAR = {
     anahtariUnut: {
         ad: { tr: 'Anahtarı unut', en: 'Forget key' },
         ozet: {
-            tr: 'Anahtarı yalnızca bu tarayıcıdan siler; sunucudaki veri alanını SİLMEZ.',
-            en: 'Removes the key from this browser only; it does NOT delete your data area on the server.',
+            tr: 'Anahtarı bu tarayıcıdan siler; üyeysen hesabındaki kayıttan da siler. Sunucudaki veri alanını SİLMEZ.',
+            en: 'Removes the key from this browser, and from your account if you are signed in. It does NOT delete your data area on the server.',
         },
         detay: {
-            tr: 'Anahtarsız kalınca demo veriye geri dönersin. Anahtarı bir yere kopyaladıysan yukarıdaki alana yapıştırıp kaldığın yerden devam edebilirsin.',
-            en: 'Without a key you fall back to the demo data. If you copied the key somewhere you can paste it into the field above and pick up where you left off.',
+            tr: 'Anahtarsız kalınca demo veriye geri dönersin. Anahtarı bir yere kopyaladıysan yukarıdaki alana yapıştırıp kaldığın yerden devam edebilirsin. Üyeysen açtığın alan hesabında hatırlanır; başka bir makinede giriş yapınca aynı alana dönersin.',
+            en: 'Without a key you fall back to the demo data. If you copied the key somewhere you can paste it into the field above and pick up where you left off. If you are signed in, the area you opened is remembered on your account, so signing in on another machine brings you back to it.',
         },
     },
     saltOkunur: {
