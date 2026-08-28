@@ -2862,7 +2862,7 @@ it('has no detectable accessibility violations', () => {
             },
             {
                   "id": "c",
-                  "text": "API uç noktalarından dönen verileri doğrulamak",
+                  "text": "API endpoint'lerinden dönen verileri doğrulamak",
                   "en": "Verifying data from API endpoints"
             },
             {

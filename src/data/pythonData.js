@@ -1073,7 +1073,7 @@ const pyRandomSeedFilm = {
     },
     {
       caption: {
-        tr: 'Adım 1 — tohum (seed) belirtilmeden `random.choice()` çağrılır: Python, sistem saatine bağlı bir başlangıç noktasından rastgele sayı üretir — bu, HER çalıştırmada FARKLI bir başlangıç demektir.',
+        tr: 'Adım 1 — seed belirtilmeden `random.choice()` çağrılır: Python, sistem saatine bağlı bir başlangıç noktasından rastgele sayı üretir — bu, HER çalıştırmada FARKLI bir başlangıç demektir.',
         en: 'Step 1 — `random.choice()` is called with no seed specified: Python generates random numbers from a starting point tied to the system clock — meaning a DIFFERENT starting point EVERY run.',
       },
       code: { tr: `browser = random.choice(["chrome", "firefox", "webkit"])`, en: `browser = random.choice(["chrome", "firefox", "webkit"])` },
@@ -1081,7 +1081,7 @@ const pyRandomSeedFilm = {
     },
     {
       caption: {
-        tr: 'Adım 2 — CI Koşumu #1: bu tohumsuz çağrı "firefox" seçer, test firefox\'a özgü bir hatayı YAKALAR ve KIRMIZI döner.',
+        tr: 'Adım 2 — CI Koşumu #1: bu seed verilmemiş çağrı "firefox" seçer, test firefox\'a özgü bir hatayı YAKALAR ve KIRMIZI döner.',
         en: 'Step 2 — CI Run #1: this unseeded call picks "firefox", the test CATCHES a firefox-specific bug and goes RED.',
       },
       positions: {
@@ -1092,7 +1092,7 @@ const pyRandomSeedFilm = {
     },
     {
       caption: {
-        tr: 'Adım 3 (kontrast) — CI Koşumu #2 (kod HİÇ değişmedi!): aynı tohumsuz çağrı bu sefer "chrome" seçer — firefox hatası hiç TETİKLENMEZ, test YEŞİL geçer. Ekip "ama dün kırmızıydı, bugün neden yeşil?" diye saatlerce debug eder — bu FLAKY test\'in klasik tarifidir.',
+        tr: 'Adım 3 (kontrast) — CI Koşumu #2 (kod HİÇ değişmedi!): aynı seed verilmemiş çağrı bu sefer "chrome" seçer — firefox hatası hiç TETİKLENMEZ, test YEŞİL geçer. Ekip "ama dün kırmızıydı, bugün neden yeşil?" diye saatlerce debug eder — bu FLAKY test\'in klasik tarifidir.',
         en: 'Step 3 (the contrast) — CI Run #2 (the code has NOT changed at all!): the same unseeded call picks "chrome" this time — the firefox bug never TRIGGERS, the test goes GREEN. The team spends hours debugging "but it was red yesterday, why is it green today?" — the classic recipe for a FLAKY test.',
       },
       positions: {
@@ -1116,7 +1116,7 @@ const pyRandomSeedFilm = {
     },
     {
       caption: {
-        tr: 'Ders — CI Koşumu #1 ve #2 artık BİREBİR aynı "rastgele" veriyi üretir: test HER seferinde aynı senaryoyu doğrular, sonuç TUTARLI olur. Java\'da bu, `new Random(42)` ile sabit tohum vermeye karşılık gelir — mantık dilden bağımsız aynıdır.',
+        tr: 'Ders — CI Koşumu #1 ve #2 artık BİREBİR aynı "rastgele" veriyi üretir: test HER seferinde aynı senaryoyu doğrular, sonuç TUTARLI olur. Java\'da bu, `new Random(42)` ile sabit seed vermeye karşılık gelir — mantık dilden bağımsız aynıdır.',
         en: 'The lesson — CI Run #1 and #2 now produce the IDENTICAL "random" data: the test verifies the same scenario every time, the result is CONSISTENT. In Java, this maps to seeding with `new Random(42)` — the logic is the same regardless of language.',
       },
       positions: {

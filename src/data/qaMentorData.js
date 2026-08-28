@@ -523,7 +523,7 @@ Selenium'dan hemen sonra **Jira** geliyor ve sırası tesadüf değil: Jira bir 
 
 REST Assured ile Java üzerinden API testini kapattıktan sonra sırada **Linux** var — artık bir "bonus" değil, ana hatta: çünkü Docker container'ları, Jenkins agent'ları ve cloud sunucuların hepsi Linux üzerinde çalışır, önce bu işletim sistemini tanımadan container/CI kavramları havada kalır. Bu yüzden **Docker → Jenkins → AWS → Kubernetes** zinciri bu sırada ilerliyor: önce container'ı (Docker) anla, sonra onu CI/CD pipeline'ında (Jenkins) otomatik çalıştırmayı öğren, ardından cloud'a (AWS) taşı, son olarak Kubernetes ile ölçeklendir. Bu zincir seni gerçek bir **SDET (Software Development Engineer in Test)** profili haline getirecek. 💪
 
-💡 **Kafka** artık ana yolda değil — event-driven mimari niş bir konu, temel yığını tamamladıktan sonra bakılacak bir "kariyer +1" ekstrası olarak aşağıda duruyor.`,
+💡 **Kafka** artık ana yolda değil — event-driven mimari niş bir konu, temel stack'i tamamladıktan sonra bakılacak bir "kariyer +1" ekstrası olarak aşağıda duruyor.`,
         en: `**You're on the right path!** Starting QA engineering without a software background is completely possible — and this sequence is the proven fastest way to get there.
 
 First understand **what testing actually is** (Testing Fundamentals), then build your **logical thinking** (Algorithms), then develop **test instincts** (Manual Testing) and learn to write code with **Java**. After learning version control with Git & GitHub, when you move to Selenium for UI automation, you'll already have a solid foundation.
