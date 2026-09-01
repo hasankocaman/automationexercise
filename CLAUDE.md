@@ -554,6 +554,11 @@ Her teknoloji sayfasının mülakat sekmesinde **minimum 50 soru** bulunur:
 - ❌ Kalıcı olmayan bir düşüşü mesajını okumadan "testin yarışı" diye geçmek — aynı belirti hem test yarışı hem ürünün çökme yolu olabilir; ikisini yalnızca hata metni ayırır (Bölüm 23.26).
 - ❌ "Türev kaynaktan kaymış" diyen bir kapıyı, önerdiği `--write`/`seed` komutuyla körlemesine susturmak — bu depoda üç kapı birden SALT SATIR SONU yüzünden kırıldı ve içerikte tek karakter fark yoktu. Önce LF-normalize hash'i türevdekiyle karşılaştır: eşitse artefakt, değilse gerçek ayrışma (Bölüm 23.27).
 - ❌ Bir Supabase ölçümünde hangi projeye gittiğini belirtmeden prod hakkında konuşmak — bu depoda İKİ proje var (`learnqa-prod` ve `learnqa-test`) ve `.env.local` TEST'e bakar; yanlış olanı ölçmek bulguyu tersine çevirir (Bölüm 23.28).
+- ❌ İki arka uçla çalışan bir arayüze, uçlardan yalnızca BİRİNDE var olan bir
+  isteği atan mod körü bir kontrol koymak — öbür modda düğme sessizce ölür ve
+  dönen HTTP hatası "bağlantı koptu" sanılıp çalışan sistem bozuk gösterilir
+  (Bölüm 23.29). Ağın kopması (`!res`) ile sunucunun "hayır" demesi (`!res.ok`)
+  asla aynı sayılmaz.
 
 ---
 
@@ -1649,3 +1654,34 @@ GEREKTİRMEYEN bir yolu da verilmelidir. Üç seçenek sırayla sunulur:
 ⚠ "İmajın içinde var" tek başına yeterli DEĞİLDİR: konteynerin içindeki bir
 dosya DBeaver'da `File > Open File` ile açılamaz. Dosyanın kullanıcının
 diskinde olması gereken bir akış varsa indirme bağlantısı zorunludur.
+
+### 23.29. İki arka uç, tek arayüz — MOD KÖRÜ kontrol yalnızca PRODDA kırılır
+
+- **Belirti:** Bir düğme geliştiricinin makinesinde çalışıyor, yayında hiçbir
+  şey yapmıyor. Üstelik sağlık rozeti düğmeye basınca "up"tan "down"a düşüyor,
+  yani ekran çalışan bir sistemi bozuk gösteriyor. Tüm testler yeşil.
+- **Kök neden (ölçüldü, 2026-09-01, `/qa-shop` → "Kendi alanımı aç"):** Dükkân
+  İKİ arka uçla çalışır — Docker yığını (`localhost:4000`) ve tarayıcı katmanı
+  (MSW + sql.js). İkisi aynı yolları konuşur ama AYNI DEĞİLDİR: `POST /sandbox`
+  yalnızca Docker'da vardır, çünkü tarayıcı modunda veri alanı zaten kişiye
+  özeldir. Düğme modu hiç sormadan isteği atıyor, dönen 404'ü de
+  `!res.ok → setSaglik('kapali')` ile "bağlantı koptu" sayıyordu.
+  Docker kurmamış HER ziyaretçi tarayıcı modunda olduğu için bu, yayındaki
+  VARSAYILAN davranıştı; geliştiricinin makinesinde Docker ayakta olduğu için
+  hiç görünmedi. Aynı kör nokta iki komşu kontrolde daha vardı: "Veriyi
+  sıfırla" (tarayıcı modunda ÇALIŞIR ama anahtar yok diye kilitliydi) ve
+  "anahtarını aç" uyarısı (o modda anahtar diye bir şey yoktur).
+- **Çözüm:** Modu bilen kod zaten vardı (`alanSagla()`, `kusurYazilabilir`) —
+  eksik olan, aynı bilgiyi düğmenin de sorması. Ayrıca **ağın kopması ile
+  sunucunun "hayır" demesi ayrıştırıldı**: yalnızca `!res` (ağ) sağlık
+  rozetini düşürür; `!res.ok` (HTTP) kullanıcıya durum koduyla söylenir.
+  Sessizce yutulan bir HTTP hatası, düğmeyi "hiçbir şey yapmıyor" gösterir.
+- **Önleme:** İki arka uçtan birine giden bir kontrol eklerken sor: *bu uç
+  ÖBÜR modda da var mı?* Yoksa kontrol o modda istek atmaz, durumu anlatır.
+  Test kurulumu modu AÇIKÇA seçmeli (`qaShopApiBase`'i kapalı bir adrese
+  yazmak — §23.15); modu ortama bırakan test, Docker'ı açık olan makinede
+  yayındakinden BAŞKA bir yolu doğrular ve hangisini koştuğu belirsizleşir.
+- **⚠ Mutasyonu `npx playwright test` ile sınama:** o komut `pretest:e2e`
+  build'ini ÇALIŞTIRMAZ, eski `dist/`i servis eder. Bu turda bilerek bozulan
+  kod yine YEŞİL geçti; mutasyon ancak `npm run build`'den sonra kırmızıya
+  döndü (§22 "yayınlanan artefaktı test et" kuralının doğrudan sonucu).

@@ -191,6 +191,17 @@ const M = {
         tr: 'Yazma işlemleri için kendi veri alanını açman gerekiyor. Anahtarsız bağlantı demo verisine SALT OKUNUR erişir.',
         en: 'You need your own data area for write operations. Without a key you get READ-ONLY access to the demo data.',
     },
+    // Tarayıcı modunda anahtar diye bir şey YOKTUR: veri bu sekmenin
+    // içindedir, dolayısıyla zaten yalnızca sana aittir. Anahtar alanının boş
+    // durması bir eksiklik değil, o modun doğal hâlidir.
+    alanZatenSenin: {
+        tr: 'Bu sekmede veri zaten yalnızca sana ait: dükkân tarayıcı modunda çalışıyor, anahtar gerekmiyor ve yazma işlemleri açık. Anahtarlı ayrı bir alan yalnızca Docker yığınında vardır.',
+        en: 'In this tab the data is already yours alone: the shop is running in browser mode, no key is needed and writes are open. A separate keyed area exists only on the Docker stack.',
+    },
+    alanAcilamadi: {
+        tr: 'Kendi alanın açılamadı. Adresteki yığın bu isteği tanımıyor — kurulum rehberindeki sürümle aynı olduğundan emin ol.',
+        en: 'Could not open your area. The stack at this address does not know this request — make sure it matches the version in the setup guide.',
+    },
     ulasilamiyor: { tr: 'API\'ye ulaşılamıyor', en: 'Cannot reach the API' },
     ulasilamiyorNe: {
         tr: 'Stack ayakta değil ya da adres yanlış. Terminalde qa-shop klasörüne gir ve şu komutu ver:',
@@ -548,6 +559,18 @@ export default function QaShopPage() {
     // otomatik açılışta "alanın açıldı" bildirimi, kullanıcının istemediği
     // bir işlemi duyurmak olurdu.
     const alanAc = async ({ sessiz = false } = {}) => {
+        // ⚠ TARAYICI MODUNDA BU İSTEK YOKTUR (ölçüldü, canlıda).
+        // `POST /sandbox` yalnızca Docker yığınında tanımlı; tarayıcı katmanı
+        // onu 404 döndürür. Eskiden düğme yine de isteği atıyordu ve 404'ü
+        // "bağlantı koptu" sayıp sağlık rozetini "API: down"a çeviriyordu:
+        // kullanıcı hiçbir açıklama görmeden çalışan bir dükkânın bozulduğunu
+        // sanıyordu. Docker kurmamış HER ziyaretçi tarayıcı modunda olduğu
+        // için bu, yayındaki varsayılan davranıştı.
+        if (mod === 'tarayici') {
+            if (!sessiz) setMesaj({ tip: 'basari', metin: tx(M.alanZatenSenin, isTr) })
+            return null
+        }
+
         if (!sessiz) setMesgul(true)
         const res = await fetch(`${api}/sandbox`, {
             method: 'POST',
@@ -555,7 +578,16 @@ export default function QaShopPage() {
             body: JSON.stringify({ label: 'ui-pratigi' }),
         }).catch(() => null)
         if (!sessiz) setMesgul(false)
-        if (!res || !res.ok) { setSaglik('kapali'); return null }
+        // Ağın kopması ile sunucunun "hayır" demesi AYNI şey değildir: yalnızca
+        // ilki sağlık rozetini düşürür. İkincisi ulaşılabilir ama beklenenden
+        // farklı bir yığındır ve sessizce yutulursa düğme "hiçbir şey yapmıyor"
+        // görünür.
+        if (!res) { setSaglik('kapali'); return null }
+        if (!res.ok) {
+            setSaglik('ok')
+            if (!sessiz) setMesaj({ tip: 'hata', metin: `${res.status} — ${tx(M.alanAcilamadi, isTr)}` })
+            return null
+        }
         const b = await res.json()
         setSandboxKey(b.apiKey)
         localStorage.setItem(DEPO_ANAHTARI, b.apiKey)
@@ -1616,7 +1648,11 @@ export default function QaShopPage() {
                                     </button>
                                 </Kavram>
                                 <Kavram k="veriSifirla" isTr={isTr} darkMode={darkMode}>
-                                    <button type="button" data-testid="veri-sifirla" className={btnIkincil} onClick={veriSifirla} disabled={!sandboxKey}>
+                                    {/* Tarayıcı modunda anahtar yoktur ama sıfırlama VARDIR
+                                        (tohum veriye dönüş). Anahtara bağlamak, o modda
+                                        çalışan bir yeteneği sebepsiz kilitliyordu. */}
+                                    <button type="button" data-testid="veri-sifirla" className={btnIkincil} onClick={veriSifirla}
+                                            disabled={!sandboxKey && mod !== 'tarayici'}>
                                         {tx(M.sifirla, isTr)}
                                     </button>
                                 </Kavram>
@@ -1626,7 +1662,11 @@ export default function QaShopPage() {
                                     </button>
                                 </Kavram>
                             </div>
-                            {!sandboxKey && (
+                            {mod === 'tarayici' ? (
+                                <p data-testid="anahtar-tarayici-notu" className="mt-3 flex flex-wrap items-center text-sm opacity-80">
+                                    ℹ️ {tx(M.alanZatenSenin, isTr)}
+                                </p>
+                            ) : !sandboxKey && (
                                 <p data-testid="anahtar-uyarisi" className="mt-3 flex flex-wrap items-center text-sm opacity-80">
                                     ℹ️ {tx(M.anahtarGerekli, isTr)}
                                     <Kavram k="saltOkunur" isTr={isTr} darkMode={darkMode} />

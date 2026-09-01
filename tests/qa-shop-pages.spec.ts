@@ -1468,3 +1468,57 @@ test('/qa-shop — boş cevap gövdesi sayfayı çökertmiyor', async ({ browser
     expect(hatalar, `boş gövdede sayfa hatası: ${hatalar.join(' | ')}`).toHaveLength(0);
     await context.close();
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 3j. "Kendi alanımı aç" tarayıcı modunda dükkânı BOZMAMALI
+// ─────────────────────────────────────────────────────────────────────────────
+// Gerçek bir arıza: yayındaki dükkânda düğmeye basınca hiçbir şey olmuyordu ve
+// sağlık rozeti "API: up"tan "API: down"a düşüyordu. Kök neden ölçüldü —
+// `POST /sandbox` yalnızca Docker yığınında var; tarayıcı katmanı 404 döner ve
+// düğme o 404'ü "bağlantı koptu" sayıyordu. Docker kurmamış HER ziyaretçi
+// tarayıcı modunda olduğu için bu, yayındaki varsayılan davranıştı.
+//
+// Doğru davranış: tarayıcı modunda veri alanı ZATEN kişiye özeldir, bu yüzden
+// istek hiç atılmaz ve kullanıcıya durumun ne olduğu söylenir.
+test('/qa-shop — tarayıcı modunda "Kendi alanımı aç" sağlığı düşürmüyor', async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.addInitScript((adres) => {
+        localStorage.setItem('qaShopApiBase', adres);
+    }, KAPALI_API);
+
+    // Alan açma isteğinin HİÇ atılmadığını kanıtla: `page.on('request')`
+    // Service Worker'ın karşıladığı isteği de RAPORLAR (kesemez ama görür),
+    // yani bu sayaç tarayıcı modunda da dürüsttür.
+    let alanAcIstegi = 0;
+    page.on('request', (r) => {
+        if (r.method() === 'POST' && /\/api\/v1\/sandbox$/.test(r.url())) alanAcIstegi += 1;
+    });
+
+    await page.goto('/qa-shop');
+    await waitForAppReady(page, { timeout: 60_000 });
+    await expect(page.locator('[data-testid="urun-listesi"]')).toBeVisible({ timeout: 60_000 });
+
+    // Kurulum gerçekten uygulandı mı (§23.15): yanlış tarafa bakıp yeşil kalma.
+    await page.getByTestId('qa-paneli-ac').click();
+    await expect(page.getByTestId('api-adresi')).toHaveValue(KAPALI_API);
+    await expect(page.getByTestId('saglik-durumu'), 'tarayıcı modu devreye girmedi')
+        .toHaveText(/API: up/, { timeout: 40_000 });
+
+    // Anahtar kavramı bu modda yoktur — "anahtarın yok" uyarısı değil, durumu
+    // açıklayan not görünmeli.
+    await expect(page.getByTestId('anahtar-tarayici-notu')).toBeVisible();
+    await expect(page.locator('[data-testid="anahtar-uyarisi"]')).toHaveCount(0);
+    // Sıfırlama bu modda ÇALIŞIR; anahtara bağlanıp kilitlenmemeli.
+    await expect(page.getByTestId('veri-sifirla')).toBeEnabled();
+
+    await page.getByTestId('alan-ac').click();
+
+    await expect(page.getByTestId('bildirim-metin')).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByTestId('saglik-durumu'), 'düğme sağlık rozetini düşürdü')
+        .toHaveText(/API: up/);
+    expect(alanAcIstegi, 'tarayıcı modunda olmayan uca istek atıldı').toBe(0);
+
+    // Dükkân hâlâ çalışır durumda: yazma yolu açık.
+    await page.getByTestId('bildirim-kapat').click();
+    await expect(page.locator('[data-testid="urun-listesi"] li').first()).toBeVisible();
+});

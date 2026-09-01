@@ -10,10 +10,66 @@
 
 ---
 
-## 🚩 OTURUM DEVİR NOTU (2026-09-01 · Opus) — YENİ OTURUM BURADAN BAŞLASIN
+## 🚩 OTURUM DEVİR NOTU (2026-09-01 · Opus · ikinci tur) — BURADAN BAŞLA
 
-> Çelişki olursa BU bölüm günceldir. Alttaki bölümler tarih sırasıyla duruyor
-> ama artık bağlayıcı değil.
+> Çelişki olursa BU bölüm günceldir.
+
+### 🐞 Yayındaki gerçek arıza bulundu ve düzeltildi — "Kendi alanımı aç"
+
+Kullanıcı bildirdi: düğme lokalde çalışıyor, proddaki dükkânda hiçbir şey
+yapmıyor. Canlı sayfada (learnqa.dev/qa-shop/) ölçülerek doğrulandı:
+
+    POST /api/v1/sandbox  ->  404  {"code":"ROUTE_NOT_FOUND"}
+    rozet: "API: up" -> "API: down"      anahtar alanı: boş kaldı
+
+Kök neden: dükkânın İKİ arka ucu var. `POST /sandbox` yalnızca Docker
+yığınında tanımlı; tarayıcı katmanında yok, çünkü orada veri alanı zaten
+kişiye özel. Düğme modu hiç sormadan isteği atıyor, dönen 404'ü de "bağlantı
+koptu" sayıp sağlık rozetini düşürüyordu. Docker kurmamış HER ziyaretçi
+tarayıcı modunda olduğu için bu, YAYINDAKİ VARSAYILAN davranıştı —
+geliştirici makinesinde Docker ayakta olduğu için hiç görünmedi.
+
+Aynı kör nokta iki komşu kontrolde daha vardı ve düzeltildi: "Veriyi sıfırla"
+(o modda ÇALIŞIR ama anahtar yok diye kilitliydi) ve "anahtarını aç" uyarısı
+(o modda anahtar kavramı yoktur).
+
+### 📝 Değişen dosyalar
+
+| Dosya | Ne |
+|---|---|
+| `src/components/QaShopPage.jsx` | `alanAc` modu soruyor · ağ kopması (`!res`) ile HTTP hatası (`!res.ok`) ayrıştırıldı · `veri-sifirla` tarayıcı modunda açık · yeni `anahtar-tarayici-notu` |
+| `tests/qa-shop-pages.spec.ts` | 3j — yeni regresyon testi (istek sayacı + rozet + notlar) |
+| `CLAUDE.md` | §23.29 + §11 maddesi |
+
+### ✅ Doğrulama
+
+- `npm run build` ✔ (tüm kapılar yeşil)
+- `qa-shop-pages` + `qa-shop-backlog` → **42/42 yeşil** (3,2 dk)
+- Bekçi bilerek bozuldu (`if (mod === 'tarayici')` → `if (false)`) ve KIRMIZIYA
+  döndü: *"tarayıcı modunda olmayan uca istek atıldı"*.
+- İki mod da elle ölçüldü: tarayıcı modunda rozet "up" kalıyor, açıklama
+  çıkıyor, istek atılmıyor; Docker modunda `POST /sandbox` 201 dönüyor ve
+  anahtar geliyor (davranış değişmedi).
+
+### ⚠️ Bu turda öğrenilen tuzak (CLAUDE.md §23.29 sonunda)
+
+`npx playwright test` `pretest:e2e` build'ini ÇALIŞTIRMAZ — eski `dist/`i
+servis eder. Bilerek bozulan kod ilk denemede YEŞİL geçti; mutasyon ancak
+`npm run build`'den sonra kırmızıya döndü. Mutasyon sınamasından önce DAİMA
+build al.
+
+### 🚧 Durum
+
+Değişiklikler **commit edilmedi, push edilmedi** — kullanıcı onayı bekliyor.
+Bir önceki turun "SIRADAKİ İŞ" listesi (prod duman testi, CI kör noktası,
+`.gitattributes` …) aynen geçerli; alttaki bölümde duruyor.
+
+---
+
+## 📌 Önceki Durum (2026-09-01 · Opus · birinci tur — yayın)
+
+> ⚠ Bağlayıcı DEĞİL; en üstteki nota bak. Buradaki "SIRADAKİ İŞ" listesi hâlâ
+> geçerlidir. Alttaki bölümler tarih sırasıyla duruyor.
 
 ### ✅ YAYINDAYIZ
 
