@@ -10,7 +10,75 @@
 
 ---
 
-## 🚩 OTURUM DEVİR NOTU (2026-08-28, üçüncü oturum · Opus) — YENİ OTURUM BURADAN BAŞLASIN
+## 🚩 OTURUM DEVİR NOTU (2026-09-01 · Opus) — YENİ OTURUM BURADAN BAŞLASIN
+
+> Çelişki olursa BU bölüm günceldir. Alttaki bölümler tarih sırasıyla duruyor
+> ama artık bağlayıcı değil.
+
+### ✅ YAYINDAYIZ
+
+`main`: `f4ef66b` → **`7cc9b3b`**, `origin/main` ile eşit, deploy geçti.
+Canlıda doğrulandı: `https://learnqa.dev/qa-shop-backlog` HTTP 200, statik
+kabuk 18,9 KB ve içinde `BR-01`/`EP-01` gerçekten var (arama motoru sayfayı
+boş görmüyor). `/en/` varyantı da 200.
+
+Dal `--no-ff` ile birleştirildi (`b01f7dc`, 24 commit) — özelliği tek hamlede
+geri alabilmek için. Çalışma ağacı temiz.
+
+### 📦 Bu turda yayına giren üç iş
+
+1. **QA Shop pratik ortamı** — ayrı PostgreSQL + Express yığın, dükkân
+   arayüzü, kurulum rehberi, API sözleşmesi sayfası, kavram baloncukları,
+   üye hesabında alan anahtarı hatırlama.
+2. **`/qa-shop-backlog`** — 8 iş gereksinimi → 6 epic → 16 business story →
+   32 frontend/backend story → test edenin 6 adımlı yolu. Business story
+   metinleri şartnameden TÜRETİLİYOR, kopyalanmıyor. Kabul kriterleri sahadaki
+   gibi sade; status kodu/hata sabiti/Gherkin admin tarafında.
+3. **Groq düzeltmesi** — model adı `GROQ_MODEL` secret'ına taşındı
+   (`openai/gpt-oss-120b`), Diff Dedektif yapılandırmayla bakıma alındı.
+
+### 🔬 Doğrulama durumu
+
+- Tam E2E paketi **444/444 yeşil** (25,9 dk), sıfır flaky.
+- İki Supabase projesi de aynalandı: 9 fonksiyon ikisinde de yayında,
+  `GROQ_MODEL` digest'leri aynı, `GROQ_VISION_MODEL` ikisinde de tanımsız.
+- Eklenen her bekçi bilerek bozularak kırmızıya döndürüldü.
+
+### 🎯 SIRADAKİ İŞ
+
+| # | İş | Bedel | Neden |
+|---|---|---|---|
+| 1 | **Prod duman testi** | Orta | Prod'daki Groq yolu hâlâ UÇTAN UCA kanıtlanmadı. Anahtar test'te ölçülmüş-iyi değerle hizalandı ama prod'da hiç çağrı yapılmadı — prod'da oturum açabilen bir test hesabı yok. Bu hesap açılırsa `.env.local`'a `PROD_*` değişkenleriyle konur ve yayın öncesi tek bir duman testi koşar. |
+| 2 | **CI kör noktası** | Orta | Groq'u yakalayan iki test CI'da `GITHUB_ACTIONS` koşuluyla atlanıyor; yani model bir daha emekli olursa CI görmez, deploy yeşil geçer ve arızayı kullanıcıdan öğreniriz. Groq anahtarı GitHub secret'ına konup modelin listede olduğunu kontrol eden küçük bir iş akışı (günde bir, deploy'u bloklamadan) bu deliği kapatır. |
+| 3 | **`.gitattributes`** | Küçük | Türev kapılarını kıran satır sonu sınıfını kökten bitirir: `qa-shop/db/*.sql`, `qa-shop/api/openapi.yaml`, `qa-shop/api/src/core/*.js` → `text eol=lf`. Kapılar artık normalize ettiği için ACİL değil; deploy ortasında bilerek yapılmadı. |
+| 4 | **Test projesinde eksik iki secret** | Küçük | `RAPIDAPI_KEY` ve `CRON_INVOKE_SECRET` yalnızca `trending-skills-sync`te okunuyor (arka plan cron'u). Aynalama tam olsun isteniyorsa eklenir. |
+| 5 | **Ölü `supabase-bridge` ucu** | Orta | Sunucuda duruyor ama artık çağrılmıyor. Kaldırmak sözleşmeyi ve yayınlanan imaj sürümünü değiştirir (`qa-shop-v1.0.1`). Temizlenecek borç. |
+| 6 | **Rate limit kararı** | Orta | API'de yok, 429 dönmüyor. Eklenirse iyi bir negatif test hedefi olur. Kullanıcı kararı bekliyor. |
+| 7 | **Faz 6 kabul kriterini ELLE koştur** | Küçük | "Dükkâna ilk giren kullanıcı hiçbir status kodu görmeden bir defect bulabiliyor ve anahtarı aç/kapat yaparak kendisi doğrulayabiliyor." Testler bunu göremez. |
+
+### ⚠️ Yeni oturumun bilmesi gereken iki tuzak
+
+İkisi de `CLAUDE.md`'ye kalıcı ders olarak yazıldı:
+
+- **§23.27 — türev kapıları satır sonuna takılır.** "Türev kaynaktan kaymış"
+  diyen kapıyı önerdiği `--write` ile körlemesine susturma; bu turda ÜÇ kapı
+  birden salt CRLF yüzünden kırıldı ve içerikte tek karakter fark yoktu.
+- **§23.28 — İKİ Supabase projesi var.** `.env.local` TEST'e bakar. Yanlış
+  olanı ölçmek bu turda bir bulguyu tam tersine çevirdi.
+
+### 🚫 Bilinçli olarak YAPILMAYACAK (yeniden tartışma açma)
+
+Önceki notların listesi aynen geçerli: ayrı route ağacı yok · Swagger kısılmaz ·
+16 story kalır · av sunucuda varsayılan olmaz · giriş kapısı dükkândır ·
+kavrama genel terim girmez · SQL eşlemesi herkese açılmaz · alan anahtarı QA
+Shop API'sinde e-postaya bağlanmaz.
+
+---
+
+## 📌 Önceki Durum (2026-08-28 · Opus — backlog sayfası, birleştirme öncesi)
+
+> ⚠ Bağlayıcı DEĞİL; en üstteki nota bak. Bu bölüm dal henüz birleştirilmemişken
+> yazıldı — "main hâlâ f4ef66b" gibi ifadeleri artık geçerli değildir.
 
 > Çelişki olursa BU bölüm günceldir. Alttaki bölümler tarih sırasıyla duruyor
 > ama artık bağlayıcı değil.

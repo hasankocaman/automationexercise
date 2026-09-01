@@ -552,6 +552,8 @@ Her teknoloji sayfasının mülakat sekmesinde **minimum 50 soru** bulunur:
 - ❌ `profiles` tablosuna sütun ekleyip yetkisini vermemek — bu projede update yetkisi TABLO değil SÜTUN düzeyindedir; `alter` + `grant update (<sutun>)` TEK göç adımıdır, yoksa okuma çalışır ama yazma sessizce ölür (Bölüm 23.25).
 - ❌ `sonuc.govde.alan ?? []` yazmak — bu ifade EKSİK alana karşı korur, NULL gövdeye karşı korumaz; koruma zincirin İLK halkasında olmalıdır (`govde?.alan`). `sonuc.ok` doğruyken de gövde null olabilir (Bölüm 23.26).
 - ❌ Kalıcı olmayan bir düşüşü mesajını okumadan "testin yarışı" diye geçmek — aynı belirti hem test yarışı hem ürünün çökme yolu olabilir; ikisini yalnızca hata metni ayırır (Bölüm 23.26).
+- ❌ "Türev kaynaktan kaymış" diyen bir kapıyı, önerdiği `--write`/`seed` komutuyla körlemesine susturmak — bu depoda üç kapı birden SALT SATIR SONU yüzünden kırıldı ve içerikte tek karakter fark yoktu. Önce LF-normalize hash'i türevdekiyle karşılaştır: eşitse artefakt, değilse gerçek ayrışma (Bölüm 23.27).
+- ❌ Bir Supabase ölçümünde hangi projeye gittiğini belirtmeden prod hakkında konuşmak — bu depoda İKİ proje var (`learnqa-prod` ve `learnqa-test`) ve `.env.local` TEST'e bakar; yanlış olanı ölçmek bulguyu tersine çevirir (Bölüm 23.28).
 
 ---
 
@@ -1326,6 +1328,59 @@ listesi ilk yeni sayfada sessizce eskiyordu, kod eskiyemez.
   gerçekten önek eşlemesi gerekiyorsa yalnızca `^=` kullan.
 - **Önleme:** Bir locator 0 döndüğünde önce SEÇİCİYİ şüphelen, ürünü değil —
   özellikle `$=""`, `*=""` gibi boş değer içeren kalıplarda.
+
+### 23.27. Türev dosya kapıları satır sonuna takılır — `--write` ÇÖZÜM DEĞİL
+
+- **Belirti:** Dal değiştirdikten sonra build ya da pre-push kancası "türev
+  KAYNAKTAN KAYMIŞ" diyor ve size `--write` / `npm run ...:seed` çalıştırmanızı
+  öneriyor. Oysa o kaynağa dokunmadınız.
+- **Kök Neden (ölçüldü, 2026-09-01; ÜÇ kapıda AYNI ANDA):** Bu depoda satır
+  sonları karışık ve git checkout sırasında LF'i CRLF'e çevirebiliyor. Türev
+  kapıları kaynağın HAM BAYTLARINI hash'lediği için, içerikte tek karakter
+  değişmeden hash kayıyor. `main`'e geçince `sync-qa-shop-core` (bugFlags.js),
+  `build-sqljs-seed` (schema/seed.sql) ve `build-openapi-json` (openapi.yaml)
+  üçü birden kırıldı. Her üçünde de LF-normalize hash, türevde yazan hash'e
+  BİREBİR eşitti — yani gerçek bir ayrışma yoktu.
+- **Çözüm:** Hash almadan ÖNCE `replace(/\r\n/g, '\n')`. Bu bir gevşetme
+  değildir: kapının işi İÇERİK ayrışmasını yakalamaktır, satır sonu gösterimi
+  içerik değildir; gerçek bir değişiklik hash'i yine kaydırır.
+- **⚠ Önerilen çözümü körlemesine uygulama:** `--write` türevi yeniden üretip
+  kapıyı susturur ama ayrışma OLSAYDI onu da sessizce üzerine yazardı. Önce
+  ölç: LF-normalize hash türevdekine eşit mi? Eşitse artefakt, değilse gerçek.
+- **Önleme:** Yeni bir türev kapısı yazarken kaynağı `utf8` okuyup normalize
+  et, `readFileSync(p)` ile ham Buffer hash'leme. Kalıcı ek önlem:
+  `.gitattributes` ile bu kaynakları `eol=lf`'e sabitlemek (henüz yapılmadı).
+- **Yan bulgu — damga tek başına yetmez:** `sync-qa-shop-core` yalnızca
+  damgayı kaynakla karşılaştırıyordu, TÜREV DOSYANIN GÖVDESİNE hiç bakmıyordu.
+  Türev elle düzenlense damga hâlâ uyar ve kapı yeşil kalırdı — dosyanın kendi
+  başlığı "ELLE DÜZENLEME" dediği hâlde. Gövde karşılaştırması eklendi. Bir
+  kapı yazarken sor: **bu kapı, korumayı iddia ettiği DOSYAYA gerçekten
+  bakıyor mu?**
+
+### 23.28. İKİ Supabase projesi var — yanlış olanı ölçmek bulguyu TERSİNE çevirir
+
+- **Belirti:** Prod hakkında konuşuyorsunuz ama ölçtüğünüz şey test ortamı
+  (ya da tersi). Sonuç kendi içinde tutarlı göründüğü için yanlışlık fark
+  edilmez.
+- **Kalıcı yapı:**
+
+  | | Ref | Rol |
+  |---|---|---|
+  | Prod | `qmvurwmcuexvuwvaiuhj` (`learnqa-prod`) | canlı site |
+  | Test | `qtwargbbwuvrupfyowbg` (`learnqa-test`) | `.env.local` BURAYA bakar; TÜM E2E buraya gider |
+
+- **Kök Neden (ölçüldü, 2026-09-01):** Edge Function'lar prod'a deploy edildi,
+  sonra doğrulama `.env.local` üzerinden TEST projesine gitti ve "prod'da 404,
+  prod'da geçersiz API anahtarı" diye raporlandı. İKİSİ DE YANLIŞTI: prod'da
+  fonksiyonlar düzgün yönleniyordu (401), 404'ler test projesindeydi çünkü o
+  iki fonksiyon oraya hiç deploy edilmemişti.
+- **Çözüm/Önleme:** Bir Supabase ölçümünde hangi projeye gittiğini KOMUTUN
+  KENDİSİNDE görünür kıl (`--project-ref` yaz ya da URL'i ekrana bas).
+  `.env.local`'ın hangi projeye baktığını `VITE_SUPABASE_URL` ile doğrula.
+- **⚠ Erişim ayrı hesaplarda olabilir:** CLI'ın giriş yaptığı hesap yalnızca
+  bir projeyi görebilir; öbürü `403` verir. `supabase projects list` ile
+  hangisini görebildiğini kontrol et — "deploy başarılı" mesajı hangi projeye
+  gittiğini söylemez, sen söylemişsindir.
 
 ---
 
