@@ -17,12 +17,24 @@
 
 ### ⚠️ ÖNCE BUNU OKU
 
-- **Tam E2E paketi koştu:** 429 geçti · 2 düştü · 2 koşmadı (25,3 dk). Düşen
-  ikisinin kök nedeni TEK ve dalla İLGİSİZ (Groq modeli kalktı, aşağıda ayrı
-  bölüm). Yani `feature/qa-shop-pratik-ortami` birleştirme açısından temiz.
-- **`main` hâlâ `f4ef66b`, dal birleştirilmedi.** Kullanıcı kararı bekliyor.
-- **Çalışma ağacında YENİ İŞ var, commit EDİLMEDİ** (kullanıcı istemedi):
-  `/qa-shop-backlog` sayfası ve çevresi — 4 yeni, 13 değişik dosya.
+- **BİRLEŞTİRİLDİ VE YAYINA GÖNDERİLDİ (2026-09-01).** `main`: `f4ef66b` →
+  `315c246`. Dal `--no-ff` ile birleştirildi (`b01f7dc`) — 24 commit'lik
+  özellik tek hamlede geri alınabilsin diye. Push canlı deploy'u tetikledi.
+- **Tam E2E paketi 444/444 yeşil** (25,9 dk), sıfır flaky.
+- **Çalışma ağacı temiz.** Kalan tek "değişiklik" sitemap/pageUpdated'daki
+  hayalet satır sonu farkı; `git diff` boş.
+
+⚠ **Push ilk denemede pre-push kancasıyla DURDURULDU** ve bu doğruydu: üç
+türev kapısı birden "kaynaktan kaymış" dedi. Ölçüldü — üçünde de İÇERİK
+FARKI YOKTU; `main`'e geçerken git satır sonlarını CRLF'e çevirmiş, kapılar
+ham baytları hash'lediği için hash kaymıştı. Üçü de normalize edecek şekilde
+düzeltildi (`sync-qa-shop-core`, `build-sqljs-seed`, `build-openapi-json`) ve
+üçü de bilerek bozularak hâlâ gerçek değişikliği yakaladıkları doğrulandı.
+Aynı turda bir DELİK de kapandı: `sync-qa-shop-core` türev dosyanın gövdesine
+hiç bakmıyordu, yani türev elle düzenlense kapı yeşil kalırdı.
+
+**Kalıcı öneri (yapılmadı):** `.gitattributes` ile bu dosyaları `eol=lf`'e
+sabitlemek bu sınıfı kökten bitirir. Deploy ortasında yapılmadı; ayrı ele alın.
 
 ### 📋 Bu oturumda yapılan: `/qa-shop-backlog` (yeni sayfa)
 
