@@ -26,8 +26,20 @@ const KOK = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const KAYNAK = path.join(KOK, 'qa-shop/api/openapi.yaml')
 const CIKTI = path.join(KOK, 'src/data/generated/qaShopOpenApi.js')
 
+// ⚠ SATIR SONU NORMALIZE EDİLİR — gevşetme değil, yanlış-pozitif düzeltmesi.
+//
+// Ölçüldü (2026-09-01): bu depoda satır sonları karışık; git checkout
+// sırasında LF'i CRLF'e çevirebiliyor ve `openapi.yaml`'ın BAYTLARI değişince
+// hash kayıyor. Sözleşmede tek karakter değişmemişken build kırılıyordu
+// (LF-normalize hash, türevde yazana birebir eşitti). Aynı arıza aynı gün
+// üç ayrı türev kapısında birden çıktı — bkz. sync-qa-shop-core.mjs ve
+// build-sqljs-seed.mjs.
+//
+// YAML semantiği satır sonundan etkilenmez; kapının işi sözleşmenin DEĞİŞİP
+// türevin yenilenmemesini yakalamaktır ve o güç aynen korunur.
 export function kaynakHash() {
-    return crypto.createHash('sha256').update(fs.readFileSync(KAYNAK)).digest('hex').slice(0, 32)
+    const kaynak = fs.readFileSync(KAYNAK, 'utf8').replace(/\r\n/g, '\n')
+    return crypto.createHash('sha256').update(kaynak).digest('hex').slice(0, 32)
 }
 
 // Sayfanın gerçekten kullandığı alanlar alınır; şema bileşenlerinin tamamı

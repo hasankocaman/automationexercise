@@ -59,9 +59,22 @@ function psql(sorgu) {
     ], { encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 }).trim()
 }
 
+// ⚠ SATIR SONU NORMALIZE EDİLİR — gevşetme değil, yanlış-pozitif düzeltmesi.
+//
+// Ölçüldü (2026-09-01): bu depoda satır sonları karışık ve git checkout
+// sırasında LF'i CRLF'e çevirebiliyor. `main`'e geçilince schema.sql ve
+// seed.sql'in BAYTLARI değişti, hash kaydı ve kapı "türev kaynaktan kaymış"
+// diye build'i kırdı — oysa SQL içeriğinde tek karakter bile değişmemişti
+// (LF-normalize hash, türevde yazan hash'e birebir eşitti).
+//
+// SQL semantiği satır sonundan etkilenmez; kapının işi şemanın/tohum verinin
+// DEĞİŞİP türevin yenilenmemesini yakalamaktır. Normalize etmek o gücü aynen
+// korur: gerçek bir şema değişikliği hash'i yine kaydırır.
 export function kaynakHash() {
     const h = crypto.createHash('sha256')
-    for (const dosya of KAYNAKLAR) h.update(fs.readFileSync(dosya))
+    for (const dosya of KAYNAKLAR) {
+        h.update(fs.readFileSync(dosya, 'utf8').replace(/\r\n/g, '\n'))
+    }
     return h.digest('hex').slice(0, 32)
 }
 

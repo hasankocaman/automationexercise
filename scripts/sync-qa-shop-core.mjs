@@ -38,8 +38,21 @@ const BASLIK = `// ÜRETİLMİŞ DOSYA — ELLE DÜZENLEME.
 /* eslint-disable */
 `
 
+// ⚠ SATIR SONU NORMALIZE EDİLİR — bu bir gevşetme DEĞİL.
+//
+// Ölçüldü (2026-09-01): bu depoda satır sonları karışık ve git, checkout
+// sırasında LF'i CRLF'e çevirebiliyor. `main`'e geçildiğinde `bugFlags.js`
+// kaynağının BAYTLARI değişti, hash'i kaydı ve kapı "çekirdek türevi
+// kaynaktan kaymış" diye push'u durdurdu — oysa türevin gövdesi kaynakla
+// BİREBİR aynıydı, tek fark satır sonlarıydı.
+//
+// Kapının işi iki tarafın İÇERİĞİNİN ayrışmasını yakalamaktır; satır sonu
+// gösterimi içerik değildir. Normalize etmek yanlış-pozitifi kaldırır ve
+// gerçek bir kural değişikliğini yakalama gücünü aynen korur: bir karakter
+// bile değişse hash yine kayar.
 function dosyaHash(icerik) {
-    return crypto.createHash('sha256').update(icerik).digest('hex').slice(0, 16)
+    const normalize = icerik.replace(/\r\n/g, '\n')
+    return crypto.createHash('sha256').update(normalize).digest('hex').slice(0, 16)
 }
 
 function kaynakOku() {
@@ -79,8 +92,30 @@ function dogrula() {
     const kayanlar = []
     for (const [ad, icerik] of Object.entries(kaynaklar)) {
         const simdi = dosyaHash(icerik)
-        if (damga[ad] !== simdi) kayanlar.push(`${ad}: türev ${damga[ad] ?? '(yok)'} ≠ kaynak ${simdi}`)
-        if (!fs.existsSync(path.join(HEDEF_DIZIN, ad))) kayanlar.push(`${ad}: türev dosyası silinmiş`)
+        if (damga[ad] !== simdi) kayanlar.push(`${ad}: damga ${damga[ad] ?? '(yok)'} ≠ kaynak ${simdi}`)
+
+        const turevYolu = path.join(HEDEF_DIZIN, ad)
+        if (!fs.existsSync(turevYolu)) {
+            kayanlar.push(`${ad}: türev dosyası silinmiş`)
+            continue
+        }
+
+        // Damga ile kaynağı karşılaştırmak TEK BAŞINA yetmez: türev dosyanın
+        // GÖVDESİ elle düzenlenirse damga hâlâ kaynağa uyar ve kapı yeşil
+        // kalırdı. Dosyanın kendi başlığı "ELLE DÜZENLEME" diyor ama bunu
+        // hiçbir şey zorlamıyordu — kusur gizleme mantığının iki sürümü tam
+        // da böyle ayrışır.
+        const turev = fs.readFileSync(turevYolu, 'utf8')
+        const ayrac = '/* eslint-disable */'
+        const kesim = turev.indexOf(ayrac)
+        if (kesim === -1) {
+            kayanlar.push(`${ad}: türev dosyasının üretilmiş başlığı bozulmuş`)
+            continue
+        }
+        const govde = turev.slice(turev.indexOf('\n', kesim) + 1)
+        if (govde.replace(/\r\n/g, '\n') !== icerik.replace(/\r\n/g, '\n')) {
+            kayanlar.push(`${ad}: türev dosyasının GÖVDESİ kaynaktan farklı (elle mi düzenlendi?)`)
+        }
     }
     if (kayanlar.length) {
         console.error('\n✖ Çekirdek türevi KAYNAKTAN KAYMIŞ:')
