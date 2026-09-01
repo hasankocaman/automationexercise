@@ -112,9 +112,19 @@ iki dil farklı uzunlukta → §23.23 tuzağı yok) ·
 `qa-shop-backlog` + `qa-shop-pages` + `theme-and-accessibility` +
 `no-internal-jargon` + `seo-i18n-routing` + `mobile-smoke` → **73/73 yeşil**.
 
-⚠ **Koşulmayan:** tam paket, bu değişikliklerden SONRA. Etkilenmesi muhtemel
-her dosya koşturuldu ama birleştirmeden önce `npm run test:e2e` bir kez daha
-tam koşturulmalı.
+**Tam paket TEMİZ (2026-09-01): 444/444 geçti, 25,9 dk.** Sıfır düşüş, sıfır
+flaky, koşmayan test yok. Groq düzeltmesi ve test projesinin aynalanması
+sonrası alındı.
+
+Ara kayıtlar (gidişat görünsün diye): 2026-08-28'de 429 geçti / 2 düştü /
+2 koşmadı → 2026-08-29'da 437 geçti / 2 düştü / 1 flaky / 2 koşmadı →
+şimdi 444/444. Düşen ve koşmayanların TAMAMI Groq arızasıydı.
+
+Bir zamanlar flaky görünen `qa-shop-uye-senkronu` bu koşumda da geçti.
+Önceki tek düşüşü 7,5 saat duvar saati ve ağ tarafında EACCES ile gelmişti
+(makine uyumuş). ⚠ Dürüst kayıt: o koşumun mesajı HTML raporunun üzerine
+yazıldığı için kurtarılamamıştı — çevresel olduğu bir çıkarımdı, kanıt
+değil. Tekrar görülürse rapor `--reporter=list` ile alınmalı.
 
 ### 🎯 SIRADAKİ İŞ
 
@@ -277,34 +287,53 @@ test:e2e` bir kez tam koşturulmalı — özellikle `src/hooks/` çıkarımı ve
 | 5 | Kavram baloncuklarını sipariş detayına yay | Küçük | İade penceresi ve kargo durumu için yer var. §25.7 ölçütü: "bu bize mi mahsus?" |
 | 6 | Faz 6 kabul kriterini ELLE koştur | Küçük | "Dükkâna ilk giren kullanıcı hiçbir status kodu görmeden bir defect bulabiliyor ve anahtarı aç/kapat yaparak kendisi doğrulayabiliyor." Testler bunu göremez (§23.18). |
 
-### 🔴 AÇIK ARIZA — Groq modeli kalktı (2026-08-28 ölçüldü, karar bekliyor)
+### ✅ ÇÖZÜLDÜ — Groq modeli (2026-08-28 → 2026-09-01)
 
-Tam E2E paketinde düşen 2 testin kök nedeni TEK ve kalıcı (tekrar koşumda
-aynı yerde aynı mesaj):
+`llama-3.3-70b-versatile` Groq tarafında kalkmıştı ve TEK bir sabit dokuz
+fonksiyonu birden 502'ye düşürüyordu. Çözüm üç parçalı:
 
-```
-The model `llama-3.3-70b-versatile` does not exist or you do not have access to it.
-→ Groq 404 → Edge Function 502
-```
+1. **Model adı koddan çıkarıldı.** `_shared/groq.ts` artık `GROQ_MODEL`
+   secret'ını okuyor; koddaki `openai/gpt-oss-120b` yalnızca yedek. Bir sonraki
+   emeklilikte düzeltme pano değişikliğidir, kod deploy'u değil.
+2. **Hata kendini açıklıyor.** Model bulunamadığında mesaj hangi modelin
+   istendiğini ve düzeltmenin secret'ta olduğunu söylüyor.
+3. **`visual-diff-judge` bakıma alındı** — yapılandırmayla, yorum satırıyla
+   değil. Hesabın model listesinde GÖRSEL destekli model KALMADI (ölçüldü),
+   yani bu modül model değiştirilerek onarılamıyor. `GROQ_VISION_MODEL`
+   tanımsızsa fonksiyon 503 + `maintenance:true` döner; arayüz artık
+   "tekrar dene" DEMİYOR. Groq'a görsel model gelirse secret'ı tanımlamak yeter.
 
-`supabase/functions/_shared/groq.ts` içindeki tek `DEFAULT_MODEL` sabiti
-**sekiz** fonksiyonu besliyor: `qa-assistant` · `grade-interview-answer` ·
-`explain-quiz-answer` · `explain-code-output` · `explain-code-practice` ·
-`mentor-advice` · `judge-eval` · `trending-skills-sync`. Yani canlıda AI
-asistanı, mülakat değerlendirmesi ve quiz açıklaması **hepsi kırık**.
+**Seçilen model:** `openai/gpt-oss-120b`. Türkçe ve JSON davranışı tahmin
+edilmedi, ÖLÇÜLDÜ: `api-endpoints` 4/4 ve `docker-interview-mastery-flow`
+geçiyor — yapılandırılmış puanlama üreten `grade-interview-answer` dahil.
+Bakım dalı gerçek fonksiyona karşı da doğrulandı (503 + maintenance:true).
 
-Düşen testler: `api-endpoints.spec.ts:80` · `docker-interview-mastery-flow.spec.ts:66`
-(aynı describe'taki 2 test de bu yüzden atlandı).
+### ⚠️ İKİ AYRI SUPABASE PROJESİ VAR — ölçmeden önce hangisi olduğunu bil
 
-⚠ **Dalla ilgisi YOK, ölçüldü:** `f4ef66b..HEAD` diff'i `supabase/`'e hiç
-dokunmuyor; sabit `a8edbb1`'den (2026-06-23) beri değişmedi. Model Groq
-tarafında kalktı. Yani bu düşüş birleştirmeyi ENGELLEMEZ — `main`'de de
-aynen düşerdi.
+| | Ref | Rol |
+|---|---|---|
+| Prod | `qmvurwmcuexvuwvaiuhj` (learnqa-prod) | canlı site |
+| Test | `qtwargbbwuvrupfyowbg` | `.env.local` BURAYA bakar; tüm E2E buraya gider |
 
-**Düzeltmeden önce:** hangi modelin gerçekten mevcut olduğunu
-`GET https://api.groq.com/openai/v1/models` ile ÖLÇ; hafızadan model adı yazma
-— kataloğun kayması zaten bu arızanın sebebi. Düzeltme tek satır ama Edge
-Function'ların yeniden deploy'unu gerektirir (kullanıcı onayı şart).
+Bu ayrım 2026-09-01'de yanlış teşhise yol açtı: prod'a deploy edilip TEST
+projesine karşı ölçüm yapıldı, sonuç "prod'da 404 ve geçersiz anahtar" diye
+raporlandı. İkisi de yanlıştı — prod'da dört fonksiyon da düzgün yönleniyor.
+**Kural: hangi projeyi ölçtüğünü komutun içinde görünür kıl.**
+
+Aynalama yapıldı: 9 fonksiyon iki projede de yayında, `GROQ_MODEL` digest'i
+iki projede AYNI, `GROQ_VISION_MODEL` ikisinde de tanımsız.
+
+⚠ Test projesinde EKSİK: `RAPIDAPI_KEY` ve `CRON_INVOKE_SECRET` — yalnızca
+`trending-skills-sync` okuyor (arka plan cron'u, kullanıcıya dönük değil).
+
+⚠ **PROD HÂLÂ ÖLÇÜLMEDİ:** prod'da oturum açabilen bir test hesabı yok, bu
+yüzden prod'daki `GROQ_API_KEY`'in geçerli olduğu KANITLANMADI. Yönlendirme
+doğrulandı (401), Groq yolu doğrulanmadı.
+
+⚠ `judge-eval` ve `visual-diff-judge` prod'da da SÜRÜM 1'di — yani bugüne
+kadar hiç yayında değillerdi. Onları çağıran özellikler (Diff Dedektif;
+CodePlayground / RagLab / JudgePlayground AI geri bildirimi) kullanıcıya
+bugüne kadar hata veriyordu. Groq'la ilgisi yok, ayrı ve eski bir açıktı.
 
 ### 🚫 Bilinçli olarak YAPILMAYACAK (yeniden tartışma açma)
 
