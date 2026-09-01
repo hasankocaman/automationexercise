@@ -7,6 +7,9 @@ reports/
 .env
 .env.local
 .env.*.local
+# .env.local'dan türetilen her yedek/kopya da gizli kalmalı — bir kez
+# .env.local.yedek üretildi ve varsayılan desenlerin HİÇBİRİNE uymuyordu.
+.env.local*
 
 # Local study notes - must never be committed
 Documents/_Java notlar.md
@@ -26,3 +29,14 @@ transform_*.cjs
 
 # Tampermonkey / console injection userscripts
 smooth_hover_scale*.js
+
+# QA Shop urun fotograflarinin KAYNAKLARI (11 MB, 2048px).
+# Depoya girmez; vitrine sunulan optimize turevler public/qa-shop/urunler/
+# altinda ve onlar commit edilir. Yeniden uretim: npm run qa-shop:gorseller
+qa-shop/urunler/
+
+# QA Shop indirilebilir paketleri — TUREVDIR, her build'de yeniden uretilir
+# (scripts/build-qa-shop-downloads.mjs). Depoya girseydi kaynak degisip turev
+# unutuldugunda site eski koleksiyonu dagitirdi; zip ayrica ikili bir dosya ve
+# her uretimde gecmisi kirletirdi. Uretim: npm run qa-shop:indirmeler
+public/qa-shop/indirilebilir/

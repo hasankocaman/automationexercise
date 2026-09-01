@@ -9,7 +9,7 @@
     "dev": "vite --host",
     "dev:prod": "vite --host --mode prodtest",
     "generate:data-stubs": "node scripts/generate-data-stubs.mjs",
-    "build": "node scripts/check-seo.mjs && node scripts/check-test-coverage.mjs && node scripts/generate-section-slugs.mjs --check && node scripts/check-content-integrity.mjs && node scripts/check-i18n-leaks.mjs && node scripts/audit-interview-questions.mjs && node scripts/audit-learning-blocks.mjs && node scripts/generate-seo-files.mjs && node scripts/generate-data-stubs.mjs && node scripts/generate-mastery-manifest.mjs && node scripts/generate-interview-showcase.mjs && vite build && node scripts/generate-static-routes.mjs && node scripts/check-dist-seo.mjs",
+    "build": "node scripts/check-seo.mjs && node scripts/check-test-coverage.mjs && node scripts/generate-section-slugs.mjs --check && node scripts/check-content-integrity.mjs && node scripts/check-i18n-leaks.mjs && node scripts/sync-qa-shop-core.mjs && node scripts/check-qa-shop-sql-map.mjs && node scripts/check-qa-shop-kavramlar.mjs && node scripts/check-qa-shop-backlog.mjs && node scripts/build-sqljs-seed.mjs && node scripts/build-openapi-json.mjs && node scripts/build-qa-shop-downloads.mjs && node scripts/audit-interview-questions.mjs && node scripts/audit-learning-blocks.mjs && node scripts/generate-seo-files.mjs && node scripts/generate-data-stubs.mjs && node scripts/generate-mastery-manifest.mjs && node scripts/generate-interview-showcase.mjs && vite build && node scripts/generate-static-routes.mjs && node scripts/check-dist-seo.mjs",
     "content:check": "node scripts/check-content-integrity.mjs",
     "i18n:check": "node scripts/check-i18n-leaks.mjs",
     "i18n:baseline": "node scripts/check-i18n-leaks.mjs --update-baseline",
@@ -40,7 +40,14 @@
     "audit:animation:missing": "node scripts/audit-animation-coverage.mjs --missing",
     "postinstall": "simple-git-hooks",
     "generate:interview-showcase": "node scripts/generate-interview-showcase.mjs",
-    "test:coverage": "node scripts/check-test-coverage.mjs"
+    "test:coverage": "node scripts/check-test-coverage.mjs",
+    "qa-shop:seed": "node scripts/build-sqljs-seed.mjs --generate",
+    "qa-shop:core": "node scripts/sync-qa-shop-core.mjs --write",
+    "qa-shop:openapi": "node scripts/build-openapi-json.mjs --generate",
+    "qa-shop:indirmeler": "node scripts/build-qa-shop-downloads.mjs",
+    "qa-shop:gorseller": "node scripts/optimize-qa-shop-images.mjs && node scripts/build-qa-shop-images.mjs",
+    "qa-shop:sql": "node scripts/check-qa-shop-sql-map.mjs",
+    "qa-shop:kavram": "node scripts/check-qa-shop-kavramlar.mjs"
   },
   "simple-git-hooks": {
     "pre-commit": "node scripts/check-content-integrity.mjs && node scripts/check-i18n-leaks.mjs",
@@ -51,7 +58,8 @@
     "lucide-react": "^1.21.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^7.17.0"
+    "react-router-dom": "^7.17.0",
+    "sql.js": "^1.14.2"
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",
@@ -62,9 +70,11 @@
     "cross-env": "^10.1.0",
     "msw": "^2.12.7",
     "postcss": "^8.4.32",
+    "sharp": "^0.35.3",
     "simple-git-hooks": "^2.13.1",
     "tailwindcss": "^3.3.6",
-    "vite": "^5.0.8"
+    "vite": "^5.0.8",
+    "yaml": "^2.9.0"
   },
   "msw": {
     "workerDirectory": [

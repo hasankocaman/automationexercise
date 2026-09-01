@@ -270,7 +270,7 @@ const cloudVsDcTable = {
     [
       { tr: 'REST API', en: 'REST API' },
       { tr: '/rest/api/3/...', en: '/rest/api/3/...' },
-      { tr: '/rest/api/2/... (bazı uç noktalar farklı)', en: '/rest/api/2/... (some endpoints differ)' },
+      { tr: '/rest/api/2/... (bazı endpoint\'ler farklı)', en: '/rest/api/2/... (some endpoints differ)' },
     ],
   ],
 }
@@ -2831,13 +2831,13 @@ project = SHOP AND reporter = currentUser() AND status != Done`,
         },
         options: [
           { id: 'a', text: { tr: 'API token süresi dolmuş', en: 'The API token has expired' } },
-          { id: 'b', text: { tr: "Script `/rest/api/3/` adresine istek atıyor ama Data Center farklı bir uç nokta sürümü bekliyor olabilir", en: 'The script sends requests to `/rest/api/3/` but Data Center may expect a different endpoint version' } },
+          { id: 'b', text: { tr: "Script `/rest/api/3/` adresine istek atıyor ama Data Center farklı bir endpoint sürümü bekliyor olabilir", en: 'The script sends requests to `/rest/api/3/` but Data Center may expect a different endpoint version' } },
           { id: 'c', text: { tr: 'Ağ bağlantısı kopuk', en: 'The network connection is down' } },
           { id: 'd', text: { tr: "Proje company-managed değil", en: 'The project is not company-managed' } },
         ],
         correct: 'b',
         explanation: {
-          tr: "Kimlik bilgileri doğruysa ve 404 alınıyorsa sorun genelde adres/yol uyuşmazlığıdır. Cloud ve Data Center bazı uç noktalarda farklı API sürümü kullanır; bu, kimlik doğrulamayla değil sürümle ilgili bir kök nedendir.",
+          tr: "Kimlik bilgileri doğruysa ve 404 alınıyorsa sorun genelde adres/yol uyuşmazlığıdır. Cloud ve Data Center bazı endpoint\'lerde farklı API sürümü kullanır; bu, kimlik doğrulamayla değil sürümle ilgili bir kök nedendir.",
           en: 'If credentials are correct and you get a 404, the problem is usually an address/path mismatch. Cloud and Data Center use a different API version on some endpoints; this is a version-related root cause, not an authentication one.',
         },
         retryQuestion: {
@@ -4438,7 +4438,7 @@ project = SHOP AND issuetype = Bug AND labels = production AND created >= -30d O
       {
         type: 'text',
         content: {
-          tr: "API token ile kimlik doğrulamayı; issue oluşturma ve JQL ile arama uç noktalarını; aynı çağrıların Java ve Python karşılıklarını; webhook ile Jira'dan dışarı olay göndermeyi; oran sınırını ve hata kodlarının (401 / 403 / 429) neyi anlattığını işleyeceğiz.",
+          tr: "API token ile kimlik doğrulamayı; issue oluşturma ve JQL ile arama endpoint\'lerini; aynı çağrıların Java ve Python karşılıklarını; webhook ile Jira'dan dışarı olay göndermeyi; oran sınırını ve hata kodlarının (401 / 403 / 429) neyi anlattığını işleyeceğiz.",
           en: 'We will cover authenticating with an API token; the issue-creation and JQL-search endpoints; the Java and Python equivalents of the same calls; sending events out of Jira with webhooks; and rate limits plus what the error codes (401 / 403 / 429) actually tell you.',
         },
       },
@@ -4508,7 +4508,7 @@ curl -X POST https://shopqa.atlassian.net/rest/api/3/issue \\
       {
         type: 'text',
         content: {
-          tr: "Arayüzdeki arama kutusuna yazdığın her JQL sorgusu, API tarafında `POST /rest/api/3/search` uç noktasına bir gövde olarak gönderilir. Bu, JQL sekmesinde öğrendiğin her şeyin API'de de ÇALIŞTIĞI anlamına gelir — sözdizimi birebir aynıdır.",
+          tr: "Arayüzdeki arama kutusuna yazdığın her JQL sorgusu, API tarafında `POST /rest/api/3/search` endpoint\'ine bir gövde olarak gönderilir. Bu, JQL sekmesinde öğrendiğin her şeyin API'de de ÇALIŞTIĞI anlamına gelir — sözdizimi birebir aynıdır.",
           en: 'Every JQL query you type into the search box on the interface is sent, on the API side, as a body to the `POST /rest/api/3/search` endpoint. This means everything you learned on the JQL tab WORKS on the API too -- the syntax is identical.',
         },
       },
@@ -4929,7 +4929,7 @@ if response.status_code == 403:
               en: 'Even if the request body correctly carries standard fields like `project`, `summary`, `issuetype`, a custom mandatory field (customfield) ADDED to that project\'s screen was left out -- when creating manually through the interface this field appears on a screen and is enforced, but an API call does not SEE that screen, it only looks at the JSON body.',
             },
             solution: {
-              tr: "Hata gövdesindeki `errors` objesi HANGİ alanın eksik olduğunu tam olarak söyler — customfield ID'sini not al, `GET /rest/api/3/issue/createmeta` uç noktasıyla o projenin TÜM zorunlu alanlarını listele ve script'in gövdesini buna göre tamamla. Tahmin etmeye gerek yok, hata mesajı zaten cevabı veriyor.",
+              tr: "Hata gövdesindeki `errors` objesi HANGİ alanın eksik olduğunu tam olarak söyler — customfield ID'sini not al, `GET /rest/api/3/issue/createmeta` endpoint\'iyle o projenin TÜM zorunlu alanlarını listele ve script'in gövdesini buna göre tamamla. Tahmin etmeye gerek yok, hata mesajı zaten cevabı veriyor.",
               en: 'The `errors` object in the error body tells you EXACTLY which field is missing -- note the customfield ID, list ALL of that project\'s mandatory fields with the `GET /rest/api/3/issue/createmeta` endpoint, and complete the script\'s body accordingly. No guessing needed, the error message already gives the answer.',
             },
           },
@@ -5436,7 +5436,7 @@ if response.status_code == 403:
               en: 'The team is migrating from Data Center to Cloud, and existing automation scripts use `/rest/api/2/`. How do you structure the migration plan?',
             },
             a: {
-              tr: "Önce her script'in kullandığı uç noktaları envanterleyip Cloud'daki `/rest/api/3/` karşılıklarıyla eşleştiririm — bazı alan adları ve kimlik doğrulama yöntemi (API token) de değişir. Kritik olmayan bir script'i önce Cloud'a karşı test ortamında koşturup davranışı doğrularım, tüm script'leri aynı anda geçirmem. Bu, bir API'nin `v2`'den `v3`'e geçişini üretimde tek seferde değil, kanarya (canary) bir alt kümeyle doğrulayarak yapmakla aynı risk yönetimi.",
+              tr: "Önce her script'in kullandığı endpoint\'leri envanterleyip Cloud'daki `/rest/api/3/` karşılıklarıyla eşleştiririm — bazı alan adları ve kimlik doğrulama yöntemi (API token) de değişir. Kritik olmayan bir script'i önce Cloud'a karşı test ortamında koşturup davranışı doğrularım, tüm script'leri aynı anda geçirmem. Bu, bir API'nin `v2`'den `v3`'e geçişini üretimde tek seferde değil, kanarya (canary) bir alt kümeyle doğrulayarak yapmakla aynı risk yönetimi.",
               en: "First I inventory every endpoint each script uses and map it to its Cloud `/rest/api/3/` counterpart -- some field names and the authentication method (API token) change too. I run a non-critical script against Cloud in a test environment first to verify behavior, rather than migrating all scripts at once. This is the same risk management as validating an API's v2-to-v3 migration with a canary subset in production instead of a single big-bang cutover.",
             },
           },

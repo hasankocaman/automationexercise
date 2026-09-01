@@ -6,10 +6,10 @@
 -- yerde elle tutmak, kaçınılmaz olarak birbirinden kayan üç gerçeklik üretir.
 --
 -- ÇOK KİRACILILIK: her satır bir `sandbox_id` taşır. Kullanıcı kendi
--- sandbox'ını alır, kendi verisini bozar, `POST /sandbox/reset` ile tohum
+-- sandbox'ını alır, kendi verisini bozar, `POST /sandbox/reset` ile seed
 -- veriye döner. Kimse kimsenin verisini göremez/bozamaz.
 --
--- ŞABLON SANDBOX: '00000000-0000-0000-0000-000000000000'. Tohum veri buraya
+-- ŞABLON SANDBOX: '00000000-0000-0000-0000-000000000000'. Seed veri buraya
 -- yüklenir; her yeni sandbox bu şablonun kopyasıdır (clone_sandbox).
 -- ============================================================================
 
@@ -140,7 +140,7 @@ create table cart_items (
     variant_id bigint not null references product_variants on delete cascade,
     qty        int not null check (qty > 0),
     -- Sepete atıldığı ANDAKİ fiyat. Ürünün fiyatı sonradan değişirse sepet
-    -- eski fiyatı korur. UI ile DB'nin ayrıştığı en verimli test dikişi.
+    -- eski fiyatı korur. UI ile DB'nin ayrıştığı en verimli test seam noktası.
     unit_price_snapshot numeric(10,2) not null,
     added_at   timestamptz not null default now(),
     unique (cart_id, variant_id)
@@ -253,7 +253,7 @@ create table audit_log (
 );
 
 -- ─── İndeksler ──────────────────────────────────────────────────────────────
--- Sandbox filtresi her sorguda var; kiracı bazlı indeks olmadan tablo taraması
+-- Sandbox filtresi her sorguda var; tenant bazlı indeks olmadan tablo taraması
 -- kaçınılmaz olur.
 create index idx_products_sandbox      on products (sandbox_id, is_active);
 create index idx_products_category     on products (category_id);

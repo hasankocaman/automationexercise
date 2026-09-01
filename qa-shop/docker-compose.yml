@@ -30,9 +30,16 @@ services:
       - ./db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
       - ./db/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
     healthcheck:
-      # API'nin "DB hazır" sanıp erken başlamaması için. pg_isready portu
-      # dinliyor mu diye bakar; tohumlama bittikten sonra sağlıklı olur.
-      test: ["CMD-SHELL", "pg_isready -U qashop -d qashop"]
+      # API'nin "DB hazır" sanıp erken başlamaması için.
+      #
+      # `-h 127.0.0.1` ŞART. Varsayılan olarak `pg_isready` Unix socket'ine
+      # bakar, resmî entrypoint ise tohumlama sırasında sunucuyu YALNIZCA
+      # socket üstünde (`listen_addresses=''`) açar. Yani socket'e bakan
+      # kontrol, veri henüz yüklenmemişken "sağlıklı" der.
+      # Bu makinede ölçüldü: socket 4.7s'de yeşil, tohumlama 8.3s'de bitiyor —
+      # yani API ~3.5 saniye boyunca yarı dolu bir veritabanına bağlanabiliyor.
+      # TCP'ye bakan kontrol ancak gerçek sunucu ayağa kalkınca yeşile döner.
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U qashop -d qashop"]
       interval: 5s
       timeout: 3s
       retries: 20

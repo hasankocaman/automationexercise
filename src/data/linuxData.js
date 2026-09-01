@@ -1197,7 +1197,7 @@ const linuxLeakyAbstractionFilm = {
   scenes: [
     {
       caption: {
-        tr: 'QA yığınındaki araçların hepsi aynı zeminde durur: Docker container\'ları, Kubernetes node\'ları, `ubuntu-latest` runner\'ları, Jenkins agent\'ları — altta HEP aynı Linux kernel.',
+        tr: 'QA stack\'indeki araçların hepsi aynı zeminde durur: Docker container\'ları, Kubernetes node\'ları, `ubuntu-latest` runner\'ları, Jenkins agent\'ları — altta HEP aynı Linux kernel.',
         en: 'Every tool in the QA stack stands on the same ground: Docker containers, Kubernetes nodes, `ubuntu-latest` runners, Jenkins agents — underneath, it is ALWAYS the same Linux kernel.',
       },
       positions: {

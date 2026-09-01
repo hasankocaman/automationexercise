@@ -1,4 +1,4 @@
-// Sandbox çözümleme — çok kiracılılığın giriş kapısı.
+// Sandbox çözümleme — multi-tenant yapının giriş kapısı.
 //
 // TASARIM KARARI: anahtar göndermeyen istek reddedilmez, ŞABLON sandbox'a
 // SALT OKUNUR bağlanır. Böylece:

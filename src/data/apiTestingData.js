@@ -149,7 +149,7 @@ POST /api/v1/bugs
         {
           q: { tr: 'API testi nasıl yapılır?', en: 'How do you do API testing?' },
           a: {
-            tr: 'API testi, bir uygulamanın arayüzü olmadan, doğrudan HTTP uç noktalarına istek göndererek doğru veriyi, doğru durum kodunu ve doğru hata davranışını döndürüp döndürmediğini kontrol etmektir. En yaygın araçlar Postman (elle test) ve REST Assured (Java ile otomasyon).',
+            tr: 'API testi, bir uygulamanın arayüzü olmadan, doğrudan HTTP endpoint\'lerine istek göndererek doğru veriyi, doğru durum kodunu ve doğru hata davranışını döndürüp döndürmediğini kontrol etmektir. En yaygın araçlar Postman (elle test) ve REST Assured (Java ile otomasyon).',
             en: 'API testing means sending requests directly to an application\'s HTTP endpoints, without the UI, to verify it returns the right data, status code and error behavior. The most common tools are Postman for manual testing and REST Assured for Java-based automation.',
           },
         },
@@ -9450,7 +9450,7 @@ const enHero = {
   intro: 'For a tester who has never seen an API: first write the API yourself in Java/Spring, Express and NestJS, then test it with DevTools Network, Swagger, Postman, REST Assured and Playwright. With "Defect Birth" boxes answering "what bug would appear if the developer forgot this line?" at every step — all through a single example API (/api/v1/bugs).',
 }
 
-const trSeoAnswer = 'API testi, bir uygulamanın arayüzü olmadan, doğrudan sunduğu HTTP uç noktalarına (endpoint) istek göndererek doğru veriyi, doğru durum kodunu ve doğru hata davranışını döndürüp döndürmediğini kontrol etmektir. En yaygın araçlar Postman (elle test), REST Assured (Java ile otomasyon) ve Playwright\'ın API modülüdür. Arayüz testinden farkı, veritabanı ve iş mantığına arayüzün üzerinden geçmeden, çok daha hızlı ve kararlı şekilde ulaşmasıdır — bu yüzden regresyon testlerinin önemli bir kısmı API seviyesinde yazılır.';
+const trSeoAnswer = 'API testi, bir uygulamanın arayüzü olmadan, doğrudan sunduğu HTTP endpoint\'lerine istek göndererek doğru veriyi, doğru durum kodunu ve doğru hata davranışını döndürüp döndürmediğini kontrol etmektir. En yaygın araçlar Postman (elle test), REST Assured (Java ile otomasyon) ve Playwright\'ın API modülüdür. Arayüz testinden farkı, veritabanı ve iş mantığına arayüzün üzerinden geçmeden, çok daha hızlı ve kararlı şekilde ulaşmasıdır — bu yüzden regresyon testlerinin önemli bir kısmı API seviyesinde yazılır.';
 const enSeoAnswer = 'API testing means sending requests directly to an application\'s HTTP endpoints, without going through its user interface, to verify that it returns the right data, the right status code and the right error behavior. The most common tools are Postman for manual testing, REST Assured for Java-based automation, and Playwright\'s API module. Its key advantage over UI testing is speed and stability — it reaches the database and business logic without passing through the interface, which is why a large share of regression tests are written at the API level.';
 
 const trTabs = sections.map(s => s.title.tr)

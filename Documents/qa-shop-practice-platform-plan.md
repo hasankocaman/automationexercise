@@ -1,42 +1,62 @@
 # QA Shop — Test Pratik Platformu Planı (DB + API + UI)
 
-> **Durum:** 🚧 İLK DİLİM YAZILDI (2026-08-16), ÇALIŞTIRILMADI. Yazım: 2026-08-15.
+> **Durum:** Fazlar 1-5 ✅ **TAMAMLANDI VE CANLI DOĞRULANDI** (2026-08-18).
+> ⚠️ **2026-08-26'da yön değişti:** teknik yığın hazır ama paket yanlış rafta
+> duruyor — **Bölüm 0 (Yeniden Yönlendirme) bu dosyadaki her şeyden GÜNCELDİR**
+> ve sıradaki iş oradaki Faz 6'dır. Alttaki bölümler uygulanmış mimarinin
+> gerekçe kaydı olarak korunur. Güncel iş listesi `.claude/NEXT_SESSION.md`'de.
 >
 > ## Uygulama durumu
 >
 > | Faz | Durum | Not |
 > |---|---|---|
-> | Faz 1 — Sözleşme ve şema | ✅ Yazıldı | `db/schema.sql` (18 tablo), `db/seed.sql`, `api/openapi.yaml` (27 path / 29 operasyon / 19 şema) |
-> | Faz 2 — K1 tarayıcı içi | ⬜ Yapılmadı | MSW + sql.js + `/qa-shop` arayüzü |
-> | Faz 3 — K3 lokal Docker | 🚧 Kısmen | API + `docker-compose.yml` yazıldı; Postman koleksiyonu ve REST Assured başlangıç projesi YOK |
-> | Faz 4 — Bug anahtarları | ⬜ Yapılmadı | `sandbox.bug_flags` sütunu duruyor, mekanizma bağlanmadı |
+> | Faz 1 — Sözleşme ve şema | ✅ Tamam | `db/schema.sql` (18 tablo), `db/seed.sql`, `api/openapi.yaml` (38 path / 44 operasyon / 25 şema) |
+> | Faz 2 — K1 tarayıcı içi | ✅ Tamam | sql.js + IndexedDB + MSW gerçek Service Worker modunda; yığın kapalıyken sessizce devreye girer |
+> | Faz 3 — K3 lokal Docker | ✅ Tamam | 41 iş ucu, Postman/Newman paketi, REST Assured projesi, `api/test` (Docker'sız 78 test) |
+> | Faz 4 — Bug anahtarları | ✅ Tamam | 10 anahtar + panel + gizli av modu (`pickRandomFlags`/`hiddenCount`) çalışıyor. ⚠️ Varsayılanı Faz 6.1 değiştirir |
 > | Faz 5 — K2 barındırılan | ⬜ Bilinçli olarak ertelendi | Maliyet + kötüye kullanım yüzeyi; talep kanıtlanınca |
+> | **Faz 6 — Keşif Önceliği** | ✅ **TAMAM** (2026-08-28) | 6.1-6.7 hepsi bitti. ⚠️ Kabul kriteri henüz ELLE koşturulmadı — testler onu göremez (bkz. Bölüm 0.5) |
 >
-> ### ⚠️ HİÇBİRİ ÇALIŞTIRILMADI
+> ### ✅ Canlı doğrulama (2026-08-17/18)
 >
-> Geliştirme makinesinde `docker` kurulu olmadığı için şema, tohum veri ve
-> API **hiç koşmadı**. Doğrulanan tek şeyler: SQL'in gözle incelenmesi,
-> `openapi.yaml`'ın ayrıştırılması + `$ref` çözümü, 16 JS dosyasının
-> `node --check`'i. İlk `docker compose up` sonrası düzeltme gerekebilir;
-> en olası yer `seed.sql` (`clone_sandbox` ve sipariş toplamlarının
-> satırlardan hesaplanması).
+> Yığın iki ayrı makinede (macOS/arm64 ve Windows/amd64) gerçek PostgreSQL'e
+> karşı koşturuldu:
 >
-> ### Kullanıcının onayladığı kararlar (yeniden tartışılmayacak)
+> | Paket | Sonuç |
+> |---|---|
+> | `qa-shop/api` — `npm test` (Docker'sız) | 78/78 |
+> | `qa-shop/rest-assured` — `mvn test` | 39/39 |
+> | `qa-shop/postman` — Newman | 28 istek · 134 doğrulama · 0 hata |
+> | `db/validation-queries.sql` | 17 kontrol GEÇTİ + 4 kusur enjeksiyonu kontrolün çalıştığını kanıtladı |
+> | 16 user story kabul kriteri (canlı yığın) | **79/79** |
 >
-> - **Node/Express** — iş mantığı tek çekirdek olsun, tarayıcı içi katmanla
->   ikiye bölünmesin (Spring Boot seçilseydi her kural iki dilde iki kez yazılırdı)
+> Canlı koşum üç gerçek hata ortaya çıkardı (sabit yazılmış id'ler, mükerrer
+> ödemenin yanlış hata kodu, sıfırlamanın önbelleği bayatlatması) — üçü de o
+> ana kadar HER kontrolden geçmişti. Kalıcı ders: `CLAUDE.md` §23.14.
+>
+> ### Planın ÖTESİNE geçen işler
+>
+> - **Repo istemeyen kurulum:** `qa-shop/db/Dockerfile` (şema+tohum gömülü),
+>   `docker-compose.hub.yml`, çoklu mimari (amd64+arm64) GHCR iş akışı.
+>   İmajlar HENÜZ YAYINLANMADI — etiket push'u bekliyor.
+> - **`/qa-shop-spec`** — ürün analizi + 16 user story + 7 iş kuralı + ölçülmüş
+>   hata kataloğu + 6 soruluk SSS. Planda yoktu; test yazacak kişinin
+>   şartnamesi olarak sonradan istendi.
+> - **Üç sayfa da HERKESE AÇILDI** (`/qa-shop-spec`, `/qa-shop-setup`,
+>   `/qa-shop`) ve SEO kabukları veri dosyalarından türetiliyor. Bu üçlü artık
+>   `CLAUDE.md` §2 route haritasında.
+>
+> ### Değişmeyen tasarım kararları (yeniden tartışmaya gerek yok)
+>
+> - **Node/Express tek çekirdek** — iş mantığı tarayıcı içi katmanla ikiye bölünmez
 > - **Katman sırası K3 → K1 → K2** — lokal Docker önce, barındırılan ertelendi
 > - **Tek e-ticaret domaini** — çeşitlilik senaryodan gelecek, ikinci domainden değil
 > - **Kayıtsız sandbox** — sürtünme pratik alanlarının en büyük kaybı
 > - **İçerikli tek SEO sayfası** — çıplak uygulama kabuğu aramada değersiz
->
-> ### Ek olarak yazılanlar (planda yoktu, sonradan istendi)
->
-> - `db/validation-queries.sql` — 25+ SQL testi (0 satır = GEÇTİ), tek ekranda
->   özet sorgusu, ve **kusur enjeksiyon bölümü** (kontrolü bilerek kırmızıya
->   düşürüp `ROLLBACK`). Yöneticiye gösterilecek çıktı bu.
-> - `/qa-shop-setup` (🔴 admin) — kurulum rehberi sayfası: DBeaver bağlantısı,
->   Swagger sözleşmesini okuma, manuel + Postman testi. Bkz. `access-tiers-plan.md`.
+> - **Anahtarsız istek** demo verisine SALT OKUNUR bağlanır, reddedilmez
+> - **`logout` gerçekten iptal eder** — stateless JWT'de test yanlış yere yeşil geçerdi
+> - **Kupon checkout anında yeniden doğrulanır** — sepet görünümü eskiyebilir
+> - **Klonlama doğal anahtarlarla** yapılır; `bigserial` id'ler kopyada KAYAR
 >
 > ### İzolasyon kuralı (kullanıcı şartı, doğrulandı)
 >
@@ -44,11 +64,109 @@
 > hiçbir ilişki kurmaz. İki yönde de tarandı: `qa-shop/` içinde Supabase /
 > learnqa / `VITE_` / `service_role` geçmiyor; ana site de `qa-shop` /
 > `localhost:4000` / `5433` bilmiyor. **Sıfır referans.**
+>
 > **Amaç:** Hem kullanıcının kendi iş hedefleri hem sitenin diğer kullanıcıları
 > için; gerçek bir veritabanı, gerçek bir API ve o API'ye bağlı gerçek bir
 > arayüz üzerinde **database testi + API testi + UI otomasyonu** pratiği.
-> **İlişkili:** `Documents/work-goals-tracker-plan.md` (bu platform 30 endpoint
-> ve 36 test case hedeflerinin antrenman sahasıdır).
+---
+
+## 0. YENİDEN YÖNLENDİRME (2026-08-26) — bu bölüm alttaki her şeyden GÜNCELDİR
+
+> Fazlar 1-5 teknik olarak tamamlandı (alttaki durum tablosu geçerli). Ama
+> 2026-08-26'da yapılan inceleme, paketin **yanlış rafta** durduğunu ölçtü.
+> Bundan sonraki iş bu bölümdedir. Alttaki bölümler mimarinin gerekçe kaydı
+> olarak korunur.
+
+### 0.1. Teşhis — eksik olan içerik değil, sıra
+
+Bir dış inceleme "şunları üret" diye bir liste verdi. Listenin neredeyse
+tamamı **zaten yazılmıştı**. Ölçüm:
+
+| İnceleme "yok" dedi | Gerçekte | Siteden ulaşılabilir mi? |
+|---|---|---|
+| Postman paketi (happy + negative) | 6 klasör, **7 NEGATİF** istek, kusur aç/sıfırla dahil | ❌ Hiçbir link yok, `public/` altında değil |
+| Starter test repo | REST Assured: 4 test sınıfı, canlı koşturulmuş | ❌ Sitede adı geçmiyor |
+| Bilinçli kusur listesi (5-8) | **10 anahtar** + `catchableBy` + gizli av modu | ⚠️ Sayfa dibindeki panelde |
+| UI turu (12 adım, method+status+neden) | **Tam 12 adım**, gerçek pedagojiyle | ⚠️ Varsayılan KAPALI, 1724 satırın 1719'unda |
+| Story formatı (AC+API+bug+ipucu) | `criteria`/`endpoints`/`breaks`/`hint`/`layers` mevcut | ✅ şartname sayfasında |
+| DB doğrulama katmanı | **127 sorgu**, "0 satır = GEÇTİ" sözleşmesiyle | ❌ Tek geçtiği yer: docker pull hatası için yazılmış sorun giderme paragrafı |
+
+**Sonuç:** İncelemeyi yapan taraf aktif olarak ararken bunları bulamadı.
+Öğrenen hiç bulamaz. Sorun içerik üretimi değil, **görünürlük sırası**.
+
+### 0.2. Daha derin bulgu — doğru pedagoji de zaten yazılmış
+
+Kusur panelindeki metin aynen şöyle:
+
+> "Adını bilerek açtığın kusur 'testim kırmızıya dönüyor mu?' sorusunu
+> cevaplar. Gizli tur başka bir soru sorar: kusuru BULABİLİYOR musun? Sistem
+> birkaç kusuru açar, hangileri olduğunu söylemez. Sahada da kimse söylemez."
+
+Kod tarafı da tam: `pickRandomFlags`, `hiddenCount`, `isHidden`,
+`describeFlagsHidden`. Yani **keşif-öncelikli tasarım mevcut** — sadece
+varsayılan değil. Varsayılan, cevap anahtarı.
+
+### 0.3. Bağlayıcı ilke
+
+Kalıcı kural `CLAUDE.md` §25'e yazıldı. Özeti:
+
+**Sistem bulguyu DOĞRULAR, asla İLAN ETMEZ.**
+
+- **Verilir (zenginleştir):** gerçek görünen UI, TAM OpenAPI sözleşmesi,
+  user story + kabul kriterleri, sıfırlanabilir test ortamı. Bunlar sahada da
+  QA'ya verilir; spoiler değildir.
+- **Verilmez (kullanıcı üretecek):** kusurun yeri, beklenen status kodu,
+  somut test verisi ipucu, açık kusurların adlı listesi.
+- **Üç katman:** Katman 0 sürekli görünür (UI + sözleşme + story) · Katman 1
+  istek üzerine ipucu (cevap değil dürtme, hover VE tıkla-aç) · Katman 2
+  yalnızca kullanıcı bulgusunu kaydettikten sonra doğrulama.
+- **Sıra:** bulgu → kayıt → doğrulama. Asla cevap → uygula.
+
+### 0.4. Öğrenme sırası — eski vs yeni
+
+| | Sıra |
+|---|---|
+| **Eski (yanlış)** | Şartname → Kurulum → Swagger → Dükkân |
+| **Yeni (doğru)** | Dükkân (kurcala) → "N kusur açık, bul" → Sözleşme+story'ler referans olarak → Postman/starter ile otomasyona geç → Belge en sonda |
+
+Gerekçe: merak kırılan bir siparişten doğar, şartnameden değil. Belge adım 1
+değil, adım 4'ün referansıdır.
+
+⚠️ Bu, "afiş bilerek şartnameye işaret eder" kararını (2026-08-18) **iptal
+eder**. O karar "kullanıcı önce ne olduğunu görmeli" gerekçesine dayanıyordu;
+ölçüm, kullanıcının önce *kurcalamak* istediğini gösterdi.
+
+### 0.5. Faz 6 — Keşif Önceliği (sıradaki iş)
+
+Sıra ucuzdan pahalıya; her madde tek başına yayınlanabilir.
+
+| # | İş | Dosya | Bedel |
+|---|---|---|---|
+| 6.1 | ✅ **TAMAM** — Gizli mod varsayılan. Dükkân ekranında av şeridi ("{n} defect canlı, hangileri söylenmiyor"), adlı liste opt-in, `catchableBy` tıkla-aç. | `QaShopPage.jsx` | Küçük — mekanizma hazırdı |
+| 6.2 | ✅ **TAMAM** — Manuel tur kendi kendini sınamaya çevrildi: adımı yap → gördüğün status kodunu yaz → sistem ancak o zaman doğrular. Beklenen kod ve endpoint yolu kayıttan ÖNCE hiç render edilmiyor. | `QaShopManuelTur.jsx` | Orta |
+| 6.3 | ✅ **TAMAM** — Paketler build sırasında `public/qa-shop/indirilebilir/` altına üretiliyor; `/qa-shop-api` ve `/qa-shop-setup` sayfalarından inilebiliyor. | `scripts/build-qa-shop-downloads.mjs`, `qaShopSetupData.js`, `QaShopApiPage.jsx` | Küçük |
+| 6.4 | ✅ **TAMAM** — SQL katmanı üç yerleşime ayrıldı: nötr sorgu dizini (herkes), sorgu ↔ kural ↔ story ↔ defect eşlemesi (yalnız admin), cevap sızdıran satırların temizlenmesi. ⚠️ Plandaki "127 sorgu" YANLIŞTI; dosyada **30 adlı sorgu** var. Ayrıca paket siteden indirilebilir yapıldı — depoyu indirmeyen kullanıcının o dosyası yok. | `validation-queries.sql`, `qaShopSqlPackData.js`, `qaShopSqlMap.js`, `check-qa-shop-sql-map.mjs` | Orta |
+| 6.5 | ✅ **TAMAM** — Afiş, öne çıkan giriş linki, kart listesi, footer ve görünür site haritası dükkâna gidiyor; şartname/kurulum/sözleşme geçiş şeridinden bir tık uzakta referans rafı oldu. | `HomePage.jsx`, `QaShopGecis.jsx`, `whatIsTestingData.js` | Küçük |
+| 6.6 | ✅ **TAMAM** (planlanandan ileri gidildi) — `hint` ve `breaks` karttan tamamen çıktı; ayrıca teknik kabul kriterleri, kural kartı doğrulamaları ve iki cevap-anahtarı tablosu da admin'e taşındı ya da kurala çevrildi. | `QaShopSpecPage.jsx`, `qaShopSpecData.js`, `QaShopStoryIpucu.jsx` | Orta |
+| 6.7 | ✅ **TAMAM** — Sayaç artık kaydedilen bulguyu sayıyor, ziyaret edilen adımı değil. Eski "yapıldı" işaretleri (dizi biçimli localStorage kaydı) bulgu içermediği için sessizce atılıyor. | `QaShopManuelTur.jsx` | Küçük |
+
+**Faz 6 kabul kriteri:** Dükkâna ilk giren kullanıcı hiçbir beklenen status
+kodu görmeden bir defect bulabiliyor ve bulduğunu anahtarı aç/kapat yaparak
+kendisi doğrulayabiliyor.
+
+⚠️ **Bu kriter HENÜZ ELLE KOŞTURULMADI.** Otomatik testler bunu göremez:
+hepsi kendi kurulumunu yapıyor ve "sıfırdan gelen kişinin" yaşadığını
+ölçmüyor (`CLAUDE.md` §23.18). Sıradaki oturumun işlerinden biri budur.
+
+### 0.6. Kapsam dışı — bilinçli olarak YAPILMAYACAK
+
+- **`/qa-shop/docs` diye ayrı route ağacı açmak.** İnceleme önerdi; reddedildi.
+  Dört sayfa zaten var; yeni route arama motoru tarafında elle kabuk içeriği
+  yazma yükü getirir (`CLAUDE.md` §23.16) ve karşılığı yok. Aynı sonuç giriş
+  kapısını ters çevirerek alınır (6.5).
+- **Swagger'ı kısmak / "önce 12 uç" demek.** Sözleşme sahada da tam verilir;
+  kısmak gerçekçiliği düşürür. Sıralama sorunu navigasyonla çözülür.
+- **Story'leri azaltmak.** 16 story kalır; sorun sayı değil, ipucunun katmanı.
 
 ---
 
@@ -491,6 +609,11 @@ Tasarım kuralı — arayüz **iki yüzlü** olmalı:
 Aynı ekran, iki mod. `/qa-frontend` dersindeki locator anlatımının canlı
 laboratuvarı olur.
 
+⚠️ **2026-08-26 eki — keşif önceliği:** Bu ekranda kullanıcıya kusurun yeri,
+beklenen status kodu veya somut test verisi PEŞİNEN gösterilmez. Varsayılan
+gizli moddur; cevap anahtarı niteliğindeki paneller kapalı ve arka planda
+durur. Bağlayıcı kural `CLAUDE.md` §25, iş kalemleri Bölüm 0.5.
+
 ---
 
 ## 11. Faz planı
@@ -525,6 +648,38 @@ döngüsü + kota izleme.
 
 **Kabul:** Dışarıdan `curl` ile erişilebiliyor; iki farklı sandbox birbirinin
 verisini göremiyor; kota alarmı çalışıyor.
+
+### Faz 6 — Keşif Önceliği 🔄 **SÜRÜYOR** (6.1 ✅ · 6.2 ✅ · 6.3 ✅ · 6.6 ✅ · 6.7 ✅)
+
+**Faz 6'nın kapsamı 2026-08-27'de genişledi.** Kullanıcı, sahada bir tester'ın
+işine yarayan dört şeyi sayarak sınırı netleştirdi: (1) expected result'ı
+şema/analiz belgesiyle iyi anlamak, (2) ayrıntılı Swagger, (3) kullanabildiği
+UI, (4) erişebildiği veritabanı. Bunun ötesi cevabı peşinen vermektir. Kural
+`CLAUDE.md` §25.2.1'e yazıldı ve şartname sayfası bu ölçüte göre baştan
+tarandı — 6.6'nın planlanan kapsamından çok daha fazlası temizlendi.
+
+**6.1 nasıl yapıldı (karar kaydı):** Av turu SUNUCUDA değil, dükkân
+arayüzünde varsayılan yapıldı. `POST /sandbox` temiz bir alan döndürmeye
+devam ediyor; Postman koleksiyonu, REST Assured paketi ve API testleri kendi
+alanlarını doğrudan o uçtan açıyor ve kusursuz bir başlangıç bekliyor —
+beklemedikleri bir kusur, kendi kodunu hatalı sanan bir öğrenen üretirdi.
+Dükkân, kendi veri alanı yazılabilir olur olmaz `POST /sandbox/bugs/hidden`
+çağırıyor; tur alan başına bir kez açılıyor (`localStorage.qaShopAvAlani`),
+yoksa her sayfa yenilemesi kullanıcının yarım kalan avını sıfırlardı.
+
+**6.3 nasıl yapıldı:** Paketler depoya GİRMİYOR, her build'de kaynaktan
+üretiliyor (`scripts/build-qa-shop-downloads.mjs`, `.gitignore`'da). Depoya
+girseydi kaynak değişip türev unutulduğunda site eski koleksiyonu dağıtırdı.
+Zip yazıcısı elle yazıldı; tek bir dosya formatı için arşiv bağımlılığı
+eklenmedi.
+
+Teknik yığın hazır; bu faz **tek bir satır kod üretmeden** de büyük ölçüde
+ilerleyebilir çünkü işin çoğu varsayılan durum ve görünürlük sırası
+değiştirmek. Ayrıntı ve iş kalemleri **Bölüm 0.5**'te.
+
+**Kabul:** Dükkâna ilk giren kullanıcı hiçbir beklenen status kodu görmeden
+bir kusur bulabiliyor ve bulduğunu anahtarı aç/kapat yaparak kendisi
+doğrulayabiliyor.
 
 ---
 

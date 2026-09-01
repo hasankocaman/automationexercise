@@ -136,6 +136,12 @@ const STRICT_ZERO_FILES = new Set([
   // portfolioData.js: yeni (QA Portfolyo), baştan tam bilingual yazıldı.
   // /portfolio bir TopicPage ders sayfası değildir — TRIO_COMPLETE_PAGES'e EKLENMEZ.
   'portfolioData.js',
+  // qaShopSqlPackData.js: SQL doğrulama paketinin herkese açık dizini, baştan
+  // tam bilingual. TopicPage ders sayfası değildir — TRIO_COMPLETE_PAGES'e EKLENMEZ.
+  'qaShopSqlPackData.js',
+  // qaShopKavramlarData.js: dükkân ve API sayfasındaki kavram baloncukları,
+  // baştan tam bilingual. TopicPage ders sayfası değildir.
+  'qaShopKavramlarData.js',
 ])
 
 // `why`/`note` (java-compare): JavaCompareBlock EN modda `${key}_en` kardeşini

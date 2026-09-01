@@ -50,6 +50,9 @@ const BackendPage = lazy(() => import('./components/BackendPage'))
 const BasitBackendPage = lazy(() => import('./components/BasitBackendPage'))
 const QaShopSetupPage = lazy(() => import('./components/QaShopSetupPage'))
 const QaShopPage = lazy(() => import('./components/QaShopPage'))
+const QaShopSpecPage = lazy(() => import('./components/QaShopSpecPage'))
+const QaShopBacklogPage = lazy(() => import('./components/QaShopBacklogPage'))
+const QaShopApiPage = lazy(() => import('./components/QaShopApiPage'))
 const LeaderboardPage = lazy(() => import('./components/LeaderboardPage'))
 const VerifyCertificatePage = lazy(() => import('./components/VerifyCertificatePage'))
 const QaAssistantPage = lazy(() => import('./components/QaAssistantPage'))
@@ -59,6 +62,7 @@ const SprintPage = lazy(() => import('./components/SprintPage'))
 const PortfolioPage = lazy(() => import('./components/PortfolioPage'))
 const TestAutomationPage = lazy(() => import('./components/TestAutomationPage'))
 const JiraPage = lazy(() => import('./components/JiraPage'))
+const QaShopDetailedGuidePage = lazy(() => import('./components/QaShopDetailedGuidePage'))
 
 // Sekme-seviyesi URL'ler: /selenium/wait-strategies gibi her dikey sekmeye
 // kendi adresi. Aynı sayfa bileşeni render edilir — sekme seçimini TopicPage
@@ -168,17 +172,18 @@ function App() {
                     <Route path="/sprint" element={<SprintPage />} />
                     <Route path="/portfolio" element={<PortfolioPage />} />
                     <Route path="/backend" element={<RequireAdmin><BackendPage /></RequireAdmin>} />
-                    {/* Pratik laboratuvarı kurulum adımları — ŞİMDİLİK admin.
-                        Herkese açılacağı gün bu sarmalayıcı kaldırılır ve
-                        seo.js'teki noindex silinir; başka değişiklik gerekmez. */}
-                    <Route path="/qa-shop-setup" element={<RequireAdmin><QaShopSetupPage /></RequireAdmin>} />
-                    {/* Dükkân arayüzü — UI otomasyonu pratiğinin hedefi.
-                        Kurulum rehberiyle aynı kapının arkasında: sayfa ancak
-                        kullanıcının kendi makinesinde çalışan bir API varken
-                        anlamlı, o yüzden herkese açılması yığın doğrulandıktan
-                        sonraki bir karar. Açılacağı gün bu sarmalayıcı ve
-                        seo.js'teki noindex birlikte kaldırılır. */}
-                    <Route path="/qa-shop" element={<RequireAdmin><QaShopPage /></RequireAdmin>} />
+                    {/* QA Shop pratik ortamının üç sayfası HERKESE AÇIK.
+                        Sıra bilinçli: şartname (ne test edilecek) → kurulum
+                        (nerede test edilecek) → dükkân (test hedefi).
+                        Dükkân sayfası kullanıcının kendi makinesindeki API'ye
+                        bağlanır; stack kapalıyken boş hata vermez, ne
+                        yapılacağını söyleyip kurulum rehberine yönlendirir. */}
+                    <Route path="/qa-shop-spec" element={<QaShopSpecPage />} />
+                    <Route path="/qa-shop-backlog" element={<QaShopBacklogPage />} />
+                    <Route path="/qa-shop-api" element={<QaShopApiPage />} />
+                    <Route path="/qa-shop-setup" element={<QaShopSetupPage />} />
+                    <Route path="/qa-shop" element={<QaShopPage />} />
+                    <Route path="/qa-shop-detailed-guide" element={<RequireAdmin><QaShopDetailedGuidePage /></RequireAdmin>} />
                     <Route path="/basit-backend" element={<BasitBackendPage />} />
                     <Route path="/leaderboard" element={<LeaderboardPage />} />
                     <Route path="/verify-certificate/:id" element={<VerifyCertificatePage />} />

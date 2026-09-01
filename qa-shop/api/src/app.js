@@ -95,13 +95,13 @@ export function createApp() {
                 'POST /api/v1/carts                       → sepet aç',
                 'POST /api/v1/carts/{id}/items            → { variantId, qty }',
                 'POST /api/v1/orders                      → { cartId }',
-                'POST /api/v1/sandbox/reset               → tohum veriye dön',
+                'POST /api/v1/sandbox/reset               → seed veriye dön',
             ],
             note: 'X-Sandbox-Key göndermezsen demo verisine SALT OKUNUR bağlanırsın.',
         })
     })
 
-    // ── Sandbox çözümlemesi: bundan sonraki her şey kiracı kapsamlı ──
+    // ── Sandbox çözümlemesi: bundan sonraki her şey tenant kapsamlı ──
     app.use('/api/v1', resolveSandbox)
 
     app.use('/api/v1/sandbox', sandboxRouter)

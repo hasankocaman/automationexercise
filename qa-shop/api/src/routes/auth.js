@@ -150,3 +150,67 @@ authRouter.post('/refresh', requireAuth, asyncRoute(async (req, res) => {
         expiresAt: session.expiresAt,
     })
 }))
+
+// POST /api/v1/auth/supabase-bridge — Supabase üyesi → QA Shop otomatik giriş
+//
+// LearnQA.dev sitesinde üye bir kişi /qa-shop'a geldiğinde, Supabase token'ı
+// ile bu endpoint'i çağrır. Sistem o kullanıcı için bir sandbox oluşturur ve
+// QA Shop oturumunu başlatır. Böylece site üyeliği → sandbox giriş köprüsü kurulur.
+//
+// Body: { supabaseToken: "<Supabase JWT>", userEmail: "user@x.com", userName: "User Name" }
+// Response: { sandboxId, token (qa-shop JWT), expiresAt }
+//
+// NOT: Supabase JWT signature doğrulama şimdilik yapılmıyor. Token format'ı
+// doğrulanır (supabase_* prefix) ve e-posta/ad alınır. Deployment'ta
+// SUPABASE_JWT_SECRET ile gerçek signature doğrulaması eklenebilir.
+authRouter.post('/supabase-bridge', asyncRoute(async (req, res) => {
+    const { supabaseToken, userEmail, userName } = req.body || {}
+
+    if (typeof supabaseToken !== 'string' || !supabaseToken.startsWith('supabase_')) {
+        throw badRequest('INVALID_TOKEN', 'Supabase token gerekli ve supabase_ ile başlamalı')
+    }
+    if (typeof userEmail !== 'string' || !EMAIL_RE.test(userEmail)) {
+        throw badRequest('INVALID_EMAIL', 'Geçerli bir e-posta adresi gerekli')
+    }
+    if (typeof userName !== 'string' || userName.trim().length < 2) {
+        throw badRequest('INVALID_NAME', 'İsim en az 2 karakter olmalı')
+    }
+
+    // Supabase üyesi için yeni sandbox oluştur (her oturum ayrı sandbox)
+    // veya var olan bir sandbox'ı bul (aynı kullanıcı tekrar giriş yapıyorsa).
+    // YAPACAK: Üyeler için persistent sandbox yapısı (şimdi her giriş yeni)
+    const label = `LearnQA üyesi: ${userName} (${userEmail})`
+    const { rows: sandboxRows } = await query(
+        `insert into sandbox (api_key, label, expires_at)
+         values ($1, $2, now() + interval '30 days')
+         returning id, api_key, created_at, expires_at`,
+        [`supabase_${crypto.randomBytes(24).toString('hex')}`, label],
+    )
+    const sandbox = sandboxRows[0]
+
+    // Sandbox'ı klonla (şablon → demo veri)
+    const TEMPLATE_SANDBOX_ID = '00000000-0000-0000-0000-000000000000'
+    await query('select clone_sandbox($1, $2)', [TEMPLATE_SANDBOX_ID, sandbox.id])
+
+    // Sandbox'a demo kullanıcısı oluştur (gerçek Supabase e-postası yerine)
+    // YAPACAK: Gerçek kullanıcı oluştur (email/name Supabase'den)
+    const { rows: userRows } = await query(
+        `insert into users (sandbox_id, email, name, is_active)
+         values ($1, $2, $3, true)
+         returning id`,
+        [sandbox.id, userEmail.toLowerCase(), userName.trim()],
+    )
+    const user = userRows[0]
+
+    // QA Shop token'ı oluştur
+    const session = await createSession(sandbox.id, user.id)
+
+    res.status(201).json({
+        sandboxId: sandbox.id,
+        token: session.token,
+        tokenType: 'Bearer',
+        expiresIn: tokenTtlSeconds,
+        expiresAt: session.expiresAt,
+        message: 'Supabase üyesi olarak QA Shop\'ta giriş yaptınız',
+    })
+}))

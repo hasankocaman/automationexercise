@@ -130,7 +130,27 @@ Uygulama temiz URL yapısı kullanır. Hash URL (`/#/...`) kullanılmaz.
 - `/login`, `/auth/callback` — Giriş sayfası ve OAuth callback handler
 - `/backend` — Basit Backend (Supabase tabanlı backend kurulum rehberi: auth/login, progress kaydı, rozetler, feedback, realtime chat, premium paywall). `<RequireAdmin>` ile korunuyor.
 - `/basit-backend` — Basit Backend: E-Ticaret SQL ve API Lab (DBeaver ile PostgreSQL kurulumu + Next.js API, herkese açık — `/backend` ile karıştırılmamalı, ayrı bir sayfa). Kalıcı E2E test istisnası, bkz. §22.1.
-- `/security` — Siber Güvenlik / OWASP Top 10, interaktif güvenlik simülasyonları. `<RequireAdmin>` ile korunuyor.
+- `/security` — Siber Güvenlik / OWASP Top 10, interaktif güvenlik simülasyonları. Herkese açık.
+- `/qa-shop-spec` — QA Shop ürün analizi ve user story'ler. Pratik ortamının **giriş kapısı**: büyük resim (ne olduğu, sabit cevaplı deneme API'lerinden farkı, beş dakikada başlangıç) ÖNCE gelir, detaylar (veri modeli, sipariş durum makinesi, iş kuralları, hata kataloğu, 16 user story) sonra. `TopicPage` KULLANMAZ — bu bir referans belgedir, ders sayfası değil; kendi hafif blok renderer'ı var (`QaShopSpecPage.jsx` + `qaShopSpecData.js`). Sayfadaki SSS bloğu aynı zamanda FAQPage şemasının kaynağıdır (bkz. §23.16).
+- `/qa-shop-setup` — QA Shop kurulum rehberi: Docker kurulumu, DBeaver ile veritabanı bağlantısı, OpenAPI sözleşmesini okuma, uçları elle ve Postman ile test etme. Repo indirmeden kurulum yolunu da anlatır. `TopicPage` KULLANMAZ (yordam rehberi).
+- `/qa-shop` — QA Shop dükkân arayüzü: UI otomasyonu pratiğinin hedefi. Kullanıcının kendi makinesinde çalışan API'ye (`localhost:4000`) bağlanır; yığın kapalıyken boş hata değil, yönlendirme gösterir. Her etkileşimli öğe kararlı `data-testid` taşır. `TopicPage` KULLANMAZ (canlı uygulama).
+
+> **QA Shop üçlüsü hakkında:** pratik yığınının kendisi `qa-shop/` klasöründedir
+> (ayrı PostgreSQL + ayrı Express API, sitenin kendi backend'inden TAMAMEN
+> bağımsız). Üç sayfa da herkese açıktır ve indekslenir.
+>
+> **Öğrenme sırası `dükkân → av → sözleşme/story referansı → otomasyon →
+> belge`dir** (kullanıcı kararı, 2026-08-27). Ana sayfadaki afiş, öne çıkan
+> giriş linki, kart listesi, footer ve görünür site haritası **dükkâna**
+> işaret eder; şartname, API sözleşmesi ve kurulum referans rafıdır ve
+> dükkânın üstündeki geçiş şeridinden bir tık uzaktadır.
+>
+> ⚠ Bu, **iptal edilmiş** bir kararın yerine geçti: "afiş bilerek şartnameye
+> işaret eder — kullanıcı önce ne olduğunu görmeli, sonra kurmalı"
+> (2026-08-18). Gerekçe sağlamdı ama ölçüm kullanıcının önce KURCALAMAK
+> istediğini gösterdi; dükkân zaten Docker olmadan da açılıyor (tarayıcı
+> modu), yani giriş kapısı bir okuma listesi değil çalışan bir sistem.
+> Sırayı yeniden tartışmaya açma.
 
 **Routing:**
 - `src/main.jsx` → `BrowserRouter` kullanır.
@@ -262,6 +282,46 @@ SEO altyapısı bu projede **zorunludur**, opsiyonel değildir — misyonun yar�
   1. **Bilingual format:** Kodu `{tr: '...', en: '...'}` objesine çevir; TR versiyonunda tüm açıklama yorumları Türkçe olsun. Bu en kesin yöntemdir.
   2. **`englishToTurkishCodeComments` kaydı:** Kod bloğu düz string (plain string) kalıyorsa, içindeki her açıklayıcı İngilizce yorum ifadesinin `TopicPage.jsx`'teki `englishToTurkishCodeComments` dizisinde karşılığı olduğunu doğrula; yoksa ekle. Terminal/program çıktısı olan yorumlar (gerçek çıktı satırları, sürüm numaraları) bu kapsama girmez — bunlar teknik terim olarak değerlendirilir ve İngilizce kalabilir.
 - **Dil kuralı (açık tanım):** Sadece yerleşik yazılım terimleri (`fixture`, `locator`, `assertion`, `selector`, `CI/CD`, `pipeline`, `commit`, `merge`, `SELECT`, `JOIN`, `NULL` gibi) ve terminal/program çıktısı satırları İngilizce kalır. Bunların dışındaki tüm konu anlatımı, açıklama cümleleri, yorum satırları ve arayüz metinleri Türkçe olmalıdır.
+- **Terimi Türkçeleştirme yasağı — somut liste (kullanıcı talebi, 2026-08-18):**
+  Yerleşik bir yazılım terimi TR metinde de İngilizce kalır; Türkçeleştirilmiş
+  karşılığı kullanıcı için ANLAŞILMAZDIR. Gerçekten yapılmış ve düzeltilmiş
+  hatalar:
+
+  | ❌ Yazılmıştı | ✅ Doğrusu |
+  |---|---|
+  | tohum / tohumlama | `seed` / `seeding` |
+  | dikiş (test dikişi) | `seam` |
+  | belirlenimci | `deterministic` |
+  | kiracı / çok kiracılı | `tenant` / `multi-tenant` |
+  | uç / uç nokta | `endpoint` |
+  | yığın (Docker / teknoloji yığını) | `stack` |
+  | kusur | `defect` |
+
+  Kural terimin KENDİSİNE bağlıdır, kelimeye değil: `playwrightData.js`'teki
+  "kiracı ofis" bir BİNA benzetmesidir (gerçek dünya anlamı), yazılım terimi
+  değildir — çevrilmez, olduğu gibi kalır. Toplu dönüşüm yapmadan önce her
+  eşleşmenin bağlamını oku.
+
+  ⚠ Son üç satır (2026-08-26) kuralın NEDEN kelime bazlı uygulanamayacağının
+  en net kanıtı. Ölçüldü: `uç` kelimesi `uçak`, `uçuş`, `uçur`, `uçucu`
+  içinde geçiyor; `uçtan uca` bir DEYİM (end-to-end); `main'in ucu` = tip;
+  `uç değer` = boundary value; `matkap ucu` = drill bit; `uç cevap` =
+  extreme; `çift uçlu kuyruk` = deque. `kusur` ise QA Shop dışında
+  neredeyse tamamen `kusursuz` (flawless) olarak geçiyor. Doğru yöntem:
+  her eşleşmeyi bağlamıyla listele, gözle ayıkla, sonra TAM DİZE
+  eşleşmesiyle değiştir — asla kelime bazlı `replace` ile değil.
+
+  ⚠ Aynı turda ikinci tuzak: apostrof eklerken "tüm `endpoint'` geçişlerini
+  kaçır" gibi kör bir kural, dizeyi KAPATAN tırnağı da kaçırır
+  (`'6 endpoint'` → `'6 endpoint\'`) ve dosya hiç kapanmayan bir dizeyle
+  kırılır (§23.2). Kaçış YALNIZCA ardından Türkçe eki gelen apostrofa
+  uygulanır; `node --check` her dönüşümden sonra koşturulur.
+
+  ⚠ Bu dönüşümü yaparken §23.3 tuzağı iki kez daha yaşandı: `tohum→seed`
+  kuralı `tohumlar` kelimesinin İÇİNDE ateşleyip **`seedlar`** üretti,
+  `kiracı→tenant` kuralı da büyük harfli `Çok kiracılı`yı kaçırıp
+  **`Çok tenantlı`** bıraktı. Kural: uzun formu önce eşle, büyük/küçük harf
+  varyantlarını ayrı yaz ve dönüşümden sonra DEĞİŞEN HER SATIRI oku.
 - **Kapsam:** Bu TR yorum kuralı TÜM teknoloji sayfaları için geçerlidir (Python, Selenium, Playwright, Docker, Jenkins, Git vb.) — sadece Python sayfasıyla sınırlı değildir. `tests/i18n-content-toggle.spec.ts` EN modda Türkçe sızıntısını test eder; TR modda yorum dili kalitesi `Documents/acceptancecriterias.md` AC 10 kapsamındadır.
 
 ---
@@ -430,7 +490,14 @@ Her teknoloji sayfasının mülakat sekmesinde **minimum 50 soru** bulunur:
 ## 11. Sık Yapılan Hatalar — Yapma
 
 - ❌ `*Data.js` dışında içerik hardcode etme.
-- ❌ Dış görsel dosyası kullanma (SVG inline olmalı).
+- ❌ Dış görsel dosyası kullanma (SVG inline olmalı). **TEK İSTİSNA — QA Shop
+  ürün fotoğrafları (kullanıcı talebi, 2026-08-26):** `/qa-shop` vitrini
+  `public/qa-shop/urunler/` altındaki gerçek ürün fotoğraflarını kullanabilir.
+  Gerekçe: dükkânın öğretici değeri gerçek bir mağazaya benzemesine bağlı ve
+  çizim bunu veremiyor. Kuralın koruduğu şey kaybolmadı — dosyalar **depoda
+  barındırılır** (dış servise/CDN'e bağımlılık YOK) ve dosya bulunmadığında
+  vitrin mevcut inline SVG'ye düşer, yani görselsiz ortamda (CI) sayfa
+  bozulmaz. Ders anlatımı, diyagram ve şemalar için kural **aynen sürer**.
 - ❌ Teknik terimi Türkçeye çevirme.
 - ❌ Editör/canlı örnek olmadan kod bloğu bırakma.
 - ❌ Java karşılaştırması yapmadan Python/TS konusu anlatma.
@@ -452,10 +519,39 @@ Her teknoloji sayfasının mülakat sekmesinde **minimum 50 soru** bulunur:
 - ❌ Sekmenin gerçek içeriğiyle bağı olmayan, konudan kopuk bir film uydurmak — her film o sekmedeki kod/simulation'ın anlattığı mekanizmayı görselleştirmelidir (Bölüm 9.5).
 - ❌ Framework Mimarisi sekmelerinde "Büyük Resim Mindmap"i tek bir devasa ASCII `code` bloğunda anlatmak — Bölüm 9.6'daki beş görünüme (Ana Akış / Kurulum Akışı / Paralel Çalışma / Veri Paylaşım Kapsamı / Kim Ne Yapar) bölünmeli, hazır `python-flow-diagram`/`grid` bileşenleri kullanılmalıdır.
 - ❌ Bölüm 1.1'deki 4 maddelik doğruluk checklist'ini çalıştırmadan "tamamladım", "hazır", "bitti" demek.
+- ❌ **Bir sayfayı herkese açarken altı maddeden birini atlamak.** Açılış tek
+  satır değildir; şunların HEPSİ birlikte yapılır, biri eksik kalırsa açılış
+  yarım kalır ve bunu hiçbir kapı söylemez:
+  1. `App.jsx`'te route koruması (`RequireAdmin`) kaldırılır
+  2. `seo.js`'te `noindex` silinir (sayfa sitemap'e girer)
+  3. `scripts/check-test-coverage.mjs` içindeki kapsam istisnası SİLİNİR ve
+     gerçek bir E2E testi yazılır
+  4. Ana sayfa ve footer'daki linklerin `isAdmin` koşulu kaldırılır — sayfa
+     açık ama linki gizliyse adresini bilmeyen kullanıcı ulaşamaz
+  5. Görünür site haritasına (`whatIsTestingData.js`) eklenir, yoksa iç
+     bağlantı grafiğinde öksüz kalır
+  6. `TopicPage` kullanmayan bir sayfaysa `generate-static-routes.mjs`'e
+     kabuk içeriği yazılır — yoksa arama motoru sayfayı BOŞ görür (§23.16)
+  (Kaynak: `/security` açılışında 4. madde, QA Shop açılışında 6. madde
+  atlanmıştı; ikisi de ancak elle ölçünce fark edildi.)
 - ❌ Yeni route eklerken `src/utils/seo.js`'e sadece İngilizce metadata yazmak — `tr: { title, description }` bloğu zorunludur ve İngilizcenin kopyası olamaz (Bölüm 6, `codexSeo.md` §0). `check-seo.mjs` ikisini de hard-fail eder.
 - ❌ Uygulama içinde router'ı atlayan ham `<a href="/docker">` veya `window.location.href = '/docker'` kullanmak — `/en` oturumundaki kullanıcıyı sessizce Türkçe sayfaya düşürür. Daima `<Link to>` / `useNavigate` kullan (`codexSeo.md` §0).
 - ❌ Ders içeriğine, arayüz metnine veya kullanıcıya verdiğin cevaba iç koordinasyon dili yazmak — plan dosyası adı (`CLAUDE.md`, `NEXT_SESSION.md`, `Documents/*-plan.md`), `§` bölüm numarası, faz/görev kodu (`S3 promptu`, `Faz 1 Opus tarafı`) kullanıcının okumadığı belgelere atıftır (Bölüm 24). Kuralın KENDİSİNİ anlat, kaynağını değil. Kod yorumları muaftır. `check-content-integrity.mjs` Kontrol [H] + `tests/no-internal-jargon.spec.ts` bunu denetler.
 - ❌ Bir dilin KENDİ sözdizimini Türkçeleştirmek — Gherkin'in `Scenario/Given/When/Then/And`'i, SQL'in `SELECT/JOIN`'i gibi anahtar kelimelerdir ve TR sayfada da İngilizce kalır; Türkçeleşen sadece adım/açıklama METNİDİR (Bölüm 8, §23.9). `check-content-integrity.mjs` Kontrol [G] bunu hard-fail eder.
+- ❌ Bir pratik/sandbox ekranında kullanıcıya kusurun YERİNİ, beklenen status kodunu veya somut test verisini peşinen söylemek — bu, test etmenin kendisi olan hipotez üretme becerisini okuma alıştırmasına çevirir (Bölüm 25). Sistem bulguyu DOĞRULAR, ilan etmez.
+- ❌ Cevap anahtarı niteliğindeki bir paneli (adım + beklenen status turu, açık kusurların adlı listesi) varsayılan açık yapmak ya da ekranın öne çıkan yerine koymak — varsayılan gizli moddur, adlı liste ancak kullanıcı isterse (Bölüm 25.4).
+- ❌ İpucunu YALNIZCA `:hover` ile açmak — dokunmatik cihazda hover yoktur, ipucu erişilemez olur; tıkla-aç da desteklenmelidir (Bölüm 25.3, Bölüm 12).
+- ❌ Bir keşif alanında kullanıcıya "bul" deyip bulgusunu kendi doğrulayabileceği bir zemin (kusur anahtarı gibi aç/kapa karşılaştırması) vermemek — geri bildirimsiz keşif dolaşmadır (Bölüm 25.5).
+- ❌ Pratik alanında ilerlemeyi "kaç sayfa/adım gezildi" diye saymak — pratik ilerlemesi kapatılan senaryoyla ölçülür (Bölüm 25.6).
+- ❌ Arayüz açıklamasında genel bir yazılım kavramını (API, database, Swagger, endpoint, sepet, kupon) tanımlamak — açıklama YALNIZCA o kavramın bu uygulamadaki karşılığını anlatır (Bölüm 25.7). Cümleyi başka bir siteye de yazabiliyorsan, oraya ait değildir.
+- ❌ Bir açıklama katmanının okunabilirliğini `toBeVisible()` ile doğrulamak — görüş alanının dışındaki öğe de "görünür"dür; dört kenarın viewport içinde kaldığını `boundingBox()` ile ölç (Bölüm 23.21).
+- ❌ Bir rehber adımında dosyayı YALNIZCA depo yoluyla tarif etmek — imajlarla kuran kullanıcının o dosyası yoktur; indirme bağlantısı ya da konteyner içi yol da verilmelidir (Bölüm 25.8).
+- ❌ Cevap anahtarı niteliğindeki bir eşlemeyi (hangi SQL sorgusu hangi kuralı/story'yi/defect'i görür) herkese açık dosyaya ya da sayfaya yazmak — bu bağı kurmak test edenin işidir, eşleme admin tarafında kalır (Bölüm 25.2.1).
+- ❌ Ortak bir bileşeni (`TopicHeader` gibi) kullanan yeni bir sayfada, o bileşenin İSTEDİĞİ durumları vermemek — kontrol koşulsuz render edilir, ekranda durur ve tıklanınca patlar. Bir düğmenin varlığını değil DAVRANIŞINI doğrula (Bölüm 23.24).
+- ❌ Bir durum kancasını (tema, odak modu, dil) sayfadan sayfaya KOPYALAMAK — kopyalar sessizce ayrışır ve bunu hiçbir kapı göremez; kanca `src/hooks/` altında tek dosyada durur (Bölüm 23.24).
+- ❌ `profiles` tablosuna sütun ekleyip yetkisini vermemek — bu projede update yetkisi TABLO değil SÜTUN düzeyindedir; `alter` + `grant update (<sutun>)` TEK göç adımıdır, yoksa okuma çalışır ama yazma sessizce ölür (Bölüm 23.25).
+- ❌ `sonuc.govde.alan ?? []` yazmak — bu ifade EKSİK alana karşı korur, NULL gövdeye karşı korumaz; koruma zincirin İLK halkasında olmalıdır (`govde?.alan`). `sonuc.ok` doğruyken de gövde null olabilir (Bölüm 23.26).
+- ❌ Kalıcı olmayan bir düşüşü mesajını okumadan "testin yarışı" diye geçmek — aynı belirti hem test yarışı hem ürünün çökme yolu olabilir; ikisini yalnızca hata metni ayırır (Bölüm 23.26).
 
 ---
 
@@ -619,8 +715,13 @@ Aşağıdaki sayfalar hiçbir otomatik E2E/Playwright test suite'ine (CI'daki
 dosyası/suite yazılırken bu sayfalar route listelerine eklenmemeli:
 
 - **`/basit-backend`** — kullanıcı isteğiyle test kapsamı dışında tutuluyor.
-- **`/security`, `/backend`** — `RequireAdmin` ile korunuyor, normal test
-  hesabıyla erişilemiyor.
+- **`/backend`** — `RequireAdmin` ile korunuyor, normal test hesabıyla
+  erişilemiyor.
+
+> `/security`, `/qa-shop`, `/qa-shop-setup` ve `/qa-shop-spec` bu listede
+> DEĞİLDİR — hepsi herkese açıldı ve gerçek testleri yazıldı. Bir sayfayı
+> herkese açarken kapsam istisnasını silmek o açılışın parçasıdır (§11'deki
+> altı maddelik liste).
 
 ⚠️ **Bu liste artık yalnızca açıklama içindir; OTORİTE koddadır:**
 `scripts/check-test-coverage.mjs` içindeki `EXCEPTIONS` sözlüğü. Bir sayfayı
@@ -698,6 +799,20 @@ listesi ilk yeni sayfada sessizce eskiyordu, kod eskiyemez.
   gömülmez (güvenli), ama fiil/isim çakışmalarını elle ayıkla.
 - **Önleme:** Toplu dönüşümü doğrudan uygulama; önce **dry-run** ile ayrı dosyaya
   yaz, `node --check` + örnek diff incele, sonra uygula.
+- **Somut ikinci örnek (2026-08-17, bu tuzağın gerçekten kaçınılmaz olduğunun
+  kanıtı):** ASCII yazılmış Türkçe kabul kriterlerini düzeltmek için kelime
+  haritalı bir script yazıldı. Haritadaki `icin → için` kuralı, `kullanicinin`
+  kelimesinin **İÇİNDE** ateşleyip ortaya **`kullaniçinin`** çıkardı. Kelime
+  sınırı kullanılmadığı için kısa bir eşleşme uzun bir kelimeyi bozdu.
+  Yakalanmasının TEK sebebi dönüşümden sonra 61 kriterin tamamının gözle
+  okunmasıydı — hiçbir otomatik kontrol ASCII-normalize Türkçeyi göremez
+  (§23.1 "kalan kör nokta"). Ders: kelime bazlı toplu dönüşüm yaptıysan
+  çıktının TAMAMINI oku; örnekleme yeterli değildir. İkinci turda düzeltmeler
+  tam-dize eşleşmeleriyle yapıldı, kelime tahminiyle değil.
+- **Yan kural — apostrof:** Türkçe düzeltmelerde `A'nın` gibi apostroflu
+  yazım, tek tırnaklı JS dizesine girdiğinde dosyayı kırar (§23.2). Toplu
+  dönüşümde apostrof üretmek yerine apostrofsuz yeniden yazım tercih edilir
+  (`A kullanıcısının`).
 
 ### 23.4. Çift-ağaçlı veri dosyasında index/senkron kayması (drift)
 
@@ -970,6 +1085,248 @@ listesi ilk yeni sayfada sessizce eskiyordu, kod eskiyemez.
   ile içerik alanlarını (yorum satırları hariç) elle tara — otomatik kapı bunu
   yakalamaz.
 
+### 23.15. `page.route` Service Worker'ın ele aldığı isteği KESEMEZ
+
+- **Belirti:** Bir testte `page.route(...)` ile bir adrese giden istekler
+  kesilmeye çalışılıyor ama sayfa isteği başarıyla atmaya devam ediyor. Kesici
+  hiç ateşlenmiyor, sayaç sıfırda kalıyor ve test "beklenen hata durumu
+  görünmedi" diye düşüyor — ürün doğru çalışırken.
+- **Kök Neden (ölçüldü, 2026-08-17):** Bu uygulama bir Service Worker
+  kaydediyor (`mockServiceWorker.js`, API mock altyapısı). Playwright'ın
+  `page.route`'u Service Worker tarafından ele alınan istekleri ELE GEÇİREMEZ.
+  `page.on('request')` o istekleri RAPORLAR — yani ağ trafiğini görürsün ama
+  kesemezsin; bu ikilik hatayı çok kafa karıştırıcı yapar.
+  ⚠ Ek tuzak: ilk denemede glob deseni (`'http://localhost:4000/**'`)
+  kullanılmıştı ve o da SESSİZCE eşleşmedi. Yani iki ayrı sebepten aynı
+  sonuç alınıyordu ve hangisinin geçerli olduğu belirsizdi.
+- **Çözüm:** Ağı kesmeye çalışma. Uygulamayı KENDİ yapılandırmasıyla istenen
+  duruma sok — `/qa-shop` örneğinde API adresi `localStorage`'daki
+  `qaShopApiBase` anahtarından okunuyor, `page.addInitScript` ile kapalı bir
+  adres (`http://127.0.0.1:45999`) yazmak hem ele geçirme semantiğine hiç
+  bağlı değil hem de ürünün gerçekten desteklediği yolu sınıyor.
+- **Önleme:** Bir kurulum adımının GERÇEKTEN uygulandığını testin içinde
+  doğrula (örn. adres alanının kapalı adresi gösterdiğini `expect` et). Bu
+  satır olmadan hatalı bir kurulum testi sessizce yanlış tarafa bakarken
+  bırakır ve düşen beklenti ürün yüzünden düşmüş gibi görünür.
+  Alternatif: o teste özel `test.use({ serviceWorkers: 'block' })`.
+
+### 23.16. `TopicPage` KULLANMAYAN sayfa arama motoruna BOŞ görünür
+
+- **Belirti:** Yeni bir sayfa yazıldı, sitemap'te var, `noindex` değil, build
+  ve tüm SEO kapıları yeşil — ama Google'da hiçbir sorguda çıkmıyor.
+- **Kök Neden (ölçüldü, 2026-08-18):** `scripts/generate-static-routes.mjs`
+  ders sayfalarının kabuğunu veri modülünden OTOMATİK üretir. `TopicPage`
+  kullanmayan özel sayfalar (`/qa-shop-spec`, `/qa-shop-setup`, `/qa-shop`,
+  `/sprint`, `/portfolio`, `/qa-mentor` …) bu yola girmez; onlar için içerik
+  **elle** yazılır ve girdisi olmayan route `return null`a düşer. O zaman
+  kabukta yalnızca başlık + navigasyon linkleri kalır. Ölçülen: `/qa-shop-spec`
+  kabuğunda **1278 karakter** görünür metin vardı ve neredeyse tamamı başka
+  sayfaların linkiydi — 16 user story, 7 iş kuralı ve 21 satırlık hata
+  kataloğu arama motoruna HİÇ görünmüyordu. **Hiçbir kapı bunu kırmaz:**
+  sayfa teknik olarak geçerli, indekslenebilir ve linkli olduğu için tüm
+  kontroller yeşil kalır. Yalnızca kabuğun görünür metnini ÖLÇÜNCE görülür.
+- **Çözüm:** Özel sayfa için `generate-static-routes.mjs` içine içerik
+  fonksiyonu yaz. İçeriği **veri dosyasından TÜRET**, elle kopyalama —
+  kopyalanan metin sayfa güncellenince sessizce eskir ve arama motoruna artık
+  doğru olmayan bir şey gösterirsin (`qaShopSpecShell` referans alınabilir:
+  bölüm hedeflerini, iş kurallarını ve story başlıklarını veriden okur).
+- **Bonus:** Özel içerik objesine 3+ `faqItems` koyulursa o sayfa için
+  **FAQPage** zengin sonuç şeması da üretilir. ⚠ Şemadaki her soru sayfanın
+  GÖRÜNÜR gövdesinde de bulunmak ZORUNDA — yalnızca kabuğa yazmak cloaking
+  olur ve proje bunu daha önce `/manual-testing`'de bilerek reddetmişti.
+  Doğru yol: soruları veri dosyasına koy, hem React sayfası hem kabuk aynı
+  veriden bassın.
+- **Önleme:** Yeni bir özel sayfa eklerken kabuğun görünür metnini ÖLÇ:
+  `node -e "…"` ile `data-seo-fallback` gövdesinden etiketleri temizleyip
+  karakter say. 2000 karakterin altındaysa sayfanın asıl içeriği kabukta yok
+  demektir.
+
+### 23.17. Tailwind `flex` çalışmıyor — katmansız CSS onu YENER
+
+- **Belirti:** Bir öğeye `className="flex items-center"` yazılmış ama çocuklar
+  yan yana değil ALT ALTA duruyor. DevTools'ta `className` içinde `flex`
+  görünüyor, hesaplanan `display` ise `inline-block`.
+- **Kök Neden (ölçüldü, 2026-08-26):** `src/index.css`'te KATMANSIZ bir kural
+  var: `.flex > a, .grid > a, li > a, p > a, nav a, header a { display:
+  inline-block }`. Tailwind yardımcıları `@layer utilities` içindedir ve CSS
+  cascade'inde **katmansız kurallar katmanlı olanları ÖZGÜLLÜKTEN BAĞIMSIZ
+  yener**. Yani `.flex` (0,1,0) `nav a`'dan (0,0,2) daha özgül olmasına rağmen
+  kaybeder. Bu kural `<nav>`, `<li>`, `<p>`, `<header>` içindeki HER bağlantıyı
+  etkiler.
+- **Çözüm:** Bağlantı etiketini flex yapmaya çalışma; dizilimi bağlantının
+  İÇİNDEKİ bir `<span>`'e al (global kural span'lere dokunmuyor). `!important`
+  ya da `!flex` ile kuralı ezmek de işe yarar ama global bir davranışı tek bir
+  bileşen için delmek olur — sarmalayıcı daha ucuz ve yerel.
+- **Önleme:** `nav`/`li`/`header` içine flex bir link koyacaksan, tarayıcıda
+  hesaplanan `display`'i ÖLÇ. Ekran görüntüsüne bakmak yetmez: kısa etiketlerde
+  alt alta düşen iki öğe "tasarım böyle" gibi görünebilir.
+
+### 23.18. Testin KENDİ KURULUMU hatayı gizler
+
+- **Belirti:** Ürün gerçek kullanımda kırık ama paket tamamen yeşil. Kullanıcı
+  "çalışmıyor" diyor, testler "çalışıyor" diyor.
+- **Kök Neden (ölçüldü, 2026-08-26):** `/qa-shop`'ta giriş 401 dönüyordu çünkü
+  sunucuda `POST /auth/login` `requireWritableSandbox` arkasındaydı ve kullanıcı
+  önce "Kendi alanımı aç" demek zorundaydı. Testler bunu HİÇ görmedi çünkü
+  hepsi girişten önce `alan-ac`'a tıklıyordu — kurulum adımı, ürünün kullanıcıdan
+  istediği ama söylemediği adımı sessizce yapıyordu.
+- **Çözüm:** Kritik akışlar için EN AZ BİR test, kullanıcının gerçekten yapacağı
+  minimum adımla koşmalı: hazırlık yardımcıları olmadan, "sıfırdan gelen kişi"
+  gibi. `/qa-shop`'ta bu test "QA paneline hiç dokunmadan giriş".
+- **Önleme:** Bir `beforeEach`/kurulum adımı eklerken sor: *bunu kullanıcı da
+  yapmak zorunda mı, yoksa ben testi kolaylaştırmak için mi yapıyorum?* İkincisi
+  ise ürün o adımı kendisi yapmalı ya da en az bir test onsuz koşmalı.
+  (§23.10 ve §23.14 ile aynı aile: yeşil bir paket, ürünün çalıştığını kanıtlamaz.)
+
+### 23.19. React state güncelleyicisinin İÇİNDE ref okumak
+
+- **Belirti:** Konsolda kalıcı "Encountered two children with the same key"
+  uyarısı; listede bir id iki kez, bir id hiç yok.
+- **Kök Neden (ölçüldü, 2026-08-26):** Kayıt numarası `setState` güncelleyicisinin
+  İÇİNDE okunuyordu (`setGunluk((g) => [{ id: sayac.current, … }, ...g])`).
+  React güncelleyiciyi sıraya alır ve SONRA çalıştırır; o ana kadar ref başka bir
+  eşzamanlı istek tarafından çoktan artırılmış olur. İki güncelleyici aynı değeri
+  okur. Ölçüm: id 6 iki kez, 5 hiç yok.
+- **Çözüm:** Değeri güncelleyiciden ÖNCE yakala:
+  `sayac.current += 1; const id = sayac.current; setState((s) => [{ id, … }, ...s])`.
+- **Önleme:** Güncelleyici fonksiyonu SAF olmalı — dışarıdaki değişken bir değeri
+  (ref, module state) okuması onu saf olmaktan çıkarır ve React'in çalıştırma
+  zamanlamasına bağımlı hâle getirir.
+
+### 23.21. `toBeVisible()` OKUNABİLİRLİK SİNYALİ DEĞİLDİR
+
+- **Belirti:** Bir açıklama/ipucu katmanı ekranda okunamıyor (görüş alanının
+  dışında kalıyor, üst şeride giriyor) ama testler yeşil.
+- **Kök Neden (ölçüldü, 2026-08-28):** Playwright için "görünür" demek
+  *render edilmiş ve `display:none`/`visibility:hidden` değil* demektir —
+  görüş alanının DIŞINDA duran bir öğe de görünürdür. `/qa-shop`'ta sayfanın
+  üst şeridindeki rozetin baloncuğu `bottom: 100%` ile yukarı açılıyor ve
+  ekranın üstünde kalıyordu; `toBeVisible()` bunu hiç görmedi.
+  İkinci sebep aynı anda vardı: konumlandırılmış bir katman, üstündeki
+  `overflow` sınırlarına takılır — "yer yoksa aşağı çevir" tek başına yetmez.
+- **Çözüm:** Katmanı `createPortal` ile `document.body`'ye taşı ve
+  `position: fixed` kullan (taşma sınırlarından kurtulur); açılırken GERÇEK
+  yüksekliğini ölç, yer yoksa ters yöne çevir, yatayda kenardan içeri çek;
+  açıkken `scroll` (capture) ve `resize` dinleyip yeniden ölç. Ölçüm bitene
+  kadar `visibility: hidden` ama YER KAPLAR — yoksa yükseklik ölçülemez.
+- **Önleme:** Görünürlüğü değil KONUMU doğrula: `boundingBox()` alıp dört
+  kenarın da `viewportSize()` içinde kaldığını `expect` et. Dar ekranı
+  (375px) ayrıca sına — yatay sıkıştırma asıl orada kırılır.
+
+### 23.22. CRLF dosyada kör metin değiştirme SESSİZCE eşleşmez
+
+- **Belirti:** Toplu düzenleme script'i "hiçbir değişiklik olmadı" diyor ya da
+  daha kötüsü sessizce hiçbir şey yapmıyor; oysa aranan metin dosyada duruyor.
+- **Kök Neden (ölçüldü, 2026-08-28):** Bu depoda satır sonları KARIŞIK.
+  `src/components/HomePage.jsx` CRLF, `src/data/qaShopSetupData.js` LF.
+  Çok satırlı bir desende `\n` yazmak CRLF dosyada eşleşmez.
+- **Çözüm/Önleme:** Çok satırlı düzenlemede `Edit` aracını kullan (satır sonunu
+  kendisi çözer). Script yazman gerekiyorsa ÖNCE ölç:
+  `node -e "console.log(fs.readFileSync(f,'utf8').includes('\r\n'))"`.
+  Her toplu dönüşümde "hiç eşleşme yoksa `process.exit(1)`" koy — sessiz
+  başarısızlık en pahalısıdır (§23.3 ile aynı aile).
+
+### 23.23. `generate-static-routes.mjs` tek başına koşturulursa YANLIŞ kabuk üretir
+
+- **Belirti:** Kabuğun görünür metnini ölçüyorsun ve her sayfada ANA SAYFANIN
+  içeriğini görüyorsun; TR ve EN karakter sayıları birbirinin aynısı çıkıyor.
+- **Kök Neden:** Script `dist/`teki HTML'e kabuk enjekte eder ve **idempotent
+  değildir**. Build zincirinde önünde her zaman `vite build` olduğu (yani
+  `dist/` temiz üretildiği) için bu görünmez; elle `node scripts/generate-static-routes.mjs`
+  çağırınca zaten enjekte edilmiş çıktının üstüne tekrar yazar.
+- **Önleme:** Kabuk ölçümü yaparken **tam `npm run build`** koştur, script'i
+  tek başına çağırma. Ölçümün ilk turunda TR ve EN uzunlukları BİREBİR aynıysa
+  şüphelen — gerçek içerikte iki dil asla tam olarak aynı uzunlukta olmaz.
+
+### 23.24. Ekranda duran her düğme ÇALIŞIYOR demek değildir
+
+- **Belirti:** Sayfa açılıyor, düğme görünüyor, testler yeşil — ama düğmeye
+  basınca hiçbir şey olmuyor ya da konsola `is not a function` düşüyor.
+- **Kök neden (iki ayrı biçimde ölçüldü, 2026-08-28):**
+  1. **Ortak bileşen kontrolü KOŞULSUZ render eder, durumu dışarıdan alır.**
+     `TopicHeader` odak modu düğmesini her zaman basar ve `setFocusMode`'u
+     çağırır. `TopicPage` kullanmayan dört QA Shop sayfası ona durum
+     vermiyordu: düğme ekrandaydı, tıklayınca patlıyordu. Aynı ailede ikinci
+     bir ayrışma: dört sayfa tema kancasını KOPYALAMIŞTI ve iki kopya kök
+     öğeye `dark`, ikisi `dark-mode`/`light-mode-forced` yazıyordu — ikisinde
+     tema düğmesi sitenin geri kalanını hiç etkilemiyordu.
+  2. **İstemci kodu hiç ateşlenmeyen bir koşulun arkasında olabilir.** QA
+     Shop'un Supabase köprüsü `localStorage`'daki `sb-token`/`sb-user-email`
+     anahtarlarını okuyordu; uygulamanın hiçbir yeri o anahtarları YAZMIYORDU.
+     Kod yıllarca "vardı" ama bir kez bile çalışmadı; üstelik çalışsaydı da
+     yanlış değeri (alan kimliğini, alan anahtarını değil) yazacaktı.
+- **Çözüm:** Kopyalanan durum kancalarını tek dosyaya al (`src/hooks/`) —
+  ayrışma kopya varken kaçınılmazdır ve hiçbir kapı onu göremez. Ortak bir
+  başlığı kullanan yeni sayfada, başlığın İSTEDİĞİ tüm durumları ver.
+- **Önleme:** Bir kontrolün varlığını değil DAVRANIŞINI doğrula: tıkla, sonucu
+  ölç (kök öğedeki sınıf, `localStorage` değeri) ve `pageerror` sayacının
+  sıfır kaldığını iddia et. `toBeVisible()` bir düğme için hiçbir şey
+  kanıtlamaz (§23.21 ile aynı aile). Bir "köprü" yazdıysan, köprünün KARŞI
+  ucunu kimin yazdığını da doğrula — okuyan taraf tek başına köprü değildir.
+
+### 23.25. `profiles`'a sütun eklemek YETMEZ — sütun düzeyinde yetki gerekir
+
+- **Belirti:** Yeni bir üye alanı eklendi, sütun veritabanında var, okuma
+  çalışıyor — ama yazma sessizce hiçbir şey yapmıyor. Değer hep `null` kalıyor
+  ve hata mesajı görünmüyor (fail-safe yazılmışsa konsolda bile durur).
+- **Kök neden (ölçüldü, 2026-08-28):** Bu projede `public.profiles` üzerindeki
+  `update` yetkisi TABLO düzeyinde değil, **SÜTUN düzeyinde** verilmiş. Yani
+  `authenticated` rolü yalnızca izin verilen sütunları güncelleyebiliyor.
+  Yeni sütun listede olmadığı için PostgREST `42501 permission denied for
+  table profiles` döndürüyor — mesaj "tablo" dediği için insan doğal olarak
+  RLS politikasına bakıyor, oysa sorun GRANT'te.
+  Ayırt etme yolu: aynı oturumla mevcut bir sütunu (örn. `career_goal`)
+  güncelle — o geçiyorsa tablo/RLS sağlamdır, eksik olan sütun yetkisidir.
+- **Çözüm:** Sütunu eklerken yetkisini de ver, ikisi TEK göç adımıdır:
+
+  ```sql
+  alter table profiles add column if not exists <sutun> <tip>;
+  grant update (<sutun>) on public.profiles to authenticated;
+  ```
+
+- **Önleme:** Yeni bir üye alanının testinde okuma ile yazmayı AYRI doğrula.
+  Yalnızca "değer geri geldi mi" diye bakan bir test, yetki eksikken
+  "beklenen X, gelen null" der ve saatlerce yanlış yerde aranır; yazma iznini
+  ayrıca yoklayan bir kontrol eksik satırı adıyla söyler.
+
+### 23.26. `govde.alan ?? []` KORUMA DEĞİLDİR — koruma yanlış tarafta
+
+- **Belirti:** Konsolda ara sıra `TypeError: Cannot read properties of null
+  (reading 'items')` görünüyor; test paketinde nadiren "kalıcı olmayan" bir
+  düşüş oluyor ve tekrar koşunca geçiyor.
+- **Kök neden (ölçüldü, 2026-08-28):** İstek yardımcısı cevabı ayrıştıramadığında
+  gövdeyi `null` yapıyor (`try { govde = await res.json() } catch { govde = null }`,
+  ayrıca 204'te bilerek `null`). Çağıranlar `sonuc.govde.items ?? []` yazmıştı:
+  bu ifade EKSİK `items` alanına karşı korur, NULL gövdeye karşı korumaz —
+  çünkü `??` değerlendirilmeden önce `govde.items` zaten okunmuştur.
+  `sonuc.ok` doğruyken bile gövde null olabilir; yani "istek başarılı" kontrolü
+  bu yolu kapatmaz.
+- **Çözüm:** Korumayı zincirin İLK halkasına al: `sonuc.govde?.items ?? []`.
+  Zincir devam ediyorsa her halkayı koru (`govde?.cart?.id`) ve türetilen değer
+  bir sonraki satırda okunacaksa erken çık (`if (!siparis?.id) return`).
+- **Önleme:** Boş gövdeyi BİLEREK üreten bir test yaz — ağı kesmek gerekmez,
+  ele geçirilen uçtan `body: ''` döndürmek yeterlidir (servis çalışanı kapalı
+  bir bağlamda, bkz. §23.15). Bu hata trafiğe bağlı olduğu için ancak böyle
+  kararlı hâle gelir; aksi hâlde paket "bazen kırmızı" olur ve zamanla
+  ürün hatası değil test kusuru sanılır.
+- **Yan ders:** Kalıcı olmayan bir düşüşü "testin yarışı" diye geçme. Bu
+  oturumda iki kalıcı olmayan düşüş çıktı; biri gerçekten testin yarışıydı
+  (DOM'dan kopan öğe), öbürü ÜRÜNÜN çökme yoluydu. İkisini ayıran tek şey
+  düşüşün mesajını okumaktı.
+
+### 23.20. `[data-testid$=""]` hiçbir şeyle eşleşmez
+
+- **Belirti:** Playwright locator'ı "element bulunamadı" diyor, `count()` 0
+  dönüyor; oysa öğeler ekranda duruyor.
+- **Kök Neden:** "Şu önekle başlayan ama tam olarak o olmayan" öğeleri seçmek
+  için yazılan `[data-testid^="urun-"][data-testid$=""]` kalıbı. CSS'te
+  `$=""` (boş dizeyle biter) **hiçbir zaman doğru değildir** — seçici sessizce
+  boş küme döner. Bu oturumda iki kez yazıldı.
+- **Çözüm:** Kapsayıcıdan git: `ul[data-testid="urun-listesi"] > li`. Ya da
+  gerçekten önek eşlemesi gerekiyorsa yalnızca `^=` kullan.
+- **Önleme:** Bir locator 0 döndüğünde önce SEÇİCİYİ şüphelen, ürünü değil —
+  özellikle `$=""`, `*=""` gibi boş değer içeren kalıplarda.
+
 ---
 
 ## 24. KESİN KURAL — İç Koordinasyon Dili Kullanıcıya SIZMAZ
@@ -1030,3 +1387,210 @@ yazılamaz.
 
 Hiçbir otomatik kontrol **kullanıcıya yazdığın mesajları** denetleyemez —
 §24.2'nin üçüncü satırı yalnızca bu kurala uymanla sağlanır.
+
+---
+
+## 25. KESİN KURAL — Keşif Önceliği: Sistem Bulguyu DOĞRULAR, İLAN ETMEZ
+
+> Kullanıcı talebi, 2026-08-26. Pratik ortamları (`/qa-shop` üçlüsü, sandbox'lar,
+> bug avı, gelecekteki her "kendin test et" alanı) için bağlayıcıdır.
+> Ders sayfalarındaki konu anlatımı bu kuralın DIŞINDADIR — orada öğretmek
+> zaten amaçtır (bkz. §9.1 "önce mantık, sonra komut").
+
+### 25.1. İlke
+
+**Sistem bulguyu doğrular, asla ilan etmez.**
+
+Test etmek, bir sistemin nerede kırılabileceği hakkında hipotez üretmektir.
+Bu, meslekte öğrenilmesi en uzun süren beceridir ve **hazır verildiğinde hiç
+öğrenilmez**. Kusurun yerini, beklenen status kodunu veya "şu testi yaz"
+talimatını peşinen söyleyen bir ekran, öğrenene okuma alıştırması yaptırır —
+test alıştırması değil.
+
+**Pratik testi:** Bir öğe kullanıcıya *nereye bakacağını* mı söylüyor, yoksa
+*baktığı yerde haklı olup olmadığını* mı? Birincisi keşfi öldürür, ikincisi
+keşfi mümkün kılar. Şüphede kalınırsa ikincisi seçilir.
+
+### 25.2. Çizgi — iş malzemesi ≠ senin üretmen gereken
+
+Gerçek bir QA işe başladığında bazı şeyleri ALIR. Bunlar spoiler değildir,
+kısılmaz; aksine ne kadar gerçekçi olursa o kadar iyidir:
+
+| ✅ Verilir (zenginleştir) | Neden |
+|---|---|
+| Çalışan, gerçek görünen arayüz (Amazon'a girer gibi) | Test hedefi kontrol paneline benzerse öğrenilen de o kadar kalır |
+| Gerçek OpenAPI/Swagger sözleşmesi, TAM hâliyle | Sahada da sözleşme verilir |
+| User story + kabul kriterleri — **iş dilinde, tek cümlelik** | Sahada da story verilir; ama kriter "422 döner" diye yazılmaz |
+| Test verisi olan, sıfırlanabilir bir ortam | Sahada da test ortamı verilir |
+
+Gerçek bir QA'ya **kimse şunları vermez**. Bunlar kullanıcının ÜRETMESİ
+gereken iş çıktısıdır ve peşinen gösterilmesi yasaktır:
+
+| ❌ Verilmez | Öldürdüğü beceri |
+|---|---|
+| "Stoğu aşmayı dene → 409 bekle" tarzı adım+beklenen status listesi | Sınır değer analizini *yapma* fırsatı |
+| "Bu kusuru şu kontrol yakalar" (`catchableBy` tarzı alanlar) | Kusurun nasıl yakalanacağını bulma işi |
+| "Testine `Ayse@x.com` ekle" tarzı somut test verisi ipucu | Harf duyarlılığını *fark etme* anı |
+| Açık kusurların adları ve açıklamalarıyla listelenmesi | Avın kendisi |
+| Kabul kriterinin İÇİNE yazılmış beklenen status kodu / hata sabiti / alan adı | Kriteri test case'e çevirme işi |
+
+**Kabul kriteri nasıl yazılır (2026-08-27, kullanıcı kararı):** sahada bir
+tester'ın eline gelen kriter iş dilindedir — "adet sıfır yapılamaz",
+"süresi geçmiş bir kupon kabul edilmez". Given/When/Then dökümü, beklenen
+status kodu ve gerçek test verisi kriterin İÇİNE yazılmaz; bunlar test edenin
+ÜRETECEĞİ iş çıktısıdır.
+
+Ayrıntılı sürüm silinmez, **admin'e** açılır (`useAuth().isAdmin`). Gerekçe:
+içeriği yazan taraf doğruluğunu denetleyebilmeli, ama öğrenen cevabı hazır
+bulmamalı. Referans uygulama: `/qa-shop-spec` user story kartı —
+`acceptance` (herkes) + `criteria`/`testData` (yalnızca admin,
+varsayılan kapalı bir açılır bölümde).
+
+⚠ Bu ayrımı hiçbir derleme kapısı yakalayamaz: teknik kriteri geri koymak
+sayfayı bozmaz, yalnızca öğretmeyi bozar. Koruyan şey
+`tests/qa-shop-pages.spec.ts` içindeki "kabul kriterleri sahadaki gibi sade"
+testidir — anonim ziyaretçinin gövdesinde `Given`/`When`/`Then`, status
+kodu ve hata sabiti ARAMAZ olduğunu doğrular.
+
+### 25.2.1. Tester'ın gerçekten ihtiyaç duyduğu dört şey (kullanıcı kararı, 2026-08-27)
+
+Sahada bir tester'ın en çok işine yarayan şey dörttür. Pratik ortamı bunları
+**zenginleştirmeli**; bunların ÖTESİ cevabı peşinen vermektir:
+
+1. **Expected result'ı iyi anlamak** — şemalar, analiz belgeleri, iş kuralları,
+   durum makinesi, veri modeli. Kuralın KENDİSİ verilir.
+2. **Ayrıntılı Swagger dokümanı** — base URL, kimlik başlıkları, parametreler,
+   gövde alanları/tipleri/zorunlulukları/doğrulama kuralları, cevap gövdeleri,
+   örnekler. TAM hâliyle verilir.
+3. **Kullanabildiği UI** — gerçek bir dükkân gibi görünen, kararlı test id'leri
+   olan çalışan arayüz.
+4. **Erişebildiği veritabanı** — DBeaver ile bağlanılabilen gerçek şema.
+
+**Sınır:** bir bilgi "kuralın ne olduğunu" söylüyorsa VERİLİR; "o kuralı
+sınamak için ne yapıp hangi cevabı bekleyeceğini" söylüyorsa VERİLMEZ.
+
+| Aynı konu | ✅ Kural (verilir) | ❌ Reçete (verilmez) |
+|---|---|---|
+| Durum geçişi | "Ödenmemiş sipariş kargolanamaz" | "Ödemesiz kargola → 409 INVALID_TRANSITION bekle" |
+| Yetki | "Kimse başkasının siparişini göremez" | "B, A'nın id'sini çağırdı → 403 FORBIDDEN. 404 değil 403 — beklediğin kodu sabitle" |
+| Sınır | "Sayfa boyutunun bir üst sınırı vardır, aşan istek reddedilmez, sonuç tavanlanır" | "size=9999 → 200 ve 100 kayıt" |
+| Hata kodları | Sözlük: `COUPON_EXPIRED` = kuponun süresi dolmuş | Katalog: "süresi geçmiş kupon → 422 COUPON_EXPIRED" |
+
+Hangi endpoint'in hangi kodu döndürebileceği **sözleşmede** yazılıdır ve orada
+kalması doğrudur (madde 2). Yanlış olan, aynı bilgiyi *senaryoyla eşleştirip*
+şartname sayfasına taşımaktır: biri sözleşme okuryazarlığı, öbürü hazır test
+tasarımı.
+
+⚠ **Statik tarama bunu yakalayamaz — iki kez ölçüldü.** Bir kez veri
+dosyasında (`verify`/`breaks` alanları), bir kez de bileşene HARDCODE
+edilmiş bir açıklamada ("Okla gösterilmeyen her geçiş yasaktır ve 409 döner").
+İkincisini yalnızca tarayıcıda render edilen metni tarayan test yakaladı
+(§24.4 ile aynı aile). Koruyan test: `tests/qa-shop-pages.spec.ts` →
+"kabul kriterleri sahadaki gibi sade".
+
+### 25.3. Üç katmanlı açığa çıkarma (progressive disclosure)
+
+Her pratik ekranı üç katmana ayrılır. Varsayılan HER ZAMAN Katman 0'dır:
+
+- **Katman 0 — sürekli görünür, sıfır spoiler:** arayüz, sözleşme, story'ler,
+  kabul kriterleri. Kullanıcı buraya kurcalamaya gelir.
+- **Katman 1 — istek üzerine açılan ipucu:** cevap değil **dürtme**.
+  ✅ "Bu ekranda bir sınır var" · ❌ "409 bekle".
+  Etkileşim: masaüstünde hover, **dokunmatikte tıkla-aç** (hover yoktur —
+  yalnızca `:hover`'a bağlanan ipucu mobilde ERİŞİLEMEZ olur, bu bir
+  erişilebilirlik hatasıdır, §12).
+- **Katman 2 — yalnızca kullanıcı bulgusunu KAYDETTİKTEN sonra:** doğrulama
+  ve cevap. Sıra **bulgu → kayıt → doğrulama**'dır; asla cevap → uygula değil.
+
+### 25.4. Varsayılan durum kuralları
+
+- Kusur/bug avı içeren her alanda **gizli mod varsayılandır**: "bu alanda N
+  kusur açık, hangileri söylenmiyor". Adlı liste ancak kullanıcı açıkça
+  isterse görünür.
+- Cevap anahtarı niteliğindeki paneller (adım+beklenen status turları, kusur
+  adı listeleri) **varsayılan kapalı** ve ekranın öne çıkan yerinde DEĞİL.
+- Bir turu/rehberi "öne almak" istiyorsan önce §25.1 pratik testini uygula:
+  cevap anahtarını öne almak, keşfi tamamen ortadan kaldırır.
+
+### 25.5. Keşif geri bildirimsiz bırakılamaz
+
+Geri bildirimsiz keşif, keşif değil dolaşmadır. Kullanıcı bir sınırı zorlayıp
+409 aldığında, bunun **doğru davranış mı yoksa bulduğu kusur mu** olduğunu
+ayırt edemezse hiçbir şey öğrenmez.
+
+Bu yüzden her keşif alanında kullanıcının kendi bulgusunu **hakemsiz
+doğrulayabileceği bir zemin** bulunmalıdır. `/qa-shop`'ta bu zemin kusur
+anahtarıdır: aynı adımı anahtar açık ve kapalıyken koşturmak, cevabı kimse
+söylemeden farkı gösterir. Yeni bir pratik alanı tasarlarken bu zemini
+kurmadan keşif serbestisi verme.
+
+### 25.6. İlerleme "gezdim" değil "kapattım" olmalı
+
+Pratik alanlarında ilerleme göstergesi sayfa ziyaretini değil, **kapatılan
+senaryoyu** saymalıdır. Ölçüt: kullanıcı bir bulgu kaydetti mi, doğruladı mı,
+testini yazdı mı. "14 adımın 1'indesin" bir okuma göstergesidir; pratik
+alanında yanıltıcıdır.
+
+### 25.7. Arayüz açıklamaları: yalnızca BU UYGULAMAYA mahsus olan anlatılır
+
+> Kullanıcı kararı, 2026-08-28. Pratik ortamlarındaki kavram baloncukları
+> (`QaShopKavram`) ve benzeri her açıklama katmanı için bağlayıcıdır.
+
+Bir düğmenin ya da etiketin üstüne gelince açılan açıklama, **genel bilgi
+ansiklopedisi değildir.**
+
+| ❌ Açıklanmaz (herkes bilir) | ✅ Açıklanır (bize mahsus) |
+|---|---|
+| API nedir, database nedir, Swagger nedir | Bu API'de kimlik neden iki katmanlı |
+| endpoint, istek gövdesi, cevap gövdesi, base URL | Bu adres Docker'a bağlı; Docker kapalıysa ne olur, sonucu nasıl görürsün |
+| sepet nedir, kupon nedir, sipariş nedir | Kupon BURADA checkout'ta yeniden doğrulanır; sepetteki indirim garanti değildir |
+| sandbox'ın sözlük anlamı | Sandbox BURADA ayrı sunucu değil, aynı veritabanında tohum verinin sana kopyası |
+
+**Pratik testi:** cümleyi başka bir e-ticaret sitesi için de aynen
+yazabiliyorsan, o kavram oraya ait değildir — çıkar.
+
+Genel kavram açıklamak zararsız değildir: okuyanın zamanını alır ve asıl
+bilinmeyeni (uygulamaya özgü davranışı) gölgeler.
+
+**İkinci sınır — §25.2.1 burada da geçerli:** açıklama KURALI anlatır
+("ödenmemiş sipariş kargolanamaz"), o kuralı sınama reçetesini değil
+("şunu dene, şu kodu bekle"). Baloncuğa status kodu yazılmaz.
+
+**Otomasyon kısıtı:** bu katmanlar `/qa-shop` gibi bir Selenium/Playwright
+hedefine konuyorsa `pointer-events: none` ZORUNLUDUR — Playwright tıklamadan
+önce hover yapar ve açılan katman tıklamayı keserse pratik hedefi flaky olur.
+Tetikleyici düğmenin İÇİNE değil YANINA konur; düğmenin `data-testid`'si
+değişmez.
+
+**Erişilebilirlik:** yalnızca hover ile açılan açıklama dokunmatikte
+erişilemez (§25.3). Hover + tıklama + klavye üçü birden desteklenir; hover ve
+tıklama AYRI durumlarda tutulur — tek bir `acik` bayrağıyla yazılırsa fare
+zaten üstteyken tıklamak baloncuğu KAPATIR.
+
+**Denetim:** `scripts/check-qa-shop-kavramlar.mjs` build zincirinde koşar;
+sözlükte olmayan anahtarı, kullanılmayan ölü kaydı, eksik iki dilliliği ve
+düz genel terim başlığını hard-fail eder.
+
+### 25.8. Repo'ya bağlı belge, repo indirmeyen kullanıcıya YOK demektir
+
+> Kullanıcı bulgusu, 2026-08-27.
+
+Bu ortam iki yoldan kurulabiliyor: depoyu klonlayarak ya da yalnızca
+yayınlanmış Docker imajlarıyla. İkinci yoldan gelen kullanıcının makinesinde
+depo dosyaları **yoktur**.
+
+Bu yüzden bir rehber adımı `qa-shop/db/validation-queries.sql dosyasını aç`
+diyorsa, o adım kullanıcıların bir kısmı için uygulanamaz — ve bunu hiçbir
+derleme kapısı söylemez, sayfa çalışmaya devam eder.
+
+**Kural:** kullanıcıya bir dosya gösteriliyorsa, onu edinmenin repo
+GEREKTİRMEYEN bir yolu da verilmelidir. Üç seçenek sırayla sunulur:
+1. Siteden indirme bağlantısı (`scripts/build-qa-shop-downloads.mjs` her
+   build'de `public/qa-shop/indirilebilir/` altına üretir — depoya girmez).
+2. Depo yolu (klonlayanlar için).
+3. Hiç edinmeden konteynerin içinden çalıştırma (imaja gömülü dosyalar
+   `/opt/qa-shop/` altındadır).
+
+⚠ "İmajın içinde var" tek başına yeterli DEĞİLDİR: konteynerin içindeki bir
+dosya DBeaver'da `File > Open File` ile açılamaz. Dosyanın kullanıcının
+diskinde olması gereken bir akış varsa indirme bağlantısı zorunludur.

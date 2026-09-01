@@ -112,7 +112,7 @@ export const BUG_FLAGS = {
             en: 'The order list is not filtered by user',
         },
         breaks: {
-            tr: 'GET /orders çağrısı sandbox\'taki TÜM siparişleri döndürür, yalnızca giriş yapanın siparişlerini değil. Çok kiracılı sistemlerin en tehlikeli açığı.',
+            tr: 'GET /orders çağrısı sandbox\'taki TÜM siparişleri döndürür, yalnızca giriş yapanın siparişlerini değil. Multi-tenant sistemlerin en tehlikeli açığı.',
             en: 'GET /orders returns EVERY order in the sandbox rather than only the signed-in user\'s. The most dangerous flaw in a multi-tenant system.',
         },
         catchableBy: {
@@ -168,6 +168,56 @@ export const BUG_FLAGS = {
 }
 
 export const BUG_FLAG_KEYS = Object.keys(BUG_FLAGS)
+
+// ─── Gizli tur ──────────────────────────────────────────────────────────────
+//
+// NEDEN VAR: adını bilerek açtığın bir kusur "doğrulama" pratiğidir — testimi
+// yazdım, kusuru açtım, kırmızıya döndü mü? Bu değerlidir ama gerçek işin
+// yarısıdır. Sahada kimse sana hangi kusurun açık olduğunu söylemez; kusuru
+// ARAMAK gerekir. Gizli tur bunu verir: sistem birkaç kusuru açar, hangileri
+// olduğunu SÖYLEMEZ, kullanıcı testleriyle avlar.
+//
+// TASARIM: gizleme SUNUCUDA yapılır, arayüzde değil. Bu sayfanın kitlesi
+// tarayıcının ağ sekmesinde yaşayan QA mühendisleridir; arayüzde saklanan bir
+// cevap otuz saniyede bulunur ve mekanizmanın sahte olduğu öğrenilir. Sunucu
+// gizli turda `enabled` alanını HİÇ göndermez — saklanacak bir şey yoktur.
+//
+// Durum ayrı bir sütun yerine bug_flags jsonb'sinde AYRILMIŞ bir anahtarda
+// tutulur: şema göçü gerektirmez ve activeFlags/describeFlags yalnızca
+// BUG_FLAG_KEYS üzerinde döndüğü için bu anahtar onlara hiç görünmez.
+// Kullanıcı bunu PATCH ile kendisi yazamaz; unknownFlagKeys reddeder.
+export const HIDDEN_KEY = '__hidden'
+
+export function isHidden(flags) {
+    if (!flags || typeof flags !== 'object') return false
+    return flags[HIDDEN_KEY] === true
+}
+
+// Rastgele seçim: her tur farklı olsun diye. Aynı sırayla ilerleyen bir liste
+// olsaydı ikinci turda kullanıcı sırayı ezberler ve arama biterdi.
+export function pickRandomFlags(count) {
+    const havuz = [...BUG_FLAG_KEYS]
+    for (let i = havuz.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[havuz[i], havuz[j]] = [havuz[j], havuz[i]]
+    }
+    return havuz.slice(0, Math.max(1, Math.min(count, BUG_FLAG_KEYS.length)))
+}
+
+// Gizli turda katalog: HANGİ kusurun açık olduğu çıkarılır, ama kusurların
+// KENDİSİ listede kalır. Kullanıcı neyin mümkün olduğunu bilmeli — aksi halde
+// arama, sınırı belirsiz bir tahmin oyununa döner. Elindeki liste bir av
+// listesidir: on ihtimal, birkaçı canlı.
+export function describeFlagsHidden() {
+    return BUG_FLAG_KEYS.map((key) => {
+        const { title, breaks, catchableBy } = BUG_FLAGS[key]
+        return { key, title, breaks, catchableBy }
+    })
+}
+
+export function hiddenCount(flags) {
+    return activeFlags(flags).length
+}
 
 // Bilinmeyen anahtar sessizce yok sayılmaz — kullanıcı yazım hatası yaptığında
 // "açtım ama hiçbir şey olmadı" demesin diye çağıran taraf doğrular.

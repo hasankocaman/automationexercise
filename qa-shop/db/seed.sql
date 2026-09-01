@@ -1,5 +1,5 @@
 -- ============================================================================
--- QA Shop — tohum veri (ŞABLON sandbox'a yüklenir)
+-- QA Shop — seed veri (ŞABLON sandbox'a yüklenir)
 --
 -- BELİRLENİMCİ: hiçbir yerde random() yok. Tüm dağılımlar modüler aritmetikle
 -- üretilir — aynı dosya her makinede aynı veriyi kurar. Testler rastgele
@@ -8,13 +8,13 @@
 --
 -- Tek istisna ZAMAN DAMGALARI: now() üstünden göreli üretilir (now() - 30 gün
 -- gibi). Sabit tarih yazılsaydı "son 30 günün siparişleri" sorgusu bir yıl
--- sonra boş dönerdi. Yapı belirlenimci, takvim canlı.
+-- sonra boş dönerdi. Yapı deterministic, takvim canlı.
 --
 -- TUTARLILIK: sipariş toplamları ELLE yazılmaz, satırlardan HESAPLANIR.
--- Böylece tohum veri kendi mutabakat kuralını ihlal etmez. Kirli veri görmek
+-- Böylece seed veri kendi mutabakat kuralını ihlal etmez. Kirli veri görmek
 -- isteyen validation-queries.sql'deki kusur enjeksiyon bölümünü kullanır.
 --
--- Demo parolası (tüm tohum kullanıcılar): Password123!
+-- Demo parolası (tüm seed kullanıcılar): Password123!
 -- ============================================================================
 
 \set TPL '00000000-0000-0000-0000-000000000000'
@@ -324,7 +324,7 @@ select :'TPL',
        )
   from generate_series(1, 300) as t(i);
 
--- ─── Tohum özeti ────────────────────────────────────────────────────────────
+-- ─── Seed özeti ────────────────────────────────────────────────────────────
 do $$
 declare r record;
 begin
@@ -337,6 +337,6 @@ begin
         (select count(*) from reviews          where sandbox_id = '00000000-0000-0000-0000-000000000000') as reviews,
         (select count(*) from audit_log        where sandbox_id = '00000000-0000-0000-0000-000000000000') as logs
     into r;
-    raise notice 'QA Shop tohum veri hazır: % ürün, % varyant, % kullanıcı, % sipariş, % sipariş satırı, % yorum, % log',
+    raise notice 'QA Shop seed veri hazır: % ürün, % varyant, % kullanıcı, % sipariş, % sipariş satırı, % yorum, % log',
         r.products, r.variants, r.users, r.orders, r.order_items, r.reviews, r.logs;
 end $$;

@@ -363,28 +363,63 @@ export const ROUTE_SEO = [
         noindex: true,
     },
     {
-        path: '/qa-shop-setup',
-        title: 'QA Shop Setup Guide: Database, API and Test Automation | LearnQA.dev',
-        description: 'Set up the QA Shop practice environment step by step: connect PostgreSQL with DBeaver, read the OpenAPI contract, and test endpoints manually and with Postman.',
+        // QA Shop üçlüsü HERKESE AÇIK ve indekslenebilir. Şartname sayfası
+        // arama niyeti bakımından en güçlüsü: "test senaryosu / user story
+        // örneği" arayan kişi buraya iner, oradan kuruluma ve dükkâna geçer.
+        // Bu üçlünün GİRİŞ KAPISI. Sayfa büyük resimle açıldığı (sistem nedir,
+        // hazır deneme API'lerinden farkı ne, beş dakikada nasıl başlanır)
+        // için "ücretsiz test ortamı" sorgusunu hedeflemek içerikle tutarlı;
+        // user story ve kabul kriteri anahtar kelimeleri açıklamada duruyor.
+        path: '/qa-shop-spec',
+        title: 'Free API and Database Testing Playground | LearnQA.dev',
+        description: 'Practise on a real PostgreSQL and a 41-endpoint REST API: 16 user stories with acceptance criteria, business rules and a measured error catalog. No signup.',
         tr: {
-            title: 'QA Shop Kurulum Rehberi: Database ve API Testi | LearnQA.dev',
-            description: 'QA Shop pratik ortamını adım adım kur: DBeaver ile PostgreSQL bağlantısı, OpenAPI sözleşmesini okuma, uçları manuel ve Postman ile test etme.',
+            title: 'Ücretsiz API ve Database Test Ortamı | LearnQA.dev',
+            description: 'Gerçek PostgreSQL ve 41 endpoint\'li REST API ile ücretsiz test pratiği: 16 user story, kabul kriterleri, iş kuralları ve ölçülmüş hata kataloğu. Kayıt gerekmez.',
         },
-        // Sitemap'e GİRMEZ + shell'de robots=noindex: şimdilik RequireAdmin ile
-        // korunuyor. Herkese açıldığı gün bu satır silinir.
-        noindex: true,
+    },
+    {
+        // Arama niyeti: "epic user story farkı", "frontend backend user story
+        // örneği", "kabul kriteri nasıl yazılır". Sayfa gerçek bir backlog'un
+        // tamamını gösterir: gereksinim → epic → business story →
+        // frontend/backend story → test.
+        path: '/qa-shop-backlog',
+        title: 'Epic and User Story Example for QA | LearnQA.dev',
+        description: 'A real backlog end to end: 8 business requirements, 6 epics, 16 user stories and separate frontend and backend stories with acceptance criteria you can test.',
+        tr: {
+            title: 'QA için Epic ve User Story Örneği | LearnQA.dev',
+            description: 'Gerçek bir backlog baştan sona: 8 iş gereksinimi, 6 epic, 16 user story ve ayrı frontend/backend story\'leri; hepsi test edilebilir kabul kriterleriyle.',
+        },
+    },
+    {
+        // Arama niyeti: "swagger örnek", "test için REST API dokümantasyonu".
+        // Sayfa sözleşmeyi build türevinden okuduğu için Docker olmadan da
+        // içerik gösterir — indekslenmesinin bir anlamı var.
+        path: '/qa-shop-api',
+        title: 'Example Swagger / OpenAPI Contract for Testing | LearnQA.dev',
+        description: 'Browse a real REST API contract endpoint by endpoint: 46 endpoints grouped by tag, with request bodies and the exact 401, 403, 409 and 422 responses to expect.',
+        tr: {
+            title: 'Test İçin Örnek Swagger / OpenAPI Sözleşmesi | LearnQA.dev',
+            description: 'Gerçek bir REST API sözleşmesini baştan sona incele: etiketlere ayrılmış 46 endpoint, istek gövdeleri ve beklenen 401, 403, 409, 422 cevaplarıyla birlikte.',
+        },
+    },
+    {
+        path: '/qa-shop-setup',
+        title: 'Local API Testing Environment with Docker | LearnQA.dev',
+        description: 'Bring a real PostgreSQL and REST API up on your own machine step by step: install Docker, connect with DBeaver, read the OpenAPI contract, test with Postman.',
+        tr: {
+            title: 'Docker ile Yerel API Test Ortamı Kurulumu | LearnQA.dev',
+            description: 'Kendi makinende gerçek bir PostgreSQL ve REST API ayağa kaldır: Docker kurulumu, DBeaver bağlantısı, OpenAPI sözleşmesi ve Postman ile uç testi, adım adım.',
+        },
     },
     {
         path: '/qa-shop',
-        title: 'QA Shop: Practice Store for UI Test Automation | LearnQA.dev',
-        description: 'Practice UI automation on a real store interface backed by a live API: stable test ids, cart and order flows, and an event log showing every request.',
+        title: 'Selenium and Playwright Practice Site | LearnQA.dev',
+        description: 'Automate a real store interface backed by a live API and database: stable data-testid hooks, cart and order flows, and an event log showing every request.',
         tr: {
-            title: 'QA Shop: UI Test Otomasyonu Pratik Dükkânı | LearnQA.dev',
-            description: 'Gerçek bir API\'ye bağlı dükkân arayüzünde UI otomasyonu pratiği: kararlı test id\'leri, sepet ve sipariş akışları, her isteği gösteren olay günlüğü.',
+            title: 'Selenium ve Playwright Pratik Sitesi | LearnQA.dev',
+            description: 'Gerçek bir API ve veritabanına bağlı dükkân arayüzünde otomasyon pratiği: kararlı data-testid kancaları, sepet ve sipariş akışları, isteği gösteren olay günlüğü.',
         },
-        // Kurulum rehberiyle aynı gerekçe: sayfa yalnızca kullanıcının kendi
-        // makinesindeki API ile anlamlı. Herkese açıldığı gün bu satır silinir.
-        noindex: true,
     },
     {
         path: '/basit-backend',
@@ -495,6 +530,16 @@ export const ROUTE_SEO = [
             description: 'Bir LearnQA.dev QA öğrenme yol haritası sertifikasının gerçekliğini benzersiz sertifika kimliğiyle doğrula ve geçerliliğini kontrol et.',
         },
         dynamic: true,
+    },
+    {
+        path: '/qa-shop-detailed-guide',
+        title: 'QA Shop Detailed Testing Guide (Admin Only) | LearnQA.dev',
+        description: 'Admin-only detailed testing guide for QA Shop with API strategy, test case examples, edge cases and hidden bug detection for independent testers.',
+        tr: {
+            title: 'QA Shop Detaylı Test Rehberi (Admin Only) | LearnQA.dev',
+            description: 'Tester bağımsızlığı için: API stratejisi, test case örnekleri, edge case\'ler ve gizli defect tespiti rehberi. Sadece admin\'ler erişebilir.',
+        },
+        noindex: true,
     },
 ]
 

@@ -26,8 +26,11 @@ const testsDir = join(rootDir, 'tests')
 const EXCEPTIONS = {
     '/basit-backend': 'Kullanıcı kararıyla hiçbir otomatik test suite\'ine dahil edilmiyor.',
     '/backend': 'Yalnızca admin oturumuyla açılıyor; normal test hesabıyla erişilemiyor.',
-    '/qa-shop-setup': 'Yalnızca admin oturumuyla açılıyor; normal test hesabıyla erişilemiyor. Herkese açıldığında bu istisna SİLİNMELİ ve gerçek test yazılmalı.',
-    '/qa-shop': 'Yalnızca admin oturumuyla açılıyor VE anlamlı içerik için kullanıcının kendi makinesinde çalışan bir API gerekiyor (localhost:4000); CI runner\'ında o yığın yok. Herkese açıldığında bu istisna SİLİNMELİ ve API\'yi ayağa kaldıran bir test yazılmalı.',
+    '/qa-shop-detailed-guide': 'Admin-only tester rehberi; RequireAdmin ile korunuyor, otomatik test suite\'lerine dahil edilmiyor.',
+    // '/qa-shop-setup', '/qa-shop' ve '/qa-shop-spec' istisnaları KALDIRILDI:
+    // üçü de herkese açıldı ve tests/qa-shop-pages.spec.ts ile test ediliyor.
+    // Dükkân sayfası CI'da API'siz koşar — test yığın kapalıyken gösterilen
+    // yönlendirmeyi doğrular, ki o da gerçek bir davranış.
 }
 
 /**

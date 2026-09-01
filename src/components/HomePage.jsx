@@ -638,6 +638,81 @@ function HomePage() {
                 </Link>
             </div>
 
+            {/* ── QA Shop test altyapısı afişi ──────────────────────────────
+                Siteye gelen kişi test altyapısını ARAMADAN görmeli. Daha önce
+                yalnızca kategori kartlarındaki küçük linklerden ulaşılıyordu;
+                orası sayfanın çok aşağısı ve isim benzerliği yüzünden
+                fark edilmiyordu.
+
+                DÜKKÂNA işaret ediyor, şartnameye değil. Önceki sıra (önce oku,
+                sonra kur, en son dene) mantıklı görünüyordu ama ölçüm tersini
+                gösterdi: gelen kişi önce KURCALAMAK istiyor. Dükkân Docker
+                olmadan da açılıyor (tarayıcı modu), yani afiş bir okuma
+                listesine değil çalışan bir sisteme çıkıyor. Şartname ve kurulum
+                dükkânın üstündeki geçiş şeridinden bir tık uzakta — referans
+                rafı, giriş kapısı değil. Rakamlar afişte duruyor çünkü "gerçek
+                veritabanı" iddiasını somutlaştıran şey onlar. */}
+            <div className="container mx-auto px-3 pt-4 md:px-6 md:pt-6">
+                <Link
+                    to="/qa-shop"
+                    data-testid="qa-shop-banner"
+                    className={`group relative flex items-center gap-3 overflow-hidden rounded-2xl border-2 p-3.5 transition-all duration-300 hover:scale-[1.01] hover:shadow-2xl md:gap-4 md:p-5 ${
+                        darkMode
+                            ? 'border-emerald-700/60 bg-gradient-to-r from-emerald-900/50 via-teal-900/40 to-cyan-900/40 hover:border-emerald-500/80 hover:shadow-emerald-900/40'
+                            : 'border-emerald-300 bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 hover:border-emerald-400 hover:shadow-emerald-200/60'
+                    }`}
+                >
+                    <span className="pointer-events-none absolute -left-20 top-0 h-full w-16 rotate-12 bg-white/20 blur-xl transition-transform duration-700 group-hover:translate-x-[800%]" />
+
+                    <div className={`flex-shrink-0 rounded-xl p-2.5 shadow-lg transition-transform duration-200 group-hover:scale-110 md:p-3 ${
+                        darkMode ? 'bg-emerald-700/60' : 'bg-emerald-600'
+                    }`}>
+                        <span className="text-2xl md:text-3xl">🧪</span>
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                        <p className={`text-sm font-extrabold md:text-base ${darkMode ? 'text-emerald-200' : 'text-emerald-900'}`}>
+                            {language === 'tr'
+                                ? 'Ücretsiz Test Altyapısı — gerçek API + database, kayıt yok'
+                                : 'Free Testing Playground — real API + database, no signup'}
+                        </p>
+                        <p className={`mt-0.5 text-xs leading-relaxed md:text-sm ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>
+                            {language === 'tr'
+                                ? 'Dükkânı şimdi aç ve kurcalamaya başla — kurulum gerekmiyor. Sabit cevap döndüren deneme API\'lerinin aksine burada stok gerçekten düşer, sipariş tabloya yazılır.'
+                                : 'Open the store and start poking at it right now — no setup needed. Unlike practice APIs that return canned responses, here stock genuinely drops and orders are written to a table.'}
+                        </p>
+                        {/* Rakamlar iddiayı somutlaştırır — mobilde de görünür kalsın diye sarmalı */}
+                        <div className="mt-1.5 flex flex-wrap gap-1.5">
+                            {[
+                                { v: '18', tr: 'tablo', en: 'tables' },
+                                { v: '41', tr: 'endpoint', en: 'endpoints' },
+                                { v: '16', tr: 'user story', en: 'user stories' },
+                                { v: '10', tr: 'kontrollü bug', en: 'controlled bugs' },
+                            ].map((chip) => (
+                                <span
+                                    key={chip.v + chip.en}
+                                    className={`rounded-md border px-1.5 py-0.5 text-[10px] font-bold md:text-[11px] ${
+                                        darkMode
+                                            ? 'border-emerald-600/60 bg-emerald-900/40 text-emerald-200'
+                                            : 'border-emerald-300 bg-white text-emerald-800'
+                                    }`}
+                                >
+                                    {chip.v} {language === 'tr' ? chip.tr : chip.en}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div
+                        className="hidden flex-shrink-0 items-center gap-1 whitespace-nowrap rounded-xl px-3 py-2 text-xs font-bold text-white shadow-lg transition-all duration-200 group-hover:scale-105 group-hover:gap-2 sm:flex"
+                        style={{ background: 'linear-gradient(135deg, #059669, #0891b2)' }}
+                    >
+                        {language === 'tr' ? 'Dükkânı aç' : 'Open the store'}
+                        <span className="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
+                    </div>
+                </Link>
+            </div>
+
             {/* ── Trend Skill Widget — sayfayı açan herkes hemen görsün ── */}
             <div className="container mx-auto px-3 pt-4 md:px-6 md:pt-6">
                 <TrendingSkillsWidget darkMode={darkMode} />
@@ -1174,7 +1249,18 @@ function HomePage() {
                                 <Link to="/git-github" data-testid="nav-git-github" className={nb('emerald')}>🔀 Git/GitHub</Link>
                                 <Link to="/linux" data-testid="nav-linux" className={nb('orange')}>🐧 Linux</Link>
                                 {isAdmin && <Link to="/backend" data-testid="nav-backend" className={nb('cyan')}>🧩 {language === 'tr' ? 'Basit Backend' : 'Simple Backend'}</Link>}
-                                {isAdmin && <Link to="/qa-shop-setup" data-testid="nav-qa-shop-setup-card" className={nb('indigo')}>🛠️ {language === 'tr' ? 'QA Shop Kurulum' : 'QA Shop Setup'}</Link>}
+                                {/* QA Shop pratik ortamının üç sayfası. Sıra
+                                    DÜKKÂNLA BAŞLAR: çalışan sistemi kurcalamak
+                                    ilk adımdır, okumak değil. Şartname ve
+                                    kurulum arkasından gelir — biri "neyi
+                                    bekliyordum" sorusunun, öbürü "kendi
+                                    veritabanıma nasıl bakarım" sorusunun
+                                    cevabı ve ikisi de ancak kurcalayan biri
+                                    için anlamlı. */}
+                                <Link to="/qa-shop" data-testid="nav-qa-shop-card" className={nb('violet')}>🛒 {language === 'tr' ? 'QA Shop Dükkân' : 'QA Shop Store'}</Link>
+                                <Link to="/qa-shop-spec" data-testid="nav-qa-shop-spec-card" className={nb('indigo')}>📋 {language === 'tr' ? 'QA Shop Şartname' : 'QA Shop Spec'}</Link>
+                                <Link to="/qa-shop-backlog" data-testid="nav-qa-shop-backlog-card" className={nb('violet')}>🗂️ {language === 'tr' ? 'QA Shop Backlog' : 'QA Shop Backlog'}</Link>
+                                <Link to="/qa-shop-setup" data-testid="nav-qa-shop-setup-card" className={nb('indigo')}>🛠️ {language === 'tr' ? 'QA Shop Kurulum' : 'QA Shop Setup'}</Link>
                                 <Link to="/jenkins" data-testid="nav-jenkins" className={nb('blue')}>🔧 Jenkins</Link>
                                 <Link to="/kubernetes" data-testid="nav-kubernetes" className={nb('violet')}>☸️ K8s</Link>
                                 <Link to="/kafka" data-testid="nav-kafka" className={nb('orange')}>🟠 Kafka</Link>
@@ -1193,20 +1279,21 @@ function HomePage() {
                         <div className={`px-3 py-2 flex flex-wrap items-center gap-1.5 border-b ${darkMode ? 'bg-purple-900/30 border-gray-700' : 'bg-purple-50 border-purple-100'}`}>
                             <span className="text-sm">🎯</span>
                             <span className={`text-xs font-bold tracking-wide uppercase ${darkMode ? 'text-purple-300' : 'text-purple-700'}`}>{t('home.category.practice')}</span>
-                            {/* QA Shop kurulum rehberi — ŞİMDİLİK yalnızca admin.
-                                Girişi buraya kondu çünkü aranacağı yer burası: bu
-                                bölüm sayfa İÇİ element oyun alanı, o sayfa ise AYRI
-                                bir veritabanı/API ortamının kurulumu. İkisi farklı
-                                şeyler ve isim benzerliği kafa karıştırıyordu. */}
-                            {isAdmin && (
-                                <Link
-                                    to="/qa-shop-setup"
-                                    data-testid="nav-qa-shop-setup"
-                                    className={`ml-auto min-h-[36px] flex items-center rounded-lg border px-2.5 py-1 text-[11px] font-bold transition-all hover:scale-105 ${darkMode ? 'border-indigo-600 bg-indigo-900/40 text-indigo-200 hover:bg-indigo-800/50' : 'border-indigo-300 bg-indigo-50 text-indigo-700 hover:bg-indigo-100'}`}
-                                >
-                                    🛠️ {language === 'tr' ? 'QA Shop Kurulum Rehberi' : 'QA Shop Setup Guide'}
-                                </Link>
-                            )}
+                            {/* QA Shop pratik ortamının ÖN KAPISI. Girişi buraya
+                                kondu çünkü aranacağı yer burası: bu bölüm sayfa
+                                İÇİ element oyun alanı, o sayfa ise AYRI bir
+                                veritabanı/API ortamı. İkisi farklı şeyler ve
+                                isim benzerliği kafa karıştırıyordu.
+                                DÜKKÂNA işaret ediyor: buradan çıkan kişi
+                                okuyacak bir belge değil, kurcalayacak çalışan
+                                bir sistem bulmalı. */}
+                            <Link
+                                to="/qa-shop"
+                                data-testid="nav-qa-shop-store-cta"
+                                className={`ml-auto min-h-[36px] flex items-center rounded-lg border px-2.5 py-1 text-[11px] font-bold transition-all hover:scale-105 ${darkMode ? 'border-indigo-600 bg-indigo-900/40 text-indigo-200 hover:bg-indigo-800/50' : 'border-indigo-300 bg-indigo-50 text-indigo-700 hover:bg-indigo-100'}`}
+                            >
+                                🛒 {language === 'tr' ? 'QA Shop: gerçek API ve database ile pratik' : 'QA Shop: practice with a real API and database'}
+                            </Link>
                         </div>
                         <div className="p-2 flex flex-wrap gap-1">
                             {sections.map((section) => (
@@ -1337,10 +1424,12 @@ function HomePage() {
                                     { to: '/git-github', label: '🔀 Git/GitHub' },
                                     { to: '/linux', label: '🐧 Linux' },
                                     ...(isAdmin ? [{ to: '/backend', label: language === 'tr' ? '🧩 Basit Backend' : '🧩 Simple Backend' }] : []),
-                                    // QA Shop pratik ortamının kurulum rehberi — admin.
-                                    // Footer'a da konuldu çünkü admin linklerinin arandığı
-                                    // yer burası; üstteki karttan tek başına bulunamıyordu.
-                                    ...(isAdmin ? [{ to: '/qa-shop-setup', label: language === 'tr' ? '🛠️ QA Shop Kurulum' : '🛠️ QA Shop Setup' }] : []),
+                                    // QA Shop pratik ortamının üç sayfası: önce kurcalanacak
+                                    // dükkân, sonra referans belgeler.
+                                    { to: '/qa-shop', label: language === 'tr' ? '🛒 QA Shop Dükkân' : '🛒 QA Shop Store' },
+                                    { to: '/qa-shop-spec', label: language === 'tr' ? '📋 QA Shop Şartname' : '📋 QA Shop Spec' },
+                                    { to: '/qa-shop-backlog', label: language === 'tr' ? '🗂️ QA Shop Backlog' : '🗂️ QA Shop Backlog' },
+                                    { to: '/qa-shop-setup', label: language === 'tr' ? '🛠️ QA Shop Kurulum' : '🛠️ QA Shop Setup' },
                                     { to: '/jenkins', label: '🔧 Jenkins' },
                                     { to: '/kubernetes', label: '☸️ Kubernetes' },
                                     { to: '/kafka', label: '🟠 Kafka' },

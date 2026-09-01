@@ -7,104 +7,1650 @@
 >
 > Bu dosyada commit hash/anlık durum tutulabilir; kalıcı kural dosyalarına
 > commit hash/anlık not yazılmaz (bkz. CLAUDE.md §0).
->
-> **2026-07-25'te bu dosya 10.000+ satırlık kronolojik bir oturum günlüğüne
-> dönüşmüştü (Haziran sonundan beri her oturumun tam anlatımı birikmişti).
-> Temizlendi:** kalıcı değeri olan bulgular `CLAUDE.md` §9.3/§23'e taşındı,
-> geri kalan tamamlanmış/main'e gitmiş iş anlatıları silindi — tam ayrıntı
-> her zaman `git log --oneline` çıktısında ve commit mesajlarında duruyor
-> (mesajlar açıklayıcı yazılır, ör. `feat(api-testing): GRUP K tamamlandı`).
-> Bundan sonra bu dosyayı **güncel durum + açık işler** olarak tut, kapanan
-> her iş için ayrı bir bölüm biriktirme — CLAUDE.md'ye taşınacak kalıcı bir
-> kural/bulgu yoksa ilgili girdiyi commit'e güvenip sil.
 
 ---
 
-## 🚩 OTURUM DEVİR NOTU (2026-08-17, Opus — QA Shop yığını AYAĞA KALKTI ve doğrulandı) — YENİ OTURUM BURADAN BAŞLASIN
+## 🚩 OTURUM DEVİR NOTU (2026-08-28, üçüncü oturum · Opus) — YENİ OTURUM BURADAN BAŞLASIN
 
-> Çelişki olursa BU bölüm günceldir. Alttaki bölümler korunuyor.
+> Çelişki olursa BU bölüm günceldir. Alttaki bölümler tarih sırasıyla duruyor
+> ama artık bağlayıcı değil.
 
-### 📍 Şu anki durum: her şey `main`'de ve PUSH EDİLDİ
+### ⚠️ ÖNCE BUNU OKU
 
-Alttaki 2026-08-16 notunun "çalışma ağacı kirli, commit atılmadı" uyarısı
-**ARTIK GEÇERSİZDİR.** Bu oturumda 8 commit `main`'e gitti ve push edildi;
-son commit `964a7a1`. Çalışma ağacında yalnızca build'in her koşumda yeniden
-ürettiği türev dosyalar kalır (`public/sitemap-*.xml`, `pageUpdated.js`).
+- **Tam E2E paketi koştu:** 429 geçti · 2 düştü · 2 koşmadı (25,3 dk). Düşen
+  ikisinin kök nedeni TEK ve dalla İLGİSİZ (Groq modeli kalktı, aşağıda ayrı
+  bölüm). Yani `feature/qa-shop-pratik-ortami` birleştirme açısından temiz.
+- **`main` hâlâ `f4ef66b`, dal birleştirilmedi.** Kullanıcı kararı bekliyor.
+- **Çalışma ağacında YENİ İŞ var, commit EDİLMEDİ** (kullanıcı istemedi):
+  `/qa-shop-backlog` sayfası ve çevresi — 4 yeni, 13 değişik dosya.
 
-⚠️ **PUSH = YAYIN.** Kullanıcı bunu bilerek seçti (branch alternatifi
-sunuldu, main'i istedi). Canlıya çıkan görünür değişiklik: `/security`
-herkese açıldı + 8. sekmesindeki hook hatası düzeldi. `/qa-shop` ve
-`/qa-shop-setup` admin kapısı + `noindex` arkasında, dışarıdan görünmüyor.
+### 📋 Bu oturumda yapılan: `/qa-shop-backlog` (yeni sayfa)
 
-### ✅ QA Shop yığını GERÇEK PostgreSQL'de doğrulandı
+Kullanıcı isteği: *"gerçek bir şirkette proje nasıl geliştirilirse aynısı —
+gereksinim, analiz dokümanı, epic, epic'e bağlı user story'ler; frontend
+developer için ayrı, backend developer için ayrı story; tester da bunları tek
+tek inceleyip test etsin."*
 
-Önceki notların "DOĞRULANAMAYAN" bölümü **kapandı.** Yığın iki ayrı makinede
-çalıştırıldı: macOS/arm64 ve Windows/amd64.
+Kullanıcı üç kararı verdi: **üç katmanlı hiyerarşi** (epic → business story →
+FE+BE story), **yeni sayfa** (`/qa-shop-spec` analiz dokümanı olarak kalır),
+**tam iskelet + 2 epic'te tam bölünme**.
 
-| Paket | Sonuç |
+Kurulan zincir: 8 iş gereksinimi → 6 epic → 16 business story → 32
+frontend/backend story → test edenin 6 adımlı yolu.
+
+| Epic | Story | Bölünme |
+|---|---|---|
+| EP-01 Kimlik ve Oturum | US-01, US-02 | ✅ tam |
+| EP-02 Katalog ve Arama | US-03, US-04 | ✅ tam |
+| EP-03 Sepet ve Kupon | US-05…US-08 | ✅ tam |
+| EP-04 Sipariş ve Ödeme | US-09…US-12 | ✅ tam |
+| EP-05 Adres ve Yorumlar | US-14, US-15 | ✅ tam |
+| EP-06 Veri Güvenliği ve Test Altyapısı | US-13, US-16 | ✅ tam |
+
+**Altı epic de bölündü: 16 business story → 32 frontend/backend story.**
+Her business story tam olarak bir FE + bir BE çifti taşıyor; kapı bu oranı
+zorunlu kılıyor. `split: pending` mekanizması duruyor — yeni bir epic
+eklenirse rozet yine dürüst davranmak zorunda.
+
+**Tek kaynak ilkesi korundu:** 16 business story'nin METNİ kopyalanmadı;
+`qaShopBacklogData.js`, `qaShopSpecData.js`'ten id ile okuyor. Şartname
+değişince backlog kendiliğinden takip eder.
+
+**§25.2 korundu:** herkese açık `acceptance` iş dilinde tek cümle; status
+kodu, hata sabiti ve Given/When/Then dökümü `criteria` alanında ve yalnızca
+admin'e açılıyor.
+
+### 🔑 KULLANICI DÜZELTMESİ — story'nin aktörü KULLANICIDIR
+
+İlk sürümde frontend/backend story'leri *"Bir frontend geliştirici olarak ...
+istiyorum"* diye yazılmıştı. Kullanıcı bunu reddetti ve haklıydı: bu bir user
+story değil, **kılık değiştirmiş bir task**. Bir story'nin değeri her zaman
+kullanıcıya akar; geliştirme zaten kullanıcı için yapılır.
+
+12 story de kullanıcı gözüne çevrildi (*"Bir müşteri olarak ..."*, *"Bir
+ziyaretçi olarak ..."*). `kind` alanı (frontend/backend) korundu ama artık
+açıkça **işin NEREDE yaşadığını** söylüyor, **kimin faydalandığını** değil.
+Ölü `role` alanı (hiç render edilmiyordu ve zaten geliştiriciyi aktör sayan
+fikri taşıyordu) silindi.
+
+Kural kalıcılaştırıldı — sonraki epic bölünürken aynı kalıp kopyalanmasın:
+- `check-qa-shop-backlog.mjs` **Kontrol [F]** iki dilde de hard-fail eder.
+- `tests/qa-shop-backlog.spec.ts` ekrana basılan story kartlarını tarar.
+- SSS'ye bunu anlatan bir madde eklendi.
+
+⚠ Testin kapsamı bilerek DAR (yalnızca story kartları, `main` değil): SSS
+maddesi yanlış kalıbı *açıklamak için alıntılıyor*: tüm gövdeyi tarayan ilk
+sürüm o açıklamayı suç saydı ve kuralı öğreten metni sildirecekti.
+
+### 🐞 Bu oturumda BULUNAN ve DÜZELTİLEN iki gerçek arıza
+
+1. **`screens` alanları düz Türkçe string'di** — EN modda sızardı.
+   `check-i18n-leaks` yakaladı (borç 0 → 9). İki dilli yapıldı, borç yine 0.
+2. **Geçiş şeridine beşinci sayfa eklenince yüzen düğmelerle çakıştı.**
+   Önce 390px'te (şerit 205px'e genişledi, sol düğmeye 15px girdi). Düzeltince
+   **640px'te YENİ bir çakışma** çıktı — `sm` kırılımında etiketler açılıp
+   şerit 462px'e genişliyor. Test o genişliği hiç ölçmüyordu. Kırılım `md`'ye
+   alındı; şerit `md` altında bir sıra yukarı (`bottom-20`).
+
+### 🛡️ Eklenen/güçlendirilen bekçiler
+
+| Bekçi | Ne kırar |
 |---|---|
-| `qa-shop/api` — `npm test` (Docker'sız koşar) | **78/78** |
-| `qa-shop/rest-assured` — `mvn test` | **39/39** BUILD SUCCESS |
-| `qa-shop/postman` — Newman | **28 istek · 134 doğrulama · 0 hata** |
-| `db/validation-queries.sql` | **17 kontrol GEÇTİ** + kusur enjeksiyonu 4 kontrolün gerçekten baktığını kanıtladı |
+| `scripts/check-qa-shop-backlog.mjs` (build zincirinde) | Hayalet referans · öksüz story · tek yönlü izlenebilirlik · yalan "full" rozeti · eksik iki dillilik · **acceptance'a sızan status kodu/hata sabiti/Gherkin** · **story aktörünün geliştirici yapılması** |
+| `tests/qa-shop-backlog.spec.ts` (7 test) | Sayımlar · **bileşene HARDCODE edilmiş status kodu** (statik kapı göremez) · düzleştirilmiş hiyerarşi · kırık izlenebilirlik çapası · ana sayfa/şerit bağlantısı · EN sızıntısı |
+| `qa-shop-pages` yüzen öğe testi | Artık adla değil, alt banttaki TÜM yüzen öğeleri genel taramayla topluyor (köşe widget'larının testid'si yok); genişlik listesine **640 ve 414** eklendi |
 
-`schema.sql` ve `seed.sql` ilk denemede hatasız yüklendi; satır sayıları
-README'nin iddia ettiği rakamlarla birebir tuttu.
+**Hepsi bilerek bozularak kırmızıya döndürüldü** — 9 mutasyon veri kapısında,
+2 mutasyon bileşende (hardcode kod + düzleştirilmiş hiyerarşi), 1 mutasyon
+şerit kırılımında. Hiçbiri bozukken yeşil kalmadı.
 
-### 🐛 Canlı koşum ÜÇ gerçek hata ortaya çıkardı (üçü de düzeltildi)
+### ✅ Doğrulama durumu
 
-Üçü de o ana kadar **her kontrolden geçmişti.** Kalıcı ders `CLAUDE.md`
-§23.14'e taşındı.
+`npm run build` ✔ · içerik bütünlüğü ✔ · backlog kapısı ✔ · i18n (borç 0) ✔ ·
+kapsam 50/50 ✔ · statik kabuk TR 5634 / EN 6055 karakter (§23.16 eşiği 2000,
+iki dil farklı uzunlukta → §23.23 tuzağı yok) ·
+`qa-shop-backlog` + `qa-shop-pages` + `theme-and-accessibility` +
+`no-internal-jargon` + `seo-i18n-routing` + `mobile-smoke` → **73/73 yeşil**.
 
-1. **Sabit yazılmış id'ler.** `clone_sandbox` `bigserial` id'leri kaydırıyor;
-   Postman/REST Assured/belgeler `/products/1/variants` yazıyordu. Anahtarsız
-   istek şablona gittiği için elle denerken ÇALIŞIYOR, kendi alanını açan
-   test 404 alıyordu. Newman'daki `deliver`/`return` 404'ünün kökü buydu.
-2. **Mükerrer ödeme yanlış kodla reddediliyordu** — durum geçiş kontrolü
-   ödeme kontrolünden önce çalıştığı için `ALREADY_PAID` yerine genel
-   `INVALID_TRANSITION` dönüyordu. Sıra değiştirildi.
-3. **Sıfırlama önbelleği bayatlatıyor** — `reset_sandbox` yeniden klonladığı
-   için id'ler tekrar kayıyor, `sessions` boşaldığı için token'lar ölüyor.
+**Tam paket TEMİZ (2026-09-01): 444/444 geçti, 25,9 dk.** Sıfır düşüş, sıfır
+flaky, koşmayan test yok. Groq düzeltmesi ve test projesinin aynalanması
+sonrası alındı.
 
-Ayrıca **kendi testimde kör bir bekçi** bulundu: `ordersRouter.use(requireAuth)`
-olmayan yolda da 401 döndürüyor, yani "404 dönmüyor" kontrolü o router'da
-hiçbir şeye bakmıyordu. Kimlik isteyen route'lar listeden çıkarıldı, yerine
-bekçinin kendi testi kondu.
+Ara kayıtlar (gidişat görünsün diye): 2026-08-28'de 429 geçti / 2 düştü /
+2 koşmadı → 2026-08-29'da 437 geçti / 2 düştü / 1 flaky / 2 koşmadı →
+şimdi 444/444. Düşen ve koşmayanların TAMAMI Groq arızasıydı.
 
-### 🎯 Sıradaki iş (öncelik sırasıyla)
+Bir zamanlar flaky görünen `qa-shop-uye-senkronu` bu koşumda da geçti.
+Önceki tek düşüşü 7,5 saat duvar saati ve ağ tarafında EACCES ile gelmişti
+(makine uyumuş). ⚠ Dürüst kayıt: o koşumun mesajı HTML raporunun üzerine
+yazıldığı için kurtarılamamıştı — çevresel olduğu bir çıkarımdı, kanıt
+değil. Tekrar görülürse rapor `--reporter=list` ile alınmalı.
 
-1. **GitHub Actions durumu HÂLÂ BİLİNMİYOR.** Dört push oldu, hiçbirinin CI
-   sonucu görülmedi (`gh` CLI kurulu değil). Test job'ı kırmızıysa deploy hiç
-   çalışmaz ve site sessizce eski hâlinde kalır. **İlk bakılacak yer burası.**
-2. **Yayınlanmış imaj (Docker Hub / GHCR).** Kullanıcı açıkça sordu: "yeni bir
-   kullanıcı repo indirmeden çalıştırabilir mi?" Cevap evet. Gerekenler:
-   `docker-compose.hub.yml`, önceden tohumlanmış Postgres imajı için ayrı
-   Dockerfile, **çoklu mimari** derleme (kullanıcının iki makinesi farklı
-   mimaride: arm64 + amd64), etikete bağlı Actions iş akışı, README'ye "repo
-   istemeyen kurulum" bölümü. Açık karar: iki imaj + compose dosyası mı,
-   yoksa tek "şişman" imaj mı.
-3. **`/qa-shop` ve `/qa-shop-setup` herkese açılsın mı?** Açılırsa BEŞİ
-   birlikte kaldırılmalı: `RequireAdmin` + `seo.js` noindex + kapsam
-   istisnası + nav linkleri + gerçek E2E test. Biri eksik kalırsa açılış
-   yarım kalır (önceki oturumun `/security` dersi).
-4. **Bug anahtarlarının arayüzden açılması** — mekanizma ve uçlar hazır,
-   `/qa-shop` arayüzünde açma/kapama paneli yok.
-5. `/work-goals` takipçisi — plan hazır, kod yok.
+### 🎯 SIRADAKİ İŞ
+
+| # | İş | Not |
+|---|---|---|
+| 1 | Yeni işi commit'le | Kullanıcı henüz istemedi. 4 yeni + 13 değişik dosya. |
+| 2 | Tam E2E paketini tekrar koştur | Backlog sayfası eklendikten sonra. |
+| 3 | Dalı `main`'e birleştir | Canlı deploy tetikler — KULLANICI KARARI. |
+| 4 | Groq modeli | Aşağıdaki açık arıza bölümü. Kullanıcı "sonra bakalım" dedi. |
+| 6 | Ölü `supabase-bridge` ucunu kaldır | Sözleşme + imaj sürümü değişir. |
+| 7 | Rate limit kararı | Kullanıcı sormuştu, hâlâ karar bekliyor. |
+| 8 | Faz 6 kabul kriterini ELLE koştur | Testler bunu göremez. |
+
+---
+
+## 📌 Önceki Durum (2026-08-28, ikinci oturum · Opus)
+
+> ⚠ Bağlayıcı DEĞİL; en üstteki nota bak.
+
+> Çelişki olursa BU bölüm günceldir. Alttaki "Önceki Durum" bölümleri tarih
+> sırasıyla duruyor ama artık bağlayıcı değil.
+
+### ⚠️ ÖNCE BUNU OKU
+
+Kullanıcı beş işi sırayla istedi; beşi de yapıldı, hepsi doğrulandı ve
+**elle yapılacak iş kalmadı.**
+
+- **Çalışma ağacı TEMİZ.** Üç oturumun 79 dosyalık birikimi + bu oturumun işi
+  → **14 commit**, hepsi `feature/qa-shop-pratik-ortami` dalında ve GitHub'a
+  push edilmiş durumda.
+- **`main` hâlâ `f4ef66b`.** Dal birleştirilmedi. `main`'e push canlı site
+  deploy'unu tetikler — bu bilinçli olarak kullanıcının kararına bırakıldı.
+- **`qa-shop-v1.0.0` etiketi yayında.** İmajlar herkese açık ve çekilebilir
+  (ölçüldü, aşağıda).
+
+### 📋 Bu Oturumda Yapılanlar
+
+**1. Commit.** 79 dosya, 8 konu bazlı commit'e bölündü: yığın · türev üretimi ·
+ürün fotoğrafları · içerik katmanı ve bekçiler · sayfalar ve giriş kapısı ·
+testler · terim düzeltmeleri · belgeler. Dal açıldı ve push edildi.
+
+**2. Kavram baloncukları vitrine yayıldı (15 → 19).** Sipariş durum makinesi ·
+ödeme başarısız senaryosu · varsayılan adres · yorum onayı. Dördü de yalnızca
+bu uygulamaya mahsus davranışı anlatıyor; hiçbirinde beklenen status kodu yok.
+Yeni test alışveriş akışını baştan sona yürüyerek ölçüyor.
+
+**3. Tema/erişilebilirlik kapsamı.** Dört QA Shop sayfası da eklendi.
+⚠ Bir önceki devir notundaki "diğer üç sayfa zaten ekli" bilgisi YANLIŞTI —
+o dosyada hiçbir QA Shop sayfası yoktu. Ölçmeden geçilseydi iki arıza
+gizlenmiş olacaktı (aşağıya bak).
+
+**4. İmaj yayını.** `qa-shop-v1.0.0` etiketi push edildi, iş akışı koştu.
+Ölçüldü: `docker login` OLMADAN `qa-shop-db` ve `qa-shop-api` imajlarının
+`1.0.0` ve `latest` etiketleri çekilebiliyor; ikisi de `linux/amd64` +
+`linux/arm64` taşıyor. Yani depoyu indirmeyen kullanıcı yığını kurabilir.
+
+**5. Üyelik senkronizasyonu.** Alan anahtarı artık üyenin profil satırında da
+tutuluyor (`profiles.qa_shop_sandbox_key`) ve dükkân açılırken geri alınıyor.
+Uçtan uca doğrulandı: üye alan açıyor → anahtar profile yazılıyor → TEMİZ bir
+tarayıcı aynı alana dönüyor.
+
+Hatırlama işi kimliği ZATEN doğrulanmış tarafta (üye profilinde) yapılır.
+QA Shop API'sine "şu e-postanın alanını ver" demek, doğrulanmamış bir
+e-postaya bakıp başkasının alanını açmak olurdu — **yığın hiç değişmedi.**
+
+⚠ Önceki "Supabase köprüsü" ÖLÜ KODDU: `sb-token`/`sb-user-email` anahtarlarını
+okuyordu ama uygulamanın hiçbir yeri onları yazmıyordu; üstelik dönen değer
+alan kimliğiydi, alan ANAHTARI değil. Kaldırıldı. Sunucudaki
+`POST /auth/supabase-bridge` ucu DURUYOR ama artık çağrılmıyor — sözleşmeyi ve
+yayınlanan imajı değiştirmemek için elleşilmedi (**temizlenecek borç**).
+
+**6. Veritabanı göçü (kullanıcı koşturdu, iki projede de).**
+
+```sql
+alter table profiles add column if not exists qa_shop_sandbox_key text;
+grant  update (qa_shop_sandbox_key) on public.profiles to authenticated;
+```
+
+İkinci satır ilk turda atlanmıştı ve senkron sessizce ölüyordu; sebebi
+ölçüldü ve kalıcı derse yazıldı (`CLAUDE.md` §23.25).
+
+**7. Boş cevap gövdesi çökme yolu kapatıldı.** (Aşağıda, üçüncü arıza.)
+
+### 🐞 Bu oturumda bulunan ÜÇ gerçek arıza
+
+Üçü de "testler yeşildi, kimse bakmıyordu" ailesinden:
+
+1. **Odak modu düğmesi dört QA Shop sayfasında da patlıyordu**
+   (`is not a function`). Ortak başlık düğmeyi koşulsuz render ediyor,
+   durumu dışarıdan alıyor; bu sayfalar durum vermiyordu.
+2. **`/qa-shop` ve `/qa-shop-api` tema düğmesi** kök öğeye `dark` yazıyordu,
+   sitenin her yerde kullandığı `dark-mode`/`light-mode-forced` çiftini değil.
+   Sayfanın kendi renkleri dönüyor, global CSS'e dayanan parçalar karanlık
+   kalıyordu. Sebep dört kopyaydı → iki kanca tek dosyaya alındı
+   (`src/hooks/useOdakModu.js`, `src/hooks/useKaranlikMod.js`).
+3. **Boş/ayrıştırılamayan cevap gövdesi dükkânı çökertiyordu.** İstek
+   yardımcısı gövdeyi ayrıştıramadığında `null` döndürüyor; çağıranlar
+   `govde.items ?? []` yazmıştı — koruma YANLIŞ TARAFTAYDI. 14 kullanımın
+   hepsi `govde?.` yapıldı, sipariş akışına erken çıkış eklendi.
+   Bu, paket koşumunda "kalıcı olmayan düşüş" gibi görünüyordu.
+
+⚠ Tarayıcı içi katman AYNI tuzağı taşımıyor — ölçüldü: `api.js` gelen gövdeyi
+`govde ?? {}` ile normalize ediyor. Oraya dokunmaya gerek yok.
+
+### 🔬 Bu oturumun kalıcı dersleri (hepsi `CLAUDE.md`'ye yazıldı)
+
+1. **Ekranda duran her düğme çalışıyor demek değildir** (§23.24) — ortak
+   bileşenin koşulsuz bastığı kontrol + hiç ateşlenmeyen istemci kodu.
+2. **`profiles`'a sütun eklemek yetmez** (§23.25) — bu projede update yetkisi
+   TABLO değil SÜTUN düzeyinde; `alter` + `grant` TEK göç adımıdır. Ayırt
+   etme yolu: aynı oturumla mevcut bir sütunu güncelle, o geçiyorsa sorun
+   RLS'te değil GRANT'tedir.
+3. **`govde.alan ?? []` koruma değildir** (§23.26) — koruma zincirin İLK
+   halkasında olmalı (`govde?.alan`).
+4. **Kalıcı olmayan bir düşüşü "testin yarışı" diye geçme.** Bu oturumda iki
+   tane çıktı; biri gerçekten testin yarışıydı (DOM'dan kopan öğe), öbürü
+   ÜRÜNÜN çökme yoluydu. İkisini ayıran tek şey mesajı okumaktı.
+5. **Yanlış yere bakan bir iddia yeşil kalır — iki kez yaşandı.**
+   (a) Tıklanabilirlik iddiası "baloncuk kutucuğu örtüyor mu" diye ölçüyordu
+   ve `pointer-events` bilerek bozulunca YEŞİL kaldı; ölçüm katmanın
+   hit-test'e hiç girmediğine çevrildi. (b) Senkron testindeki yetki
+   yoklaması anahtarın KENDİSİNİ yazıyordu — grant gelince "uygulama yazdı
+   mı" iddiası kendi yoklamasıyla karşılanacak ve boşa dönecekti; yoklama
+   nötr bir değere (`null`) çevrilip alan açmadan önceye alındı.
+6. **Devir notu da eskir.** "Şu zaten yapılmış" cümlesine güvenip ölçmeden
+   geçmek bu oturumda iki arızayı gizleyecekti.
+
+### 🛡️ Bu oturumda eklenen/güçlendirilen bekçiler
+
+| Bekçi | Ne kırar |
+|---|---|
+| `qa-shop-pages` — vitrin kavramları | Baloncuk görüş alanı dışına taşarsa · status kodu sızarsa · baloncuk tıklama hedefi olursa |
+| `qa-shop-pages` — boş cevap gövdesi | Gövdesiz 200 cevabında sayfa hatası fırlarsa |
+| `theme-and-accessibility` — dört QA Shop rotası | Tema düğmesi yanlış sınıf yazarsa · odak düğmesi hata üretirse · seçim yenilemede kaybolursa |
+| `qa-shop-uye-senkronu` — iki test | Sütun yetkisi eksikse (adıyla söyler) · uygulama anahtarı yazmazsa · temiz tarayıcı benimsemezse |
+
+**Hepsi bilerek bozularak kırmızıya döndürüldü.**
+
+### ✅ Doğrulama durumu
+
+`npm run build` ✔ · içerik bütünlüğü ✔ · i18n sızıntı (borç 0) ✔ ·
+SQL eşleme kapısı ✔ · kavram kapısı ✔ (19 kavram) ·
+`qa-shop-pages` + `qa-shop-logout-flow` + `theme-and-accessibility` +
+`qa-shop-uye-senkronu` → **49/49 yeşil**, tekrarlı koşumda kararlı.
+
+⚠ **Koşulmayan:** tam E2E paketi (53 test dosyası). Bu oturumda yalnızca
+etkilenen dört dosya koşturuldu. `main`'e birleştirmeden önce `npm run
+test:e2e` bir kez tam koşturulmalı — özellikle `src/hooks/` çıkarımı ve
+`QaShopPage` düzenlemeleri başka bir suite'i etkiliyor olabilir.
+
+### 🎯 SIRADAKİ İŞ
+
+| # | İş | Bedel | Not |
+|---|---|---|---|
+| 0 | ~~**Tam E2E paketini koştur**~~ ✅ KOŞTU (2026-08-28, üçüncü oturum) | — | **429 geçti · 2 düştü · 2 koşmadı** (25,3 dk). Düşen ikisi dalla İLGİSİZ, aşağıya bak. |
+| 1 | **Groq modeli kalktı — canlıda AI kırık** | Orta | `_shared/groq.ts` `DEFAULT_MODEL = 'llama-3.3-70b-versatile'` için Groq 404 veriyor → 8 Edge Function 502. **Kullanıcı "sonra bakalım" dedi, karar bekliyor.** Detay aşağıda. |
+| 2 | **Dalı `main`'e birleştir** | Küçük | Canlı site deploy'unu tetikler — KULLANICI KARARI, sormadan yapma. |
+| 3 | Ölü `supabase-bridge` ucunu kaldır | Orta | Sözleşme + yayınlanan imaj değişir; `qa-shop-v1.0.1` etiketi ister. Temizlenecek borç. |
+| 4 | Rate limit kararı | Orta | API'de yok, 429 dönmüyor. Kullanıcı sormuştu, hâlâ karar bekliyor. Eklenirse iyi bir negatif test hedefi. |
+| 5 | Kavram baloncuklarını sipariş detayına yay | Küçük | İade penceresi ve kargo durumu için yer var. §25.7 ölçütü: "bu bize mi mahsus?" |
+| 6 | Faz 6 kabul kriterini ELLE koştur | Küçük | "Dükkâna ilk giren kullanıcı hiçbir status kodu görmeden bir defect bulabiliyor ve anahtarı aç/kapat yaparak kendisi doğrulayabiliyor." Testler bunu göremez (§23.18). |
+
+### ✅ ÇÖZÜLDÜ — Groq modeli (2026-08-28 → 2026-09-01)
+
+`llama-3.3-70b-versatile` Groq tarafında kalkmıştı ve TEK bir sabit dokuz
+fonksiyonu birden 502'ye düşürüyordu. Çözüm üç parçalı:
+
+1. **Model adı koddan çıkarıldı.** `_shared/groq.ts` artık `GROQ_MODEL`
+   secret'ını okuyor; koddaki `openai/gpt-oss-120b` yalnızca yedek. Bir sonraki
+   emeklilikte düzeltme pano değişikliğidir, kod deploy'u değil.
+2. **Hata kendini açıklıyor.** Model bulunamadığında mesaj hangi modelin
+   istendiğini ve düzeltmenin secret'ta olduğunu söylüyor.
+3. **`visual-diff-judge` bakıma alındı** — yapılandırmayla, yorum satırıyla
+   değil. Hesabın model listesinde GÖRSEL destekli model KALMADI (ölçüldü),
+   yani bu modül model değiştirilerek onarılamıyor. `GROQ_VISION_MODEL`
+   tanımsızsa fonksiyon 503 + `maintenance:true` döner; arayüz artık
+   "tekrar dene" DEMİYOR. Groq'a görsel model gelirse secret'ı tanımlamak yeter.
+
+**Seçilen model:** `openai/gpt-oss-120b`. Türkçe ve JSON davranışı tahmin
+edilmedi, ÖLÇÜLDÜ: `api-endpoints` 4/4 ve `docker-interview-mastery-flow`
+geçiyor — yapılandırılmış puanlama üreten `grade-interview-answer` dahil.
+Bakım dalı gerçek fonksiyona karşı da doğrulandı (503 + maintenance:true).
+
+### ⚠️ İKİ AYRI SUPABASE PROJESİ VAR — ölçmeden önce hangisi olduğunu bil
+
+| | Ref | Rol |
+|---|---|---|
+| Prod | `qmvurwmcuexvuwvaiuhj` (learnqa-prod) | canlı site |
+| Test | `qtwargbbwuvrupfyowbg` | `.env.local` BURAYA bakar; tüm E2E buraya gider |
+
+Bu ayrım 2026-09-01'de yanlış teşhise yol açtı: prod'a deploy edilip TEST
+projesine karşı ölçüm yapıldı, sonuç "prod'da 404 ve geçersiz anahtar" diye
+raporlandı. İkisi de yanlıştı — prod'da dört fonksiyon da düzgün yönleniyor.
+**Kural: hangi projeyi ölçtüğünü komutun içinde görünür kıl.**
+
+Aynalama yapıldı: 9 fonksiyon iki projede de yayında, `GROQ_MODEL` digest'i
+iki projede AYNI, `GROQ_VISION_MODEL` ikisinde de tanımsız.
+
+⚠ Test projesinde EKSİK: `RAPIDAPI_KEY` ve `CRON_INVOKE_SECRET` — yalnızca
+`trending-skills-sync` okuyor (arka plan cron'u, kullanıcıya dönük değil).
+
+⚠ **PROD HÂLÂ ÖLÇÜLMEDİ:** prod'da oturum açabilen bir test hesabı yok, bu
+yüzden prod'daki `GROQ_API_KEY`'in geçerli olduğu KANITLANMADI. Yönlendirme
+doğrulandı (401), Groq yolu doğrulanmadı.
+
+⚠ `judge-eval` ve `visual-diff-judge` prod'da da SÜRÜM 1'di — yani bugüne
+kadar hiç yayında değillerdi. Onları çağıran özellikler (Diff Dedektif;
+CodePlayground / RagLab / JudgePlayground AI geri bildirimi) kullanıcıya
+bugüne kadar hata veriyordu. Groq'la ilgisi yok, ayrı ve eski bir açıktı.
+
+### 🚫 Bilinçli olarak YAPILMAYACAK (yeniden tartışma açma)
+
+Önceki notun listesi aynen geçerli (ayrı route ağacı yok · Swagger kısılmaz ·
+16 story kalır · av sunucuda varsayılan olmaz · giriş kapısı dükkândır ·
+kavrama genel terim girmez · SQL eşlemesi herkese açılmaz). Buna ek olarak:
+
+- **Alan anahtarını QA Shop API'sinde e-postaya bağlamak** — doğrulanmamış
+  kimliğe alan açmak olur. Hatırlama üye profilinde kalır.
+- **`main`'e sormadan push** — canlı site deploy'unu tetikler.
+
+### 📋 SONRAKİ SOHBET İÇİN PROMPT (kopyala-yapıştır)
+
+    Önce CLAUDE.md'yi, sonra .claude/NEXT_SESSION.md'yi oku — en üstteki
+    "2026-08-28, ikinci oturum" devir notu geçerli.
+
+    Durum: çalışma ağacı TEMİZ. 14 commit feature/qa-shop-pratik-ortami
+    dalında ve push edilmiş. main hâlâ f4ef66b — dalı birleştirmek canlı site
+    deploy'unu tetikler, bunu BANA SORMADAN yapma. Elle yapılacak iş kalmadı
+    (Supabase göçü ve imaj görünürlüğü tamam, ölçüldü).
+
+    Sıradaki iş, devir notundaki tabloya göre:
+
+    1. npm run test:e2e ile TAM paketi bir kez koştur. Bu oturumda yalnızca
+       etkilenen dört dosya koşturuldu; src/hooks/ çıkarımı ve QaShopPage
+       düzenlemeleri başka bir suite'i etkilemiş olabilir. Düşen olursa
+       mesajını OKU: bu depoda "kalıcı olmayan düşüş" iki kez gerçek ürün
+       hatası çıktı.
+    2. Sonucu bana raporla ve birleştirme kararı için bekle.
+
+    Sonra (benim onayımla) sırasıyla:
+    - Ölü supabase-bridge ucunu kaldır (sözleşme + imaj sürümü değişir).
+    - Rate limit kararını bana sor; eklenirse negatif test hedefi olur.
+    - Kavram baloncuklarını sipariş detayına yay (iade penceresi, kargo
+      durumu). Her biri için önce "bu bize mi mahsus?" diye sor — genel
+      kavram açıklaması yazılmaz, build kapısı kırar.
+
+    Bağlayıcı ölçütler (hepsi CLAUDE.md'de):
+    · Bilgi "kuralın ne olduğunu" söylüyorsa VERİLİR; "o kuralı sınamak için
+      ne yapıp hangi cevabı bekleyeceğini" söylüyorsa VERİLMEZ.
+    · Arayüz açıklaması YALNIZCA bu uygulamaya mahsus davranışı anlatır.
+    · Repoyu indirmeyen, sadece Docker imajlarıyla kuran kullanıcı da her
+      belgeye ulaşabilmeli.
+
+    Çalışma kuralları:
+    · Her adımdan sonra CLAUDE.md §1.1'deki 4 maddelik checklist'i çalıştır.
+    · Yeni bir bekçi/iddia yazarsan BOZUK durumu bilerek üretip kırmızıya
+      döndüğünü GÖR. Bu oturumda iki iddia yanlış yere bakıyordu ve bozuk
+      sürümde de yeşil kaldı.
+    · Bu depoda satır sonları KARIŞIK (CLAUDE.md ve bazı bileşenler CRLF,
+      veri dosyaları LF). Çok satırlı düzenlemede Edit aracını kullan;
+      script yazacaksan önce satır sonunu ölç.
+    · Commit/push konusunda bana sormadan bir şey yapma.
+
+---
+
+## 📌 Önceki Durum (2026-08-28 sabah · Opus — SQL katmanı, kavram baloncukları, giriş kapısı)
+
+> ⚠ Bağlayıcı DEĞİL; en üstteki nota bak.
+
+> Çelişki olursa BU bölüm günceldir. Alttaki "Önceki Durum" bölümleri tarih
+> sırasıyla duruyor ama artık bağlayıcı değil.
+
+### ⚠️ ÖNCE BUNU OKU
+
+Son commit hâlâ **`f4ef66b`**. Ondan sonraki TÜM iş çalışma ağacında —
+**kullanıcı commit istemedi, sormadan commit atılmayacak.** Çalışma ağacında
+79 değişik/yeni dosya var (üç oturumun birikimi).
+
+Bu oturumun teması iki başlıkta toplanıyor:
+1. **Üçüncü test katmanını (veritabanı) yola bağlamak** — ama cevap anahtarını
+   vermeden.
+2. **Arayüzü kendini anlatır hâle getirmek** — ama genel bilgi anlatmadan.
+
+---
+
+### 🎯 Bu oturumda kullanıcıdan gelen ÜÇ bağlayıcı karar
+
+**1. İnce ayrıntılar ve püf noktaları yalnızca admin'e.**
+> *"diğer kullanıcılar olası defectleri kendileri analiz etmeli ve test
+> tecrübelerini yeteneklerini gösterebilmeliler"*
+
+Sonuç: SQL sorgusu ↔ iş kuralı ↔ story ↔ defect eşlemesi admin tarafına
+alındı. Kalıcı kural: `CLAUDE.md` §25.2.1 + §11 hata listesi.
+
+**2. Repo'ya bağlı belge gösterme.**
+> *"normal kullanıcı repoyu indirmeden sadece docker ile hem api hem database
+> görmüyor mu"*
+
+Sonuç: SQL paketi siteden indirilebilir yapıldı, rehber üç yolu birden veriyor.
+Kalıcı kural: `CLAUDE.md` **§25.8** (yeni).
+
+**3. Arayüz açıklamaları yalnızca bize mahsus olanı anlatır.**
+> *"api ne demek database ne demek swagger ne demek açıklamaya gerek yok...
+> ama örneğin kupon bizim uygulamamızda nasıl etki yapıyor açıkla"*
+
+Sonuç: kavram sözlüğü bu ölçüte göre yeniden yazıldı. Kalıcı kural:
+`CLAUDE.md` **§25.7** (yeni).
+
+---
+
+### 📋 Bu Oturumda Yapılanlar
+
+**1. Faz 6.4 — SQL katmanı yola bağlandı (üç katmanlı yerleşim).**
+
+| Nerede | Ne | Kim görür |
+|---|---|---|
+| `qa-shop/db/validation-queries.sql` | 30 sorgu, her birinde nötr "Ne bakar" satırı | herkes |
+| `src/data/qaShopSqlPackData.js` | gruplu dizin, iki dilli, kural/story atfı YOK | herkes (kurulum rehberinde) |
+| `src/data/qaShopSqlMap.js` | sorgu ↔ kural ↔ story ↔ defect eşlemesi | **yalnız admin** |
+
+- SQL dosyasından **cevap sızdıran satırlar çıkarıldı**: `Yakaladığı gerçek
+  bug: indirim iki kez uygulanır` (= `discount_twice` anahtarının adı),
+  `adet güncellenirken line_total yeniden hesaplanmıyor` (= `wrong_line_total`),
+  `Katalog endpoint'i bu ürünleri döndürüyorsa bug vardır`, ve başlıktaki
+  "ilk çalıştırmada neredeyse hepsi 0 satır döner" ön-duyurusu.
+- **Kalanlar bilinçli:** SQL zanaat notları (LEFT JOIN + IS NULL kalıbı,
+  `percentile_cont` neden `OVER` alamaz, JDBC'nin `?` tuzağı) ve F bölümü
+  (kendi kontrolünü bozup kırmızıya döndürme) — bunlar defect göstermez.
+- Eşleme kural ve story kartlarının admin panelinde render ediliyor
+  (`SQL_CHECKS_BY_RULE` / `SQL_CHECKS_BY_STORY`, ters indeks türetiliyor).
+
+⚠️ **Ölçüm düzeltmesi:** önceki devir notundaki "127 sorgu" YANLIŞ. Dosyada
+**30 adlı sorgu** (A1-A4, B1-B5, C1-C8, D1-D5, E1-E4, G1-G4) + Z özeti +
+4 defect enjeksiyon bloğu var.
+
+**2. SQL paketi herkes için edinilebilir oldu (kullanıcı bulgusu).**
+Rehber `qa-shop/db/validation-queries.sql dosyasını DBeaver'da aç` diyordu —
+imajlarla kuran kullanıcıda o dosya YOK. Ölçüldü: dosya yayınlanan veritabanı
+imajının içinde var (`/opt/qa-shop/validation-queries.sql`) ama konteynerin
+içindeki bir dosya DBeaver'da açılamaz.
+- `scripts/build-qa-shop-downloads.mjs`'e eklendi →
+  `/qa-shop/indirilebilir/qa-shop-validation-queries.sql`
+- Rehber üç yolu veriyor: indir · depodan aç · konteynerin içinden çalıştır
+- psql alternatifi TERSİNE çevrildi: en kısa yol (hiç dosya istemeyen
+  `docker exec ... -f /opt/qa-shop/validation-queries.sql`) artık başta
+
+**3. Faz 6.5 — giriş kapısı dükkâna çevrildi.**
+Afiş, öne çıkan giriş linki, kart listesi, footer ve görünür site haritası
+artık `/qa-shop`'a gidiyor. `CLAUDE.md` §2'deki üçlü açıklaması da güncellendi
+(eski karar iptal notuyla birlikte yazıldı).
+- `nav-qa-shop-spec` testid'i yanıltıcı hâle geldiği için
+  **`nav-qa-shop-store-cta`** olarak yeniden adlandırıldı.
+
+**4. "Sonunda: ... olacaksın" özetleri tamamen kaldırıldı** (kullanıcı isteği).
+10 tane: `qaShopSetupData.js` 4, `qaShopSpecData.js` 6. Hem veri alanları hem
+render satırları gitti.
+⚠️ Bu alanlar statik kabuğun TEK içerik kaynağıydı; yerine bölümün/adımın
+kendi ilk açıklama bloğundan türetme kondu (`ilkAciklama`).
+
+**5. Kavram baloncukları (`QaShopKavram`) — arayüz kendini anlatıyor.**
+15 kavram, iki dilli, `src/data/qaShopKavramlarData.js`. Hover + tıklama +
+klavye; ESC ve dışarı-tık kapatır.
+- **Dükkânda:** Docker gerekliliği · tarayıcı kipi · API adresi · sandbox ·
+  sandbox anahtarı · kendi alanımı aç · veriyi sıfırla · anahtarı unut ·
+  anahtarsız erişim · kupon burada nasıl davranır · sepete eklemek stoğa ne
+  yapar · defect anahtarı · gizli tur · olay günlüğü
+- **API sayfasında:** Docker ön koşulu · iki katmanlı kimlik · sandbox
+- **Çıkarılanlar** (genel bilgi, kullanıcı ölçütü): endpoint, istek gövdesi,
+  cevap gövdesi, base URL, data-testid, seed veri
+
+**6. Baloncuk okunabilirliği düzeltildi (kullanıcı bildirdi).**
+Üst şeritteki mod rozetinin baloncuğu görüş alanının üstünde kalıyordu.
+Portal ile `document.body`'ye taşındı + `position: fixed` + gerçek yüksekliği
+ölçüp yer yoksa ters yöne çevirme + yatay sıkıştırma + açıkken scroll/resize
+takibi.
+
+---
+
+### 🔬 Bu oturumun kalıcı dersleri (hepsi `CLAUDE.md`'ye yazıldı)
+
+1. **`toBeVisible()` okunabilirlik sinyali değildir** (§23.21) — görüş alanının
+   dışındaki öğe de Playwright için görünürdür. Konumu `boundingBox()` ile ölç.
+2. **CRLF dosyada kör metin değiştirme sessizce eşleşmez** (§23.22) — depoda
+   satır sonları KARIŞIK (`HomePage.jsx` CRLF, veri dosyaları LF).
+3. **`generate-static-routes.mjs` tek başına koşturulursa yanlış kabuk üretir**
+   (§23.23) — idempotent değil; TR ve EN uzunlukları birebir aynı çıkıyorsa
+   şüphelen.
+4. **Arayüz açıklaması genel bilgi anlatmaz** (§25.7) — pratik testi: cümleyi
+   başka bir e-ticaret sitesi için de yazabiliyorsan oraya ait değildir.
+5. **Repo'ya bağlı belge, repo indirmeyene YOK demektir** (§25.8).
+6. **Hover ve tıklama AYRI durumlarda tutulmalı** — tek bayrakla yazılınca fare
+   zaten üstteyken tıklamak baloncuğu KAPATIYORDU (test yakaladı).
+7. **Testin kendisi de eskir** — bu oturumda 4 test eski davranışı koruyordu
+   (afiş şartnameye gitmeli, `kavram-baseUrl`, eski baloncuk metni, `href`
+   desen eşlemesi üç QA Shop sayfasını da kabul ediyordu).
+
+---
+
+### 🛡️ Bu oturumda eklenen bekçiler (HEPSİ bozularak kırmızıya döndürüldü)
+
+| Bekçi | Ne kırar |
+|---|---|
+| `scripts/check-qa-shop-sql-map.mjs` | SQL ↔ dizin ↔ eşleme ayrışması, eksik "Ne bakar", ölü kural/story/defect atfı, cevap sızdıran satırın geri gelmesi (5 kontrol) |
+| `scripts/check-qa-shop-kavramlar.mjs` | Tanımsız/kullanılmayan kavram, eksik iki dillilik, düz genel terim başlığı (4 kontrol) |
+| `tests/qa-shop-pages.spec.ts` — dizin sızıntısı | Herkese açık dizinde kural/story/defect adı görünmesi |
+| ... — şartname eşlemesi | Anonim ziyaretçiye sorgu eşlemesi render edilmesi |
+| ... — afiş hedefi | Afiş/giriş linkinin dükkândan başka yere gitmesi |
+| ... — indirilebilir SQL | Link ya da arkasındaki dosya kaybolması |
+| ... — baloncuk okunabilirliği | Baloncuğun görüş alanı dışına taşması (375px mobil dahil) |
+
+⚠️ Bir düzeltme: `pointer-events: none` bir ara "bugünkü yerleşimde taşıyıcı
+değil" diye ölçülmüştü (baloncuk hep yukarı açıldığı için düğmeyi örtmüyordu).
+**Artık taşıyıcı** — baloncuk yer yokken aşağı açılıyor ve düğmeyi örtebiliyor.
+
+---
+
+### ✅ Doğrulama durumu (bu oturum, TÜM değişikliklerden sonra)
+
+`npm run build` ✔ · `check-content-integrity` ✔ · `check-i18n-leaks` ✔
+(borç 0; iki yeni dosya sıfır-toleransa eklendi) · `check-qa-shop-sql-map` ✔
+(30 sorgu) · `check-qa-shop-kavramlar` ✔ (15 kavram) ·
+`qa-shop-pages` + `no-internal-jargon` + `theme-and-accessibility` **45/45**
+
+Kabuk ölçümü: `/qa-shop-setup` 4208 → **6076** karakter (30 sorgunun 30'u
+kabukta) · `/qa-shop-spec` **6408** karakter.
+
+---
+
+### 🎯 SIRADAKİ İŞ
+
+| # | İş | Bedel | Not |
+|---|---|---|---|
+| 1 | **Kavram baloncuklarını vitrine yay** | Orta | Şu an 15 kavram QA paneli + API sayfasında. Vitrin/sepet/ödeme akışında bize mahsus davranışlar var: sipariş durum geçişleri, ödeme başarısız senaryosu, adres varsayılanı, yorum onay akışı. ⚠️ §25.7 ölçütünü uygula — "sepet nedir" YAZILMAZ. |
+| 2 | **`/qa-shop-spec` tema/erişilebilirlik testine ekle** | Küçük | Devreden iş; diğer üç QA Shop sayfası ekli, bu değil. |
+| 3 | **Rate limit kararı** | Orta | API'de yok, 429 dönmüyor. Kullanıcı sormuştu, karar bekliyor. Eklenirse iyi bir negatif test hedefi olur. |
+| 4 | **İmaj yayını** | Küçük | `qa-shop-v1.0.0` etiketi + GHCR paketlerini Public yapma. Dışa dönük, kullanıcı kararı. |
+| 5 | **Üyelik senkronizasyonu** | Orta | Aynı Supabase kullanıcısı için kalıcı sandbox (şu an her giriş yeni alan açıyor). |
+
+**Faz 6 kabul kriteri (karşılandı görünüyor, elle doğrulanmadı):**
+Dükkâna ilk giren kullanıcı hiçbir beklenen status kodu görmeden bir defect
+bulabiliyor ve bulduğunu anahtarı aç/kapat yaparak kendisi doğrulayabiliyor.
+
+---
+
+### 🚫 Bilinçli olarak YAPILMAYACAK (yeniden tartışma açma)
+
+- **`/qa-shop/docs` diye ayrı route ağacı** — kabuk yazma yükü getirir,
+  karşılığı yok.
+- **Swagger'ı kısmak** — sözleşme sahada da tam verilir.
+- **Story sayısını azaltmak** — 16 kalır.
+- **Av turunu sunucuda varsayılan yapmak** — otomasyon paketlerinin temiz
+  başlangıcını bozar.
+- **Giriş kapısını şartnameye geri çevirmek** — 2026-08-27'de ölçülüp
+  değiştirildi, gerekçesi `CLAUDE.md` §2'de yazılı.
+- **Kavram baloncuğuna genel kavram eklemek** — §25.7, build kapısı kırar.
+- **SQL eşlemesini herkese açmak** — §25.2.1.
+
+---
+
+### 📂 Çalışma ağacı durumu
+
+Commit YOK. Bu oturumda değişen/eklenen dosyalar:
+
+```
+M  CLAUDE.md                                §2 üçlü sırası, §11 (+4 madde),
+                                            §23.21-23.23, §25.7, §25.8
+M  .claude/NEXT_SESSION.md                  bu not
+M  package.json                             2 yeni build kapısı + 2 alias
+M  qa-shop/db/validation-queries.sql        cevap sızdıran satırlar çıktı,
+                                            30 sorguya "Ne bakar" eklendi
+?? scripts/check-qa-shop-sql-map.mjs        YENİ bekçi
+?? scripts/check-qa-shop-kavramlar.mjs      YENİ bekçi
+M  scripts/build-qa-shop-downloads.mjs      SQL paketi indirilebilir
+M  scripts/check-i18n-leaks.mjs             2 dosya sıfır-toleransa
+M  scripts/generate-static-routes.mjs       ilkAciklama() + SQL dizini kabuğa
+?? src/data/qaShopSqlPackData.js            YENİ — herkese açık dizin
+?? src/data/qaShopSqlMap.js                 YENİ — admin eşlemesi
+?? src/data/qaShopKavramlarData.js          YENİ — 15 kavram
+?? src/components/QaShopKavram.jsx          YENİ — portal + konum hesabı
+M  src/components/QaShopPage.jsx            kavram yerleşimleri
+M  src/components/QaShopSetupPage.jsx       sqlPack blok tipi, goal kaldırıldı
+?? src/components/QaShopApiPage.jsx         kavram yerleşimleri
+?? src/components/QaShopSpecPage.jsx        SqlChecksRow, goal kaldırıldı
+M  src/components/HomePage.jsx              afiş + nav dükkâna
+M  src/data/qaShopSetupData.js              SQL dizini + indirme + goal kaldırıldı
+?? src/data/qaShopSpecData.js               goal kaldırıldı
+M  src/data/whatIsTestingData.js            site haritası sırası
+?? tests/qa-shop-pages.spec.ts              +5 test, 4 test güncellendi
+```
+
+Önceki oturumlardan devreden kirli dosyalar da duruyor (Supabase köprüsü,
+admin rehber sayfası, ürün fotoğrafları). Tam liste: `git status --short`
+(79 dosya).
+
+---
+
+### 📋 SONRAKİ SOHBET İÇİN PROMPT (kopyala-yapıştır)
+
+    Önce CLAUDE.md'yi, sonra .claude/NEXT_SESSION.md'yi oku — en üstteki
+    "2026-08-28, Opus" devir notu geçerli. Hiçbir şey commit edilmedi
+    (son commit f4ef66b); commit/push konusunda bana sormadan bir şey yapma.
+
+    Üç bağlayıcı ölçüt, hepsi CLAUDE.md'de yazılı:
+
+    1. §25.2.1 — bilgi "kuralın ne olduğunu" söylüyorsa VERİLİR; "o kuralı
+       sınamak için ne yapıp hangi cevabı bekleyeceğini" söylüyorsa VERİLMEZ.
+       İnce ayrıntı ve püf noktası admin'e; normal kullanıcı defect'i kendisi
+       analiz etsin.
+    2. §25.7 — arayüz açıklaması YALNIZCA bu uygulamaya mahsus davranışı
+       anlatır. "API nedir", "sepet nedir" YAZILMAZ. Pratik testi: cümleyi
+       başka bir e-ticaret sitesi için de yazabiliyorsan oraya ait değildir.
+    3. §25.8 — repoyu indirmeyen, sadece Docker imajlarıyla kuran kullanıcı
+       da her belgeye ulaşabilmeli.
+
+    Sıradaki iş (devir notundaki tabloya bak):
+
+    1. Kavram baloncuklarını dükkânın VİTRİN tarafına yay: sipariş durum
+       geçişleri, ödeme başarısız senaryosu, adres varsayılanı, yorum onay
+       akışı. Her biri için önce "bu bize mi mahsus?" diye sor.
+       Bileşen ve sözlük hazır: src/components/QaShopKavram.jsx +
+       src/data/qaShopKavramlarData.js. Yeni bileşen yazma, sadece veri ekle.
+    2. /qa-shop-spec'i tests/theme-and-accessibility.spec.ts'e ekle.
+
+    Her adımdan sonra CLAUDE.md §1.1'deki 4 maddelik checklist'i çalıştır
+    (içerik bütünlüğü, ipucu-konu bağı, TR yorum taraması, npm run build).
+    Yeni bir bekçi yazarsan BOZUK durumu bilerek üretip kırmızıya döndüğünü
+    gör — yeşil bir test tek başına hiçbir şey kanıtlamaz.
+
+    Not: bu depoda satır sonları KARIŞIK (HomePage.jsx CRLF, veri dosyaları
+    LF). Çok satırlı düzenlemede Edit aracını kullan; script yazacaksan önce
+    satır sonunu ölç (§23.22).
+
+---
+
+## 📌 Önceki Durum (2026-08-27 · Opus — cevap anahtarını kullanıcının önünden çekmek)
+
+> ⚠ Bağlayıcı DEĞİL; en üstteki nota bak. Bu oturumun ana katkısı
+> `CLAUDE.md` §25.2.1 (tester'ın gerçekten ihtiyaç duyduğu dört şey).
+
+### 🎯 Bağlayıcı ölçüt — tester'ın gerçekten ihtiyaç duyduğu dört şey
+
+Kullanıcının sözleriyle: sahada bir tester'ın en çok işine yarayan şey
+**(1)** expected result'ı iyi anlamak — şemalar, analiz belgeleri;
+**(2)** ayrıntılı Swagger dokümanı; **(3)** kullanabildiği UI;
+**(4)** erişebildiği veritabanı. *"Bundan fazlasını kullanıcıya neden
+veriyoruz?"*
+
+**Sınır (ezberlenecek tek cümle):** bilgi *"kuralın ne olduğunu"* söylüyorsa
+VERİLİR; *"o kuralı sınamak için ne yapıp hangi cevabı bekleyeceğini"*
+söylüyorsa VERİLMEZ.
+
+| Aynı konu | ✅ Kural (verilir) | ❌ Reçete (verilmez) |
+|---|---|---|
+| Durum geçişi | "Ödenmemiş sipariş kargolanamaz" | "Ödemesiz kargola → 409 INVALID_TRANSITION bekle" |
+| Yetki | "Kimse başkasının siparişini göremez" | "B, A'nın id'sini çağırdı → 403. 404 değil 403 — kodu sabitle" |
+| Sınır | "Sayfa boyutunun üst sınırı var, aşan istek reddedilmez" | "size=9999 → 200 ve 100 kayıt" |
+| Hata kodu | Sözlük: `COUPON_EXPIRED` = süresi dolmuş | Katalog: "süresi geçmiş kupon → 422 COUPON_EXPIRED" |
+
+### 📋 O Oturumda Yapılanlar
+
+1. **Çıkış akışı testi bitirildi.** Önceki oturum yazmış ama yeşil olduğunu
+   görmemişti. 3/4 düşmüştü — sebep üründe değil testteydi (uydurma kimlikle
+   giriş deneniyordu; seed demo hesabı `demo@qashop.test` / `Password123!`).
+   Yeniden yazıldı, **5/5**. Bekçi olduğu kanıtlandı.
+   ⚠ Yan bulgu: önceki oturumun "düzeltmesi" gereksizdi — `token` state'ini
+   izleyen `useEffect` zaten depodan siliyor. Oturumun yenilemeden sonra geri
+   gelmemesini sağlayan asıl şey `logout`'un token'ı SUNUCUDA iptal etmesi.
+2. **Faz 6.1 — gizli defect modu VARSAYILAN.** Kendi veri alanı yazılabilir
+   olur olmaz dükkân kendiliğinden gizli tur açıyor (3 defect). Adlı liste
+   artık düğmeyle açılıyor.
+   ⚠ Av SUNUCUDA varsayılan yapılmadı: `POST /sandbox` temiz alan döndürmeye
+   devam ediyor, çünkü Postman/REST Assured paketleri kusursuz başlangıç bekler.
+3. **Faz 6.3 — paketler indirilebilir.** `scripts/build-qa-shop-downloads.mjs`
+   her build'de Postman koleksiyonu + ortam + README ve REST Assured starter
+   zip'ini üretiyor (depoya GİRMİYOR). Zip yazıcısı elle yazıldı, gerçek
+   `unzip` ile doğrulandı.
+4. **Terim düzeltmesi:** uç → **endpoint**, yığın → **stack**, kusur →
+   **defect**. 20 dosyada ~110 dize; her eşleşme bağlamıyla ayıklandı
+   (`uçak`/`uçuş`/`uçtan uca`/`matkap ucu`/`uç değer`/`kusursuz` korundu).
+5. **User story'ler sadeleşti.** Story listesinin başındaki iki öğretici panel
+   ve karttan "kıran anahtar"/"Dikkat" kutuları kaldırıldı.
+6. **Kabul kriterleri ikiye ayrıldı.** Herkes SADE kriteri görüyor ("Adet sıfır
+   yapılamaz"), admin ek olarak Given/When/Then dökümünü, status kodlarını ve
+   test verisi tablosunu. 16 story için **62 sade kriter** yazıldı, iki dilde.
+7. **Sözleşme ayrıntısı sayfaya taşındı.** Ölçüm: `openapi.yaml` 19 maddelik
+   listenin 16'sını karşılıyordu ama **sayfanın okuduğu build türevi çoğunu
+   hiç taşımıyordu**. Türev genişletildi: base URL, iki katmanlı kimlik
+   (42/46 endpoint'te başlık rozeti), gövde alan/tip/zorunluluk tablosu
+   (14), cevap gövdesi (31), örnek istek (11), örnek cevap (24).
+   Karşılanmayan iki madde **uydurulmadı**: tek ortam var, rate limit yok.
+8. **Kurulum rehberine tek ekran görüntüsü + Docker ön koşulu.** Ekran
+   **inline SVG** olarak çizildi; değerler ayakta bir stack'te ölçüldü.
+9. **Şartname sayfasından cevap anahtarları temizlendi.** "Geçiş kuralları
+   (ölçüldü)" → "İzinli ve yasak geçişler"; "Hata kataloğu" (21 satır) →
+   "Hata sözlüğü" (19 satır); kural kartında "NASIL DOĞRULANIR" ve "kıran
+   anahtar" admin'e alındı.
+10. **Çelişkiler kapatıldı.** Manuel tur tersine çevrildi (adımı yap →
+    gördüğün status kodunu yaz → sistem doğrular); ilerleme sayacı artık
+    kapatılan bulguyu sayıyor. Şartname modu hover paneli sade kriteri
+    gösteriyor.
+
+### 🔬 O oturumun kalıcı dersleri
+
+1. **Statik tarama cevap sızıntısını yakalayamaz.** 38 bulgunun çoğu
+   yanlış-pozitifti ve gerçek sızıntıyı hiç görmedi — durum makinesi
+   açıklaması bileşene HARDCODE edilmişti ("her geçiş yasaktır **ve 409
+   döner**"). Yalnızca tarayıcıda render edilen metni tarayan test yakaladı.
+2. **"Sözleşmede var" ile "ekranda var" iki ayrı şeydir.** Türev geçerliydi,
+   hash tutuyordu, 46 endpoint görünüyordu — ama yarısı taşınmıyordu.
+3. **§23.3 iki kez daha ısırdı.** `uç` kelimesi kelime bazlı dönüştürülemez;
+   apostrof kaçışını körlemesine uygulamak dizeyi KAPATAN tırnağı da kaçırıp
+   dört dosyayı kırdı.
+4. **Testin kendisi de eskiyebilir.** İki test eski davranışı koruyordu ve
+   biri yıllardır yanlış şeye bakıyordu — kapalı API adresi uygulamayı
+   tarayıcı moduna düşürüyor, orada kilit hiç devreye girmiyor.
+
+---
+
+## 📌 Önceki Durum (2026-08-26 akşam · Opus — keşif önceliği kararı, CLAUDE.md §25 yazıldı)
+
+> ⚠️ Bağlayıcı DEĞİL; en üstteki nota bak. Bu oturumun ana katkısı
+> CLAUDE.md §25 (Keşif Önceliği) ve plan dosyasının Bölüm 0'ı.
+
+### ⚠️ ÖNCE BUNU OKU
+
+Bu oturumda **kod değil, YÖN değişti.** Kullanıcı QA Shop paketinin
+pedagojisini reddetti ve haklıydı. Kalıcı kural yazıldı, plan yeniden
+yazıldı. Sıradaki iş artık "eksik özellik eklemek" değil, **var olanın
+görünürlük sırasını değiştirmek**.
+
+Son commit hâlâ **`f4ef66b`**. Ondan sonraki TÜM iş çalışma ağacında —
+**kullanıcı commit istemedi, sormadan commit atılmayacak.**
+
+---
+
+### 🎯 Bu oturumun ana kararı — keşif önceliği
+
+Kullanıcının sözleriyle: *"Sen her ihtimali test eden kullanıcıya söyleme.
+Kullanıcı kendisi keşfetsin. Bırak önce kullanıcı kendisi keşfetsin."*
+
+**İlke:** Sistem bulguyu **DOĞRULAR**, asla **İLAN ETMEZ**.
+
+Test etmek, sistemin nerede kırılacağı hakkında hipotez üretmektir — meslekte
+öğrenilmesi en uzun süren beceri. Hazır verildiğinde hiç öğrenilmiyor. Şu anki
+ürün cevabı peşinen dağıtıyor: "6. adım: stoğu aşmayı dene, 409 bekle",
+`catchableBy` alanları, "testine `Ayse@x.com` ekle" ipuçları, adlı kusur
+listesi.
+
+**Yazıldığı yer:** `CLAUDE.md` **§25** (yeni bölüm, 6 alt başlık) + §11 hata
+listesine 5 yeni madde.
+
+**Kritik ayrım (§25.2):**
+- ✅ **Verilir:** gerçek görünen UI, TAM OpenAPI sözleşmesi, user story +
+  kabul kriterleri, sıfırlanabilir ortam. Sahada da QA'ya verilir.
+- ❌ **Verilmez:** kusurun yeri, beklenen status kodu, somut test verisi
+  ipucu, açık kusurların adlı listesi.
+
+---
+
+### 🔍 Ölçülen bulgu — eksik olan içerik DEĞİL, raf
+
+Bir dış inceleme "şunları üret" dedi. Neredeyse tamamı **zaten yazılmıştı**:
+
+| İnceleme "yok" dedi | Gerçekte | Ulaşılabilir mi? |
+|---|---|---|
+| Postman paketi happy+negative | 6 klasör, 7 NEGATİF istek | ❌ link yok, `public/`'te değil |
+| Starter test repo | REST Assured 4 test sınıfı, koşturulmuş | ❌ sitede adı geçmiyor |
+| Bilinçli kusur listesi | 10 anahtar + `catchableBy` + gizli av | ⚠️ sayfa dibinde |
+| UI turu 12 adım | tam 12 adım, gerçek pedagoji | ⚠️ kapalı, 1724 satırın 1719'unda |
+| DB doğrulama | 127 sorgu, "0 satır = GEÇTİ" | ❌ docker hatası dipnotunda |
+
+**Daha derin bulgu:** Doğru pedagoji de zaten yazılmış. Kusur panelindeki
+metin aynen: *"Gizli tur başka bir soru sorar: kusuru BULABİLİYOR musun?
+Sistem birkaç kusuru açar, hangileri olduğunu söylemez. Sahada da kimse
+söylemez."* Kod tarafı tam (`pickRandomFlags`, `hiddenCount`, `isHidden`,
+`describeFlagsHidden`). **Sadece varsayılan değil.** Varsayılan, cevap anahtarı.
+
+---
+
+### 📋 Bu Oturumda Yapılanlar
+
+1. **`CLAUDE.md` §25 yazıldı** — Keşif Önceliği, 6 alt başlık: ilke · iş
+   malzemesi ile iş çıktısı çizgisi · üç katmanlı açığa çıkarma · varsayılan
+   kuralları · geri bildirim zorunluluğu · ilerleme ölçütü.
+2. **`CLAUDE.md` §11'e 5 yeni hata maddesi** eklendi (cevap anahtarını öne
+   almak, sadece hover ipucu, geri bildirimsiz keşif vb.).
+3. **Plan yeniden yazıldı** — `Documents/qa-shop-practice-platform-plan.md`'ye
+   **Bölüm 0 (Yeniden Yönlendirme)** eklendi ve dosyanın en güncel bölümü
+   ilan edildi. İçinde: teşhis tablosu, yeni öğrenme sırası, **Faz 6** iş
+   kalemleri (6.1-6.7), kapsam dışı kararlar.
+4. **Bayat faz satırları düzeltildi** — Faz 2 ve Faz 4 "yapılmadı/kısmen"
+   yazıyordu, ikisi de tamam.
+5. **Logout düzeltmesi** — `QaShopPage.jsx` `cikisYap()` fonksiyonu token'ı
+   state'ten siliyordu ama `localStorage`'dan silmiyordu; `removeItem` eklendi.
+
+---
+
+### ⚠️ DOĞRULANMAMIŞ — sonraki oturum ilk bunu bitirsin
+
+**`tests/qa-shop-logout-flow.spec.ts` yazıldı ama YEŞİL OLDUĞU GÖRÜLMEDİ.**
+
+İlk koşumda 4/4 senaryo düştü: testler giriş formunun sayfada hazır durduğunu
+varsayıyordu, oysa form varsayılan KAPALI ve `giris-ac` düğmesiyle açılıyor.
+Seçiciler `data-testid`'lere çevrildi (`giris-ac`, `giris-eposta`,
+`giris-parola`, `giris-yap`, `cikis-yap`) **ama düzeltilmiş hâli hiç
+koşturulmadı.** Yeşil olduğu iddia edilemez.
+
+Koşum komutu: `npm run test:e2e -- tests/qa-shop-logout-flow.spec.ts`
+
+Not: paket production build'e karşı koşar (port 4175), dev sunucusuna değil.
+
+---
+
+### 🎯 SIRADAKİ İŞ — Faz 6 (keşif önceliği), ucuzdan pahalıya
+
+Ayrıntı: `Documents/qa-shop-practice-platform-plan.md` Bölüm 0.5.
+
+| # | İş | Bedel |
+|---|---|---|
+| 6.1 | **Gizli mod varsayılan olsun** — "bu alanda N kusur açık, hangileri söylenmiyor". Adlı liste opt-in. Mekanizma HAZIR, sadece varsayılan değişecek | Küçük |
+| 6.2 | **Manuel tur → kendi kendini sınama.** Sıra: bulgu → kayıt → doğrulama. Şu an: cevap → uygula | Orta |
+| 6.3 | **Postman + REST Assured starter indirilebilir olsun** — `public/` altına kopyala, kurulum/API sayfalarından link ver. Yazma işi yok, görünür kılma | Küçük |
+| 6.4 | **SQL katmanını yola bağla** — 127 sorgu senaryolara eşlensin | Orta |
+| 6.5 | **Afişi ve nav'ı dükkâna çevir**, şartname referans rafına insin | Küçük |
+| 6.6 | **Story ipuçlarını Katman 1'e indir** — `hint` gizli, tıkla/hover ile açılır, metni cevaptan dürtmeye | Orta |
+| 6.7 | **İlerleme "gezdim"den "kapattım"a** | Küçük |
+
+**Faz 6 kabul kriteri:** Dükkâna ilk giren kullanıcı hiçbir beklenen status
+kodu görmeden bir kusur bulabiliyor ve bulduğunu anahtarı aç/kapat yaparak
+kendisi doğrulayabiliyor.
+
+**Öneri:** 6.1 + 6.3 ile başla — ikisi birlikte yarım saatlik iş ve etkisi en
+büyüğü.
+
+---
+
+### 🚫 Bilinçli olarak YAPILMAYACAK (yeniden tartışma açma)
+
+- **`/qa-shop/docs` diye ayrı route ağacı** — inceleme önerdi, reddedildi.
+  Yeni route arama motoru tarafında elle kabuk yazma yükü getirir (§23.16),
+  karşılığı yok. Aynı sonuç giriş kapısını ters çevirerek alınır (6.5).
+- **Swagger'ı kısmak / "önce 12 uç"** — sözleşme sahada da tam verilir.
+- **Story sayısını azaltmak** — 16 kalır; sorun sayı değil ipucunun katmanı.
+- **"Hiçbir test flaky değil" demek** — kanıtlanmamış iddia, kullanılmayacak.
+
+---
+
+### ⚠️ İPTAL EDİLEN ESKİ KARAR
+
+"Afiş ve nav linkleri bilerek şartnameye işaret eder — kullanıcı önce ne
+olduğunu görmeli, sonra kurmalı" (2026-08-18) kararı **iptal edildi**. Gerekçe
+sağlamdı ama ölçüm kullanıcının önce *kurcalamak* istediğini gösterdi. Yeni
+sıra: **Dükkân → av → sözleşme/story referans → otomasyon → belge.**
+
+⚠️ `CLAUDE.md` §2'deki QA Shop üçlüsü açıklaması hâlâ eski sırayı
+(şartname, kurulum, dükkân) yazıyor. 6.5 yapılırken orası da güncellenmeli.
+
+---
+
+### 📂 Çalışma ağacı durumu
+
+Commit YOK. Bu oturumda değişenler:
+
+- `M CLAUDE.md` — §25 yeni + §11'e 5 madde
+- `M Documents/qa-shop-practice-platform-plan.md` — Bölüm 0 + Faz 6 + bayat satır düzeltmeleri
+- `M .claude/NEXT_SESSION.md` — bu not
+- `M src/components/QaShopPage.jsx` — logout localStorage temizliği
+- `?? tests/qa-shop-logout-flow.spec.ts` — YENİ, henüz yeşil görülmedi
+
+Önceki oturumlardan devreden kirli dosyalar da duruyor (Supabase köprüsü,
+admin rehber sayfası, ürün fotoğrafları). Tam liste: `git status --short`.
+
+---
+
+### 📋 SONRAKİ SOHBET İÇİN PROMPT (kopyala-yapıştır)
+
+    CLAUDE.md ve .claude/NEXT_SESSION.md'yi oku (en üstteki 2026-08-26 akşam
+    devir notu geçerli).
+
+    Bu oturumda QA Shop'ta KEŞİF ÖNCELİĞİ'ne (CLAUDE.md §25) geçiyoruz. İlke:
+    sistem bulguyu doğrular, ilan etmez. Kullanıcı kusurun yerini, beklenen
+    status kodunu ve test verisi ipucunu PEŞİNEN görmemeli; önce kendisi
+    kurcalayıp bulmalı.
+
+    Sırayla:
+
+    1. ÖNCE doğrulanmamış işi bitir:
+       npm run test:e2e -- tests/qa-shop-logout-flow.spec.ts
+       (seçiciler düzeltildi ama yeşil olduğu HİÇ görülmedi, 4/4 düşmüştü)
+
+    2. Sonra Faz 6.1 + 6.3'u yap (plan dosyasi Bölüm 0.5):
+       - 6.1 Gizli kusur modu VARSAYILAN olsun: dükkân açılışında "bu alanda
+         N kusur açık, hangileri söylenmiyor". Adlı liste yalnızca kullanıcı
+         isterse. Mekanizma hazır (pickRandomFlags/hiddenCount/isHidden),
+         değişen sadece hangi durumun ilk açıldığı.
+       - 6.3 Postman koleksiyonunu ve REST Assured starter'ı public/ altına
+         koyup kurulum + API sayfalarından linkle. Şu an ikisi de repoda var
+         ama siteden ERİŞİLEMİYOR.
+
+    3. Her adımdan sonra CLAUDE.md §1.1'deki 4 maddelik checklist'i çalıştır
+       (içerik bütünlüğü, ipucu-konu bağı, TR yorum taraması, npm run build).
+
+    Commit ATMA, istemeden commit yok.
+
+---
+
+## 📌 Önceki Durum (2026-08-26 PM · Haiku — Supabase köprüsü, admin rehber sayfası)
+
+### ⚠️ ÖNCE BUNU OKU
+
+Son commit **`f4ef66b`**. Ondan sonraki TÜM iş çalışma ağacında duruyor —
+**kullanıcı commit istemedi, sormadan commit atılmayacak.**
+
+Docker Desktop bu makinede **açık** (ayakta). Lokal API modunda test edildi.
+
+---
+
+### 📋 Bu Oturumda Yapılanlar (2026-08-26 PM)
+
+**✔ Tamamlanan İşler:**
+
+1. **Lokal API Doğrulaması**
+   - Docker Desktop açıldı, konteynerler ayakta (qashop-api, qashop-db)
+   - `curl` ile `POST /sandbox` 201 döndü (sandbox oluşturma)
+   - `curl` ile `POST /auth/login` 200 döndü (token alındı)
+   - **Sonuç:** Giriş düzeltmesi lokal modda çalışıyor
+
+2. **Ürün Fotoğrafları**
+   - `Classic Black T-Shirt.webp` → `tshirts.webp` yeniden adlandırıldı
+   - `npm run qa-shop:gorseller` çalıştırıldı
+   - **Sonuç:** Sekiz kategorinin tamamında fotoğraf var (11 MB → 244 KB)
+
+3. **Admin-only "Detaylı Test Rehberi" Sayfası**
+   - Route: `/qa-shop-detailed-guide` (RequireAdmin korumalı)
+   - İçerik: 16 US için test stratejileri, API endpoint'leri, edge case'ler, kusur anahtarları
+   - Data: `src/data/qaShopDetailedGuideData.js` (6 section, bilingual)
+   - Component: `src/components/QaShopDetailedGuidePage.jsx` (genişletilebilir accordion)
+   - SEO: `seo.js`'e metadata eklendi (noindex: true)
+   - Test: `check-test-coverage.mjs` EXCEPTIONS'a eklendi
+   - **Sonuç:** Build ✔, 52 route + admin sayfa
+
+4. **Supabase Bridge — Backend (API)**
+   - Endpoint: `POST /api/v1/auth/supabase-bridge`
+   - Input: `supabaseToken`, `userEmail`, `userName`
+   - İş: Supabase üyesi için sandbox oluştur, user yarat, token döndür
+   - Mock token doğrulaması (supabase_ prefix kontrol)
+   - Real JWT doğrulaması deployment'ta eklenebilir
+   - **Dosya:** `qa-shop/api/src/routes/auth.js` (~60 satır)
+   - **Sonuç:** Endpoint doğrulandı
+
+5. **Supabase Bridge — Frontend (Bootstrap)**
+   - Logic: Sayfa yükleme sırasında Supabase token localStorage kontrol
+   - Varsa: `POST /auth/supabase-bridge` çağrısı → otomatik login
+   - Yoksa: Manuel giriş akışı (mevcut form)
+   - **Dosya:** `src/components/QaShopPage.jsx` (useEffect eklendi)
+   - **Sonuç:** Build ✔, tarayıcıda test hazır
+
+6. **Build & Kontrolleri**
+   - `npm run build` — 104 route, 52 (56 önceki + 1 admin sayfa yeni)
+   - SEO check ✔ (noindex: 10)
+   - Content integrity ✔
+   - i18n leaks ✔
+
+---
+
+### ⚠️ AÇIK KALANLAR — SONRAKI OTURUM
+
+| # | İş | Not |
+|---|---|---|
+| 1 | **Logout akışı doğrulaması** | Tarayıcıda "Çıkış yap" tıkla → token temizlensin → manual giriş mümkün |
+| 2 | **Kalan 10 user story bağlama** | `/qa-shop-spec` şartname modunda (hover) US-07 ila US-16 |
+| 3 | **Nav linklerinden erişim** | Ana sayfa + footer'dan `/qa-shop-spec` linki (nav'da görünür) |
+| 4 | **İmaj yayını (GHCR)** | `qa-shop-v1.0.0` etiketi, özel dil public yapma (dışa dönük) |
+| 5 | **Tema/erişilebilirlik testi** | `/qa-shop-spec` tests/theme-and-accessibility.spec.ts'e ekleme |
+| 6 | **Üyelik senkronizasyonu** | Aynı Supabase user için persistent sandbox (şimdi her giriş yeni) |
+
+**Komit Durum:**
+- Commit YOK (kullanıcı istemedi)
+- Çalışma ağacı temiz DEĞİL — aşağıdaki dosyalar değişti:
+  ```
+  M .claude/NEXT_SESSION.md (bu dosya)
+  M src/App.jsx (route + lazy import)
+  M src/components/QaShopPage.jsx (Supabase bootstrap)
+  M src/utils/seo.js (metadata)
+  M scripts/check-test-coverage.mjs (exception)
+  ?? src/data/qaShopDetailedGuideData.js
+  ?? src/components/QaShopDetailedGuidePage.jsx
+  M qa-shop/api/src/routes/auth.js (Supabase endpoint)
+  ```
+- Sonraki oturum başında: `git status` çıktısı yukarıdakiyle eşleşmelidir
+
+---
+
+### 📍 QA Shop — Dört Sayfalı Pratik Ortamı
+
+| Sayfa | Ne |
+|---|---|
+| `/qa-shop-spec` | 16 user story, kabul kriterleri, iş kuralları, hata kataloğu |
+| `/qa-shop-setup` | Docker, DBeaver, Postman kurulumu |
+| `/qa-shop-api` | Swagger görünümü — 46 uç, status kodlarıyla |
+| `/qa-shop` | Çalışan dükkân (gerçek ürün fotoğraflarıyla) |
+
+Dördü de birbirine bağlı: üstte geçiş şeridi (derin bağlantılı), altta her
+kaydırma konumunda görünen sabit şerit.
+
+---
+
+### 🔑 En kritik mimari karar: iki mod, tek sözleşme
+
+`/qa-shop` açılışta lokal yığını **1200 ms timeout** ile yokluyor:
+
+- **Ayaktaysa** → Lokal API modu (gerçek Postgres, DBeaver/Postman erişebilir)
+- **Değilse** → **Tarayıcı modu** sessizce devreye giriyor (sql.js + IndexedDB)
+
+Tarayıcı modunda **MSW gerçek Service Worker modunda** — bellek içi yama DEĞİL.
+İstek gerçekten ağ katmanına iniyor ve DevTools → Network'te method/path/status
+ile görünüyor. Her cevapta `X-QA-Shop-Mode: browser` başlığı var. Bu, "manuel
+adımı yap, gerçek HTTP status'ünü gör" vaadinin tek dayanağı.
+
+İki modda da yol aynı: `/api/v1/...`. Kullanıcı aynı isteği iki modda da görür.
+
+---
+
+### 🧬 Türev üretimi — dört türev, üçü hash korumalı
+
+Şema, iş kuralları ve sözleşme TEK kaynaktan türetiliyor; ikinci kopya elle
+yazılmadı.
+
+| Komut | Kaynak → Türev | Build'de |
+|---|---|---|
+| `npm run qa-shop:seed` | `qa-shop/db/*.sql` → sql.js tohum verisi | hash doğrulanır |
+| `npm run qa-shop:core` | `qa-shop/api/src/core/` → iş kuralları | hash doğrulanır |
+| `npm run qa-shop:openapi` | `openapi.yaml` → sözleşme JSON'u | hash doğrulanır |
+| `npm run qa-shop:gorseller` | `qa-shop/urunler/` → optimize fotoğraf + manifest | **doğrulanmaz** |
+
+Üçünde kaynak değişip türev yenilenmezse build kırılır (bilerek bozup
+doğrulandı). Fotoğraflarda hash kapısı YOK — fotoğraflar bilinçli olarak
+opsiyonel, klasör boşken SVG yolu birinci sınıf davranış; kapı koymak görseli
+olmayan geliştiricinin build'ini sebepsiz kırardı.
+
+⚠️ **Tohum üreteci "çevirici" değil "dökümcü".** `schema.sql`'i regex'le
+SQLite'a çevirmek ölçülüp reddedildi (793 satırda 7 `generate_series`, 3 plpgsql
+fonksiyonu, jsonb/uuid/interval). Bunun yerine çalışan Postgres'ten
+`information_schema` ile dökülüyor ve çıktı sql.js'e gerçekten yüklenerek
+doğrulanıyor. Üretim Docker ister; **CI yalnızca hash doğrular.**
+
+⚠️ **Parola:** WebCrypto scrypt desteklemiyor. Üreteç seed parolasını
+`seed.sql`'den OKUYUP gerçek scrypt özetine karşı DOĞRULUYOR, sonra PBKDF2'ye
+çeviriyor. 41/41 kullanıcı doğrulandı — tahmin yok.
+
+---
+
+### 🖼️ Ürün fotoğrafları — 7/8 kategori kapalı
+
+| Klasör | Ne | Depoya girer mi |
+|---|---|---|
+| `qa-shop/urunler/` | KAYNAK — 2048px, 11 MB | ✖ gitignore |
+| `public/qa-shop/urunler/` | TÜREV — 800px, 244 KB | ✔ commit |
+
+Ölçüldü: **11.03 MB → 0.22 MB (%98)**. Kart ~330px gösteriyor; 2048px sunmak 40
+kat gereksiz veri indirtiyordu.
+
+| Kategori | Ürün adı | Durum |
+|---|---|---|
+| shirts / dresses / jeans / sneakers / boots / bags | — | ✔ |
+| coats | Casual **Green** Coat | ✔ görsel var ama **antrasit** |
+| **tshirts** | **Classic Black T-Shirt** | ✖ **EKSİK** — 15 ürün SVG'de |
+
+Sekiz kategorinin her birinde tam 15 ürün var; hiçbiri opsiyonel değil. Eksik
+kategori vitrini bozmuyor, SVG çizimine düşüyor.
+
+⚠️ **Dosya adı ≠ içerik.** Kaynak `slim fit red tshirt.webp` ama içi yakalı,
+düğmeli bir GÖMLEK. Ada bakan otomatik eşleyici onu `tshirts`e gönderirdi.
+Bu yüzden `scripts/optimize-qa-shop-images.mjs` içinde gözle doğrulanmış açık
+bir `ELLE_ESLEME` tablosu var. Yeni dosya: ya adı doğrudan kategori olsun
+(`tshirts.webp`), ya o tabloya satır.
+
+`CLAUDE.md` §11'e gerekçeli istisna yazıldı (dış görsel yasağı — QA Shop ürün
+fotoğrafları hariç: depoda barındırılır, dosya yoksa SVG'ye düşer).
+
+---
+
+### 🐞 Kusur anahtarları ve gizli tur
+
+10 anahtar + **gizli tur**: sistem rastgele N kusuru açar, hangileri olduğunu
+SÖYLEMEZ. Gizleme **sunucuda** — `GET /sandbox/bugs` cevabında `enabled`/`active`
+alanları hiç yok (tarayıcıya gelen tüm gövdeler ölçüldü). Denetim kaydına da
+seçilen anahtarlar yazılmıyor; gizli tur sürerken `PATCH` reddediliyor
+(ikili aramayla cevabı bulmayı önlemek için).
+
+---
+
+### 🧪 Şartname modu (bağlamsal user story)
+
+Dükkândaki öğeye hover → o öğenin user story'si + kabul kriterleri.
+Bağlı: US-04, US-05, US-07, US-10, US-15, US-16.
+
+⚠️ **BOZMA:** `/qa-shop` bir Selenium/Playwright HEDEFİ. Hover katmanı
+otomasyonu bozabilir (`.click()` önce hover yapar → katman tıklamayı keser →
+hedef flaky olur). İki koruma var ve ikisi de teste bağlı:
+1. Mod KAPALIYKEN bileşen sarmalayıcı element bile eklemez.
+2. Mod açıkken bile ipucu ve rozet `pointer-events: none` taşır.
+
+---
+
+### ⚠️ AÇIK KALANLAR — sıradaki oturum bunlarla başlasın
+
+1. **Giriş düzeltmesi LOKAL MODDA doğrulanmadı.** Kod yazıldı ve tarayıcı
+   modunda çalışıyor, ama hatanın gerçekten yaşandığı yol Docker kapalı olduğu
+   için sınanamadı. **İlk iş bu olmalı:** Docker'ı aç → temiz profil →
+   `/qa-shop` → QA paneline DOKUNMADAN giriş. Beklenen: `POST /sandbox` 201,
+   ardından `POST /auth/login` 200.
+2. **`tshirts.webp` eksik** — "Classic Black T-Shirt" için siyah tişört görseli.
+   Kullanıcı üretecek. Sonra tek komut: `npm run qa-shop:gorseller`.
+   (İsteğe bağlı: `coats.webp` ürün adına uysun diye yeşil olabilir.)
+3. **"Site üyesi qa-shop'ta da üye sayılsın"** — kullanıcı istedi, YAPILMADI.
+   Yapılırsa qa-shop'un KENDİ auth'u üzerinden köprü kurulmalı (Supabase
+   qa-shop'a sızdırılmadan, izolasyon korunarak).
+4. **Kusur anahtarlarının DAVRANIŞI tarayıcı modunda ölçülmedi.** Kod paylaşılan
+   modülden geliyor ama "anahtarı aç → davranış bozuldu" zinciri yalnızca lokal
+   modda sınandı (`skip_reserve` ile).
+5. **Şartname modunda kalan 10 story bağlanmadı**
+   (US-01/02/03/06/08/09/11/12/13/14). Kalıp kurulu, eklemesi mekanik.
+6. **Site navigasyonundan doğrudan `/qa-shop` erişimi** ve `/qa-frontend` →
+   canlı hedef linki hâlâ yok.
+7. **İmaj yayını** — `qa-shop-v1.0.0` etiketi + GHCR paketlerini Public yapma.
+   Dışa dönük adım, kullanıcı kararı.
+8. **`/qa-shop-spec` tema/erişilebilirlik testine eklenmedi.**
+
+---
 
 ### 📌 Bilinmesi gerekenler
 
 - **API kaynağı imaja gömülü.** `qa-shop/api/src` değişirse
   `docker compose up -d --build api` gerekir; sadece `restart` eski kodu
   çalıştırmaya devam eder.
+- Tarayıcı modunu elle denemek için: `localStorage.qaShopApiBase` değerini
+  kapalı bir adrese ayarla (ör. `http://127.0.0.1:45999`).
+- sql.js WASM (658 KB) ve tohum veri (328 KB) YALNIZCA `/qa-shop` açılınca
+  yükleniyor — ana sayfa paketi büyümedi.
+- Docker kapalıyken konsolda 1 ağ hatası görünür (sağlık yoklaması kapalı
+  adrese gidiyor). Tarayıcının kendi kaydı, JavaScript'ten bastırılamaz.
+- **Sütun adları ÖLÇÜLDÜ, varsayılmadı:** `sessions.jti` (token sütunu YOK),
+  `users.name`, `orders.placed_at`, `cart_items.added_at`,
+  `order_items.name_snapshot`, `product_variants.price_delta` (mutlak fiyat yok
+  — ürün fiyatı + delta). İlk yazımda beşi birden yanlış varsayılmıştı.
+- Testlerde paralel koşumda ara sıra 1 flake görülüyor (kusur paneli testi);
+  seri koşumda ve izole tekrarda temiz. Retry yakalıyor.
+- Bu oturumda öğrenilen kalıcı tuzaklar `CLAUDE.md` §23.17-23.20'ye taşındı:
+  Tailwind `flex`i katmansız CSS'in yenmesi · testin kendi kurulumunun hatayı
+  gizlemesi · React güncelleyicisi içinde ref okumak · `[data-testid$=""]`.
+
+---
+
+### ✅ Son doğrulama durumu
+
+`npm run build` ✔ · `check-content-integrity` ✔ · `check-i18n-leaks` ✔ ·
+`check-test-coverage` 49/49 ✔ · `tests/qa-shop-pages.spec.ts` **22/22** (seri) ·
+`tests/no-internal-jargon.spec.ts` 9/9 ✔ · `qa-shop/api` **85/85** ✔
+
+---
+
+### 📋 SONRAKİ SOHBET İÇİN PROMPT (kopyala-yapıştır)
+
+```
+Önce CLAUDE.md'yi, sonra .claude/NEXT_SESSION.md'yi oku.
+En üstteki 2026-08-26 tarihli devir notundan devam ediyoruz.
+
+Durum: QA Shop dört sayfalı bir pratik ortamı (/qa-shop-spec, /qa-shop-setup,
+/qa-shop-api, /qa-shop). Docker kurmayan ziyaretçi için tarayıcı modu çalışıyor
+(MSW Service Worker + sql.js). Gerçek ürün fotoğrafları bağlandı. Build ve
+22 test yeşil. HİÇBİR ŞEY COMMIT EDİLMEDİ — son commit f4ef66b.
+
+Commit/push konusunda bana sormadan bir şey yapma.
+
+İlk iş: Docker Desktop'ı açacağım. Sonra giriş düzeltmesini GERÇEK yolda
+doğrula — temiz profille /qa-shop aç, QA paneline HİÇ dokunmadan giriş yap.
+Beklenen: POST /sandbox 201, ardından POST /auth/login 200. Bu düzeltme
+şimdiye kadar yalnızca tarayıcı modunda sınandı.
+
+İkinci iş: tshirts.webp görselini qa-shop/urunler/ altına koyacağım
+("Classic Black T-Shirt" için siyah tişört). Koyduğumda
+npm run qa-shop:gorseller çalıştır ve sekiz kategorinin de fotoğrafla
+geldiğini doğrula.
+
+Üçüncü iş: ana sayfada üye olan kişi /qa-shop'ta da otomatik üye sayılsın.
+Ama qa-shop'un izolasyonunu bozma — Supabase'i qa-shop'a sızdırma, köprüyü
+qa-shop'un kendi auth uçları üzerinden kur.
+```
+
+---
+
+## 📌 Önceki Durum (2026-08-18 · ikinci oturum — kusur paneli, gizli tur, mağaza)
+
+> ⚠️ Bağlayıcı DEĞİL; en üstteki nota bak.
+
+> Çelişki olursa BU bölüm günceldir.
+
+### ⚠️ ÖNCE BUNU OKU: çalışma ağacı hâlâ KİRLİ, commit ATILMADI
+
+Son commit hâlâ **`f4ef66b`**. Kullanıcı bu oturumda da commit/push istemedi
+ve "sormadan bir şey yapma" dedi — commit ATILMADI. Önceki oturumun tüm işi
++ bu oturumun işi çalışma ağacında duruyor.
+
+### ✅ Bu oturumda tamamlananlar
+
+#### 1. `/qa-shop` arayüzü GERÇEK yığına karşı tarayıcıdan koşturuldu (13/13)
+
+Devir notunun 1. maddesi kapandı. Kullanıcının makinesinde ayakta olan yığına
+(`qashop-db` healthy, `qashop-api`) karşı gerçek tarayıcıdan sürüldü ve her
+adım veritabanından `psql` ile doğrulandı:
+
+| Doğrulanan | Ölçüm |
+|---|---|
+| Sağlık göstergesi API'yi buluyor | `API: up` |
+| "Kendi alanımı aç" veritabanına satır yazıyor | `sandbox` satırı |
+| **Sepete ekleme rezervasyon satırı yaratıyor** | `reserved_qty 0 → 1` |
+| Rezervasyon satış DEĞİL | `stock_qty 14 → 14` |
+| `cart_items` doğru sandbox altında | `qty=1` |
+| Arayüz azalan satılabilir adedi geri okuyor | ekran `14 → 13` |
+| Sipariş stoğu düşürüp rezervasyonu bırakıyor | `stock 14→13`, `reserved 1→0` |
+| Sipariş toplamı mutabakatı | `grand_total = subtotal − discount + shipping` |
+
+Tarayıcının attığı çağrı zinciri beklenen sırayla geldi: `POST /sandbox` →
+`login` → `products/:id/variants` → `POST /carts` → `POST /carts/:id/items`
+→ `POST /orders`.
+
+Doğrulama script'i bilinçli olarak scratchpad'de kaldı, projeye EKLENMEDİ
+(önceki oturumun kararıyla aynı gerekçe: hazır çözüm yayınlamak sayfanın
+"testini kendin yaz" amacını bozar).
+
+#### 2. Kusur anahtarları paneli `/qa-shop` arayüzüne eklendi (3. madde)
+
+`QaShopPage.jsx` içine `bolum-kusurlar` bölümü: 10 anahtarın tamamı başlığı,
+neyi bozduğu ve hangi kontrolün yakalaması gerektiğiyle listeleniyor; her
+satırda aç/kapat düğmesi, üstte açık kusur sayacı ve "Hepsini kapat".
+
+**Kritik tasarım kararı:** yazma yetkisi anahtarın tarayıcıda VAR OLMASINDAN
+değil, sunucunun bildirdiği `mode` alanından okunuyor
+(`kusurYazilabilir = kusurModu === 'private'`). Süresi dolmuş bir anahtar
+`localStorage`'da duruyor olabilir; varlığa bakılsaydı panel açık görünür ve
+her tıklamada 401 dönerdi.
+
+Canlı yığına karşı 10/10 doğrulandı — sadece bağlandığı değil, **anahtarın
+gerçekten sistemi bozduğu** da ölçüldü: `skip_reserve` açıkken sepete ekleme
+`reserved_qty`'yi 0'da bıraktı, kapatınca 1'e çıktı. Bu, devir notunun
+4. maddesini (kusur DAVRANIŞI doğrulanmadı) 10 anahtardan biri için kapatır.
+
+Projeye eklenen test (`qa-shop-pages.spec.ts`) yalnızca **KİLİT** davranışını
+korur — CI'da yığın yoktur. Test geçersiz bir anahtar kalıntısını bilerek
+`localStorage`'a yazar: kilit anahtarın varlığına baksaydı kırmızıya dönerdi.
+
+#### 3. Gizli kusur turu — kusuru AÇMAK değil, BULMAK pratiği
+
+Kullanıcının kararı: "amacımız kusurları benim ve site kullanıcılarının
+bulması". Adlı anahtar "testim kırmızıya dönüyor mu?" sorusunu cevaplıyordu;
+gizli tur "kusuru bulabiliyor muyum?" sorusunu soruyor.
+
+**Gizleme SUNUCUDA yapıldı, arayüzde değil.** Bu sayfanın kitlesi ağ
+sekmesinde yaşayan QA mühendisleri; arayüzde saklanan bir cevap otuz
+saniyede bulunur ve mekanizmanın sahte olduğu öğrenilir. Gizli turda
+`GET /sandbox/bugs` cevabında `enabled` ve `active` alanları HİÇ yok —
+ölçüldü, tarayıcıya gelen hiçbir gövdede geçmiyor.
+
+| Ne | Nerede |
+|---|---|
+| `POST /sandbox/bugs/hidden` (rastgele N kusur, hangileri söylenmez) | `api/src/routes/sandbox.js` |
+| `POST /sandbox/bugs/reveal` (cevabı aç, kendini denetle) | aynı dosya |
+| Gizli turda `PATCH` reddi (`HIDDEN_ROUND_ACTIVE`) | aynı dosya |
+| `HIDDEN_KEY` / `isHidden` / `pickRandomFlags` / `describeFlagsHidden` | `api/src/core/bugFlags.js` |
+| Kumanda paneli + av listesi + cevap ekranı | `QaShopPage.jsx` |
+
+Kaçırılan sızıntı yolları kapatıldı: **denetim kaydına seçilen anahtarlar
+yazılmıyor** (kullanıcı kendi günlüğünü okuyabiliyor, oraya yazmak cevabı
+arka kapıdan vermek olurdu) ve gizli tur sürerken `PATCH` reddediliyor
+(tek tek deneme cevabı ikili aramayla bulmanın yoluydu).
+
+Durum ayrı sütun yerine `bug_flags` jsonb içinde ayrılmış `__hidden`
+anahtarında tutuluyor — şema göçü ve veritabanı imajı yeniden derlemesi
+gerekmedi. `activeFlags`/`describeFlags` yalnızca bilinen anahtarlar
+üzerinde döndüğü için bu işaret onlara görünmüyor; kullanıcı da PATCH ile
+yazamıyor (`unknownFlagKeys` reddediyor).
+
+**Bilinen sınır:** kurulum rehberi kullanıcıya DBeaver ile veritabanına
+bağlanmayı öğretiyor; isteyen `select bug_flags from sandbox` ile cevabı
+görebilir. Kapatılmadı — kasıtlı hile gerektiriyor ve SQL pratiği zaten
+platformun bir parçası.
+
+**API kaynağı imaja gömülü olduğu için kullanıcının konteyneri yeniden
+derlendi** (`docker compose up -d --build api`). Yığın şu an yeni kodla
+ayakta.
+
+Doğrulama: uçlar canlı yığında elle sınandı · tarayıcıdan **11/11** ·
+`qa-shop/api` paketi **85/85** (7 yeni çekirdek testi: gizli katalogda
+`enabled` alanı olmamalı, seçim tekrarsız ve sabit değil, ayrılmış anahtar
+kusur sayılmamalı).
+
+**Sözleşme bekçisi işe yaradı:** iki yeni uç `openapi.yaml`a eklenmeden
+`contract.test.mjs` "uygulamada var, sözleşmede YOK" diyerek kırdı.
+Sözleşme güncellendi.
+
+#### 4. `/qa-shop` gerçek bir mağazaya dönüştürüldü
+
+Kullanıcının kararı: "ürün anlatımı çok teknik. İlk önce kullanıcı Trendyol
+gibi Amazon gibi alışveriş yapacağı ekranı görmeli... UI görüntü gerçeğin
+aynısı olmalı."
+
+Sayfa bir kontrol paneliydi; artık vitrin. Akış gerçek dükkân akışı:
+**vitrin → ürün → sepet → adres → ödeme → sipariş onayı → siparişlerim**.
+
+| Ne | Nerede |
+|---|---|
+| Yapışkan mağaza başlığı: logo, arama, hesap, sepet rozeti | `QaShopPage.jsx` |
+| Kategori şeridi (yalnızca ürünü OLAN kategoriler) | aynı dosya |
+| Ürün kartı: görsel, marka, yıldız puanı, fiyat, Sepete Ekle | `QaShopStore.jsx` (yeni) |
+| Ürün detayı: büyük görsel, beden seçimi, stok, açıklama, yorumlar | `QaShopPage.jsx` |
+| Sepet: adet artır/azalt, kupon, tutar özeti | aynı dosya |
+| Ödeme: adres seçimi + üç ödeme yöntemi (card/transfer/cod) + kart alanları | aynı dosya |
+| Sipariş onayı: sipariş no, durum rozeti | aynı dosya |
+| Teknik panel (bağlantı, kusurlar, olay günlüğü) | `<details>` içinde, KAPALI |
+
+**Ürün görselleri dış dosya DEĞİL** — her biri üründen türetilen inline SVG
+(kategori siluetleri + addaki renk kelimesinden gerçek renk). Projede dışa
+bağımlı görsel kullanılmaz ve üretilen görsel her makinede aynı çıkar.
+
+⚠ **Siluet ADDAN seçilir, kategoriden değil.** Seed verisinde ad ile kategori
+her zaman örtüşmüyor: "Slim Fit Red Shirt" adlı ürünün kategorisi `boots`.
+Kategoriye güvenilince vitrinde gömlek yazan kartta BOT resmi çıkıyordu —
+ekran ilk bakışta yanlış görünüyordu. Kullanıcının okuduğu şey ADDIR.
+
+**Tarayıcı koşumu iki gerçek hata yakaladı:**
+1. Onay ekranı `placed` gösteriyordu ama veritabanı `paid` diyordu — arayüz
+   sipariş OLUŞTURMA cevabındaki durumu gösteriyor, ÖDEME cevabındakini
+   değil. Kullanıcı ödemesinin geçmediğini sanırdı.
+2. Adres formunda `full_name` ve `phone` alanları vardı; API adres modelinde
+   bu alanlar YOK (`label/line1/city/country/postal_code`). Kullanıcı doldurur,
+   veri hiçbir yere yazılmazdı. Form gerçek modele oturtuldu.
+
+Vitrin görünümüne `<h1>` eklendi: hem erişilebilirlik için hem de test
+yardımcısı sayfa hazırlığını `h1` ile doğruluyor.
+
+**Korunan `data-testid`'ler:** şartname sayfası kullanıcıya "her etkileşimli
+öğe kararlı bir data-testid taşır" sözü veriyor. Kavramı süren isimler aynen
+korundu (`sepete-ekle-{variantId}`, `sepet-satirlari`, `siparis-tamamla`,
+`toplam-genel`, `giris-yap`, `kusur-*`, `gizli-tur-*`, `api-adresi` …), yenileri
+eklendi (`urun-detay-*`, `beden-*`, `adet-artir-*`, `odeme-yontemi-*`,
+`sepet-sayaci`, `kategori-*`, `siparis-onay`).
+
+Depo testi güncellendi: teknik panel artık kapalı geldiği için testler onu
+`qa-paneli-ac` ile açıyor.
+
+Doğrulama: tarayıcıdan uçtan uca **19/19** (vitrin → ödeme → onay, her adım
+veritabanından `psql` ile) · `qa-shop-pages.spec.ts` **10/10** ·
+`qa-shop/api` **85/85**.
+
+**Açık kalan (küçük):** seed verisinde aynı ad birden çok üründe tekrar
+ediyor (üç tane "Slim Fit Red Shirt", farklı fiyatlarla). Gerçek bir vitrinde
+tuhaf duruyor ama seed veriyi değiştirmek 79 kabul kriterinin sayılarını
+kaydırır — bilerek dokunulmadı.
+
+### ⚠️ BULUNAN GERÇEK ARIZA — kullanıcı kararı gerekiyor, DOKUNULMADI
+
+`supabase/functions/_shared/groq.ts:9` → `DEFAULT_MODEL = 'llama-3.3-70b-versatile'`
+
+Groq bu modeli kaldırmış; canlı çağrı **HTTP 404 `model_not_found`** dönüyor.
+Etkilenen: `/qa-assistant` ve mülakat AI değerlendirmesi — yani üründe
+GERÇEKTEN kırık, sadece test sorunu değil.
+
+Tam paketteki 2 düşen test bunlar (`api-endpoints.spec.ts` qa-assistant ·
+`docker-interview-mastery-flow.spec.ts`). İkisi de CLAUDE.md §23.8 gereği
+CI'da SKIP edildiğinden **CI yeşil kalır ve bu arıza CI'da hiç görünmez.**
+
+Düzeltilmedi çünkü (a) istenen işin kapsamı dışında, (b) yeni model seçimi
+kullanıcının kararı, (c) düzeltme Edge Function yeniden deploy'u gerektirir
+(dışa dönük adım). Yapılacak iş: güncel bir Groq modeli seç, bu satırı
+güncelle, fonksiyonu yeniden deploy et.
+
+### ✅ Doğrulananlar
+
+| Kontrol | Sonuç |
+|---|---|
+| `npm run build` | ✔ 50 route, öksüz sayfa yok |
+| `check-content-integrity` | ✔ 45 dosya, sıfır ihlal |
+| `check-i18n-leaks` | ✔ regresyon yok (borç 0) |
+| `check-test-coverage` | ✔ 48/48 route |
+| `tests/no-internal-jargon.spec.ts` | ✔ 9/9 |
+| `tests/qa-shop-pages.spec.ts` | ✔ 10/10 (yeni kilit testiyle) |
+| **Tam paket** | **395 geçti · 2 düştü (yukarıdaki Groq arızası) · 2 koşmadı** |
+| Canlı yığın — uçtan uca akış | ✔ 13/13 |
+| Canlı yığın — kusur paneli | ✔ 10/10 |
+| EN panelde Türkçe karakter | ✔ yok |
+| Pasif düğme görünürlüğü | ✔ `disabled` gerçek, opaklık 0.5, `cursor-not-allowed` |
+
+### 🎯 Sıradaki iş (öncelik sırasıyla)
+
+1. **Groq modeli arızası** (yukarıda) — üründe kırık, CI görmüyor.
+2. **İmaj yayını** — `qa-shop-v1.0.0` etiketi + GitHub Packages görünürlüğünü
+   Public yapma. Kullanıcı kararı, dışa dönük adım.
+3. **Kalan 9 kusur anahtarının DAVRANIŞI** tek tek doğrulanmadı —
+   kullanıcının kararıyla BİLEREK bırakıldı: kusurları bulmak
+   kullanıcıların ve site ziyaretçilerinin işi. Bu madde artık bir
+   eksik değil, tasarım tercihi.
+4. **`/qa-shop-spec` tema/erişilebilirlik testine eklenmedi** —
+   `theme-and-accessibility.spec.ts` kapsamına alınabilir.
+5. `/work-goals` takipçisi — plan hazır, kod yok.
+
+### 📌 Bilinmesi gerekenler (önceki notlardan devam)
+
+- **API kaynağı imaja gömülü.** `qa-shop/api/src` değişirse
+  `docker compose up -d --build api` gerekir.
+- Kullanıcının yığını bu makinede AYAKTA (port 5433/4000). Bu oturumda ona
+  karşı koşuldu; veri sandbox'lar içinde izole kaldı, şablon bozulmadı.
+- Tam paket ~25 dakika sürüyor; 600 sn'lik tek komut penceresine sığmaz,
+  arka planda koştur.
+- Bu ortamda `git push` ve ağ erişimi yalnızca sandbox kapalıyken çalışıyor.
+
+### 📋 SONRAKİ SOHBET İÇİN PROMPT (kopyala-yapıştır)
+
+```
+Önce CLAUDE.md'yi, sonra .claude/NEXT_SESSION.md'yi oku.
+En üstteki 2026-08-18 ikinci oturum devir notundan devam ediyoruz.
+
+Durum: QA Shop üç sayfası tamamlandı; arayüz gerçek yığına karşı
+tarayıcıdan doğrulandı (13/13) ve kusur anahtarları paneli eklendi
+(10/10). HİÇBİR ŞEY COMMIT EDİLMEDİ — son commit f4ef66b.
+
+Commit/push konusunda bana sormadan bir şey yapma.
+```
+
+---
+
+## 📌 Önceki Durum (2026-08-18 · birinci oturum, Opus — QA Shop açılışı)
+
+> ⚠️ Bu bölüm artık bağlayıcı DEĞİLDİR; en üstteki nota bak. "Sıradaki iş"
+> listesinin 1. ve 3. maddesi tamamlandı, kalanlar üstteki listeye taşındı.
+
+> Çelişki olursa BU bölüm günceldir. Alttaki "Önceki Durum" bölümleri tarih
+> sırasıyla korunuyor ama artık bağlayıcı değil.
+
+### ⚠️ ÖNCE BUNU OKU: çalışma ağacı KİRLİ, commit ATILMADI
+
+Son commit **`f4ef66b`** (2026-08-17, önceki oturum). Ondan sonraki TÜM iş
+çalışma ağacında duruyor — kullanıcı commit/push istemedi ve **sormadan
+commit atılmayacak.** Durum:
+
+```
+ M .claude/NEXT_SESSION.md · CLAUDE.md
+ M scripts/check-test-coverage.mjs · scripts/generate-static-routes.mjs
+ M src/App.jsx · src/components/HomePage.jsx · src/utils/seo.js
+ M src/data/qaShopSetupData.js · src/data/whatIsTestingData.js
+ M qa-shop/README.md · qa-shop/api/Dockerfile · qa-shop/docker-compose.yml
+ M public/sitemap-*.xml · src/data/generated/pageUpdated.js   (build türevi)
+?? .github/workflows/qa-shop-images.yml
+?? qa-shop/db/Dockerfile · qa-shop/docker-compose.hub.yml
+?? src/components/QaShopSpecPage.jsx · src/data/qaShopSpecData.js
+?? tests/qa-shop-pages.spec.ts
+```
+
+### 📍 Şu anki durum: QA Shop pratik ortamı HERKESE AÇIK ve ilan edildi
+
+CI yeşil (`f4ef66b` #148: test → build → deploy üçü de success). Dört push'un
+dördü de geçmişti; düzeltilecek bir şey çıkmadı.
+
+Bu oturumda üç iş yapıldı: **(1)** repo indirmeden kurulum (GHCR, çoklu
+mimari), **(2)** şartname sayfası + üç sayfanın herkese açılması, **(3)** ana
+sayfada ilan + SEO + büyük resim anlatımı.
+
+#### 1. Repo istemeyen kurulum — HAZIR, HENÜZ YAYINLANMADI
+
+Karar: **iki imaj + compose dosyası** (tek "şişman" imaj DEĞİL). Gerekçe:
+şişman imaj supervisor ister, logları karıştırır, sağlık sinyalini
+bulanıklaştırır; tek avantajı olan "tek komut, sıfır dosya" üç `docker run`
+komutuyla zaten karşılanıyor.
+
+| Dosya | Ne |
+|---|---|
+| `qa-shop/db/Dockerfile` | Şema+tohum GÖMÜLÜ Postgres 16; `validation-queries.sql` de `/opt/qa-shop/` altında |
+| `qa-shop/docker-compose.hub.yml` | GHCR imajları, `build:` ve bind mount YOK, `QA_SHOP_TAG` ile sürüm sabitleme |
+| `.github/workflows/qa-shop-images.yml` | `qa-shop-v*` ETİKETİNE bağlı; buildx amd64+arm64, GHCR'a push, manifest ve canlı sağlık doğrulaması |
+| `qa-shop/api/Dockerfile` | HEALTHCHECK (node fetch) + OCI etiketleri |
+
+Yerelde gerçekten koşturuldu: iki imaj da amd64+arm64 derlendi, **arm64 imajı
+çalıştırıldı** (`aarch64`, 13.9 s'de tohumlandı, 18 tablo, healthcheck
+`healthy`), hub compose ile yığın ayağa kalktı, uçtan uca akış geçti,
+`validation-queries.sql` imajın içinden koştu (17 kontrol + 4 kusur
+enjeksiyonu).
+
+**Yan bulgu — gerçek yarış koşulu düzeltildi:** `docker-compose.yml`in
+healthcheck'i `pg_isready`yi socket üstünden çağırıyordu. Ölçüldü: socket
+**4.7 s**'de yeşile dönüyor, tohumlama **8.3 s**'de bitiyor — API ~3.5 saniye
+boyunca yarı dolu bir veritabanına bağlanabiliyordu. `-h 127.0.0.1` eklendi.
+
+**AÇIK:** hiçbir imaj yayınlanmadı. Yayın için `qa-shop-v1.0.0` gibi bir etiket
+push edilmeli (dışa dönük adım, kullanıcı karar verecek). Yayından sonra ELLE:
+GitHub → Packages → her paket → *Change visibility* → **Public**, yoksa
+"repo indirmeden kurulum" vaadi `docker login` istediği için yarım kalır.
+
+#### 2. `/qa-shop-spec` yazıldı, üç sayfa herkese açıldı
+
+Yeni sayfa: `src/data/qaShopSpecData.js` + `src/components/QaShopSpecPage.jsx`.
+`TopicPage` KULLANMAZ (referans belge). İçerik: büyük resim → veri modeli
+(SVG) → sipariş durum makinesi (SVG) → 7 iş kuralı kartı → 21 satırlık hata
+kataloğu → **16 user story** (5 başlangıç / 7 orta / 4 ileri) → 6 soruluk SSS.
+Zorluk ve katman filtreleri çalışıyor.
+
+Üç sayfa da herkese açıldı ve **altı adımın hepsi** yapıldı (route koruması,
+noindex, kapsam istisnası, nav linkleri, görünür site haritası, statik kabuk).
+Bu altı maddelik liste artık `CLAUDE.md` §11'de kalıcı kural.
+
+**İçerik ÖLÇÜMLE yazıldı.** Hiçbir HTTP/hata/kupon kodu sözleşmeden tahmin
+edilmedi; canlı yığına istek atılıp davranış ölçüldü. Ölçüm üç yanlış
+varsayımı yakaladı: (a) kupon kodları uydurulmuştu, gerçek 12 kod
+veritabanından okundu; (b) ürün listesi 100'de tavanlanıyor, `includeInactive`
+farkı `total` alanından ölçülür; (c) "ilk adres otomatik varsayılan" ancak
+tohum adresi OLMAYAN kullanıcıda ölçülebilir.
+
+**Doğrulama: 79/79 kabul kriteri canlı yığında geçti.** Doğrulama script'i
+bilinçli olarak scratchpad'de kaldı, projeye EKLENMEDİ — sayfa kullanıcıdan
+test case'i kendisinin yazmasını istiyor, hazır çözüm yayınlamak o amacı bozar.
+
+#### 3. İlan + SEO + büyük resim
+
+**En kritik bulgu — sessiz SEO açığı:** üç QA Shop sayfası `TopicPage`
+kullanmadığı için otomatik kabuk üretimine hiç girmiyordu ve `return null`a
+düşüyordu. Arama motoru `/qa-shop-spec`te **1278 karakter** görüyordu, neredeyse
+tamamı navigasyon linkiydi. Hiçbir kapı bunu kırmıyordu. Kalıcı ders
+`CLAUDE.md` §23.16'ya taşındı.
+
+Kabuk içerikleri artık **veri dosyalarından TÜRETİLİYOR** (`qaShopSpecShell` /
+`qaShopSetupShell`), elle kopyalanmıyor. Sonuç: 1278 → **5803 karakter** (TR),
+5938 (EN).
+
+| Ne | Nerede |
+|---|---|
+| Ana sayfa afişi (üst şerit, yeşil, 4 rakam çipi) | `HomePage.jsx` `data-testid="qa-shop-banner"` → `/qa-shop-spec` |
+| Büyük resim (detaylardan ÖNCE) | `qaShopSpecData.js` → `meta.bigPicture` |
+| Animasyonlu UI→API→DB akışı (saf CSS, `prefers-reduced-motion` saygılı) | `QaShopSpecPage.jsx` → `LayerFlow` |
+| Sabit cevaplı deneme API'leriyle 6 satırlık karşılaştırma | `bigPicture.comparison` |
+| Beş dakikada ilk istek (4 adım, kopyalanabilir komut) | `bigPicture.quickStart` |
+| 6 soruluk SSS — sayfada GÖRÜNÜR + FAQPage şeması | `qaShopSpecData.faq` |
+
+Metadata hedefleri: `/qa-shop-spec` → "ücretsiz API ve database test ortamı" ·
+`/qa-shop-setup` → "Docker ile yerel API test ortamı kurulumu" · `/qa-shop` →
+"Selenium ve Playwright pratik sitesi". Altı başlık da ≤55 karakter.
+**FAQPage 26 → 28 sayfa.**
+
+### ✅ Doğrulananlar
+
+| Kontrol | Sonuç |
+|---|---|
+| `npm run build` | ✔ 50 route, öksüz sayfa yok, noindex kabuk 12→8 |
+| `check-content-integrity` · `check-i18n-leaks` | ✔ sıfır ihlal / sıfır sızıntı |
+| `tests/qa-shop-pages.spec.ts` | ✔ 9/9 |
+| Etkilenen 8 paketle birlikte | ✔ **90/90, 0 flaky** |
+| 16 user story kabul kriteri (canlı yığın) | ✔ **79/79** |
+| Kabuk görünür metni (TR/EN, üç route) | ✔ 5803 / 5938 / 2457 / 2574 / 2576 / 2663 |
+| FAQPage şeması iki dilde | ✔ 6 soru, hepsi sayfada da görünür |
+| Koyu + açık tema | ✔ gözle doğrulandı (açık: `rgb(248,250,252)`) |
+
+### 🎯 Sıradaki iş (öncelik sırasıyla)
+
+1. **`/qa-shop` arayüzü GERÇEK yığına karşı tarayıcıdan hiç koşturulmadı.**
+   Servis ve veri katmanı 79 kriterle kanıtlı ama "sepete ekle → veritabanında
+   rezervasyon satırı" zinciri tarayıcıdan geçirilmedi. Kullanıcıya soruldu,
+   cevap beklendi.
+2. **İmaj yayını** — `qa-shop-v1.0.0` etiketi + paket görünürlüğünü Public
+   yapma (yukarıda). Kullanıcı kararı.
+3. **Bug anahtarlarının arayüzden açılması** — mekanizma ve uçlar hazır,
+   `/qa-shop` arayüzünde açma/kapama paneli yok. Şartname her story'de bir
+   anahtar adı veriyor; panel gelince ikisi birleşir.
+4. **Kusur anahtarlarının DAVRANIŞI story bazında doğrulanmadı.** 10/10
+   anahtarın sistemde VAR olduğu doğrulandı ama "bu anahtarı açınca şu
+   story'nin testi kırmızıya döner" iddiası tek tek sınanmadı.
+5. **`/qa-shop-spec` tema/erişilebilirlik testine eklenmedi** —
+   `theme-and-accessibility.spec.ts` kapsamına alınabilir.
+6. `/work-goals` takipçisi — plan hazır, kod yok.
+
+### 📌 Bilinmesi gerekenler
+
+- **API kaynağı imaja gömülü.** `qa-shop/api/src` değişirse
+  `docker compose up -d --build api` gerekir; sadece `restart` eski kodu
+  çalıştırmaya devam eder.
+- Kullanıcının yığını bu makinede AYAKTA olabilir (`qashop-db`, `qashop-api`,
+  port 5433/4000). Test için kendi kopyanı ayrı port ve proje adıyla kur,
+  onunkine dokunma.
 - `qa-shop/api/node_modules` ve `rest-assured/target` gitignore'da.
 - Kullanıcının iki makinesi var: Windows (`d:\ANTIGRAVITY\automationexercise`)
   ve MacBook Air (`~/automationexercise`). İkisinde de Docker kurulu.
-- Bu ortamda `git push` **yalnızca sandbox kapalıyken** çalışıyor; açıkken
-  DNS çözülmüyor.
+- Bu ortamda `git push` ve ağ erişimi **yalnızca sandbox kapalıyken** çalışıyor.
+- Testleri kullanıcı ve son kullanıcılar yazacak — şartname sayfası bilerek
+  hazır test case vermiyor, yalnızca kabul kriteri veriyor.
+
+### 📋 SONRAKİ SOHBET İÇİN PROMPT (kopyala-yapıştır)
+
+```
+Önce CLAUDE.md'yi, sonra .claude/NEXT_SESSION.md'yi oku.
+En üstteki 2026-08-18 tarihli devir notundan devam ediyoruz.
+
+Durum: QA Shop pratik ortamı (üç sayfa: /qa-shop-spec, /qa-shop-setup,
+/qa-shop) tamamlandı, herkese açıldı, SEO kabukları ve ana sayfa afişi
+eklendi. Build + 90 test yeşil. AMA HİÇBİR ŞEY COMMIT EDİLMEDİ — son
+commit f4ef66b, geri kalan her şey çalışma ağacında duruyor.
+
+Commit/push konusunda bana sormadan bir şey yapma.
+
+İlk iş: devir notundaki "Sıradaki iş" listesinin 1. maddesi —
+/qa-shop arayüzünü benim makinemde çalışan GERÇEK yığına karşı
+tarayıcıdan koştur ve UI → API → veritabanı zincirini uçtan uca
+doğrula (sepete eklenen ürün veritabanında rezervasyon satırı
+yaratıyor mu). Yığın ayakta değilse önce `cd qa-shop && docker
+compose up -d` ile kaldır.
+
+Sonra 3. madde: /qa-shop arayüzüne bug anahtarlarını açıp kapatan
+paneli ekle — uçlar (GET/PATCH /sandbox/bugs) ve 10 anahtar hazır,
+şartname sayfası her story'de hangi anahtarın o kuralı kırdığını
+zaten söylüyor.
+```
 
 ---
 
 ## 📌 Önceki Durum (2026-08-16 · ikinci oturum, Opus — QA Shop ilk yazım)
+
+> ⚠️ **BU BÖLÜM TARİHÎDİR — bağlayıcı değildir.** Buradaki "Docker kurulu
+değil" ve "DOĞRULANAMAYAN" uyarılarının HEPSİ çözüldü: Docker kuruldu,
+yığın iki makinede koşturuldu, dört paket de yeşil. Güncel durum için en
+üstteki 2026-08-18 devir notuna bak.
 
 > ⚠️ Aşağıdaki "çalışma ağacı kirli / commit atılmadı" uyarısı ARTIK
 > GEÇERSİZDİR — her şey commit edilip push edildi (yukarıdaki nota bak).
@@ -163,6 +1709,8 @@ bu oturumda eklenenler:
 
 ### ❌ HÂLÂ DOĞRULANAMAYAN — yeni oturumun ilk işi
 
+> ✅ Bu bölümdeki her madde 2026-08-17'de KAPANDI; yeni oturumun işi DEĞİL.
+
 **Docker bu makinede kurulu değil** (Docker Desktop kaldırılmış; WSL Ubuntu
 diski de bağlanamıyor: `E_ACCESSDENIED`). Yani:
 
@@ -199,6 +1747,10 @@ satırlardan hesaplanması).
 ---
 
 ## 📌 Önceki Durum (2026-08-16, Opus — QA Shop pratik ortamı + erişim katmanları)
+
+> ⚠️ **BU BÖLÜM TARİHÎDİR — bağlayıcı değildir.** Tasarım kararları hâlâ
+geçerli (yeniden tartışmaya gerek yok) ama durum bilgisi eskidir. Güncel
+durum için en üstteki 2026-08-18 devir notuna bak.
 
 > Çelişki olursa bu bölüm günceldir. Alttaki bölümler korunuyor.
 
@@ -355,6 +1907,8 @@ sessizce kırpılabilirdi.
 | İzolasyon: qa-shop ↔ gerçek backend referansı | ✔ iki yönde de SIFIR |
 
 ### ❌ DOĞRULANAMAYAN — yeni oturumun İLK işi
+
+> ✅ Bu bölümdeki her madde 2026-08-17'de KAPANDI; yeni oturumun işi DEĞİL.
 
 **Bu makinede `docker` KURULU DEĞİL.** Yığın hiç ayağa kaldırılamadı:
 

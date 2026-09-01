@@ -1,7 +1,7 @@
 // QA Shop Kurulum Rehberi — sıfırdan kurulum ve ilk koşan test.
 //
 // Bu sayfa QA Shop pratik ortamını (ayrı PostgreSQL + ayrı Express API)
-// kullanmayı adım adım anlatır. Pratik yığını, bu sitenin kendi backend'inden
+// kullanmayı adım adım anlatır. Pratik stack'i, bu sitenin kendi backend'inden
 // TAMAMEN bağımsızdır: ayrı veritabanı, ayrı süreç, ayrı kimlik doğrulama.
 // Buradaki hiçbir adım gerçek kullanıcı verisine dokunmaz.
 //
@@ -38,7 +38,7 @@ export const qaShopSetupData = {
             items: [
                 {
                     icon: '🐳',
-                    label: { tr: 'Docker\'ı kur, yığını çalıştır', en: 'Install Docker, start the stack' },
+                    label: { tr: 'Docker\'ı kur, stack\'i çalıştır', en: 'Install Docker, start the stack' },
                     result: {
                         tr: 'Kendi makinende çalışan bir PostgreSQL ve ona bağlı bir REST API.',
                         en: 'A PostgreSQL running on your own machine and a REST API connected to it.',
@@ -56,13 +56,13 @@ export const qaShopSetupData = {
                     icon: '📜',
                     label: { tr: 'Sözleşmeyi Swagger\'da aç', en: 'Open the contract in Swagger' },
                     result: {
-                        tr: 'Hangi ucun ne döndüğünü tahmin etmek yerine sözleşmeden okumak.',
+                        tr: 'Hangi endpoint\'in ne döndüğünü tahmin etmek yerine sözleşmeden okumak.',
                         en: 'Reading what each endpoint returns from the contract instead of guessing.',
                     },
                 },
                 {
                     icon: '🧭',
-                    label: { tr: 'Uçları test et: elle → Postman → Newman', en: 'Test the endpoints: by hand, then Postman, then Newman' },
+                    label: { tr: 'Endpoint\'leri test et: elle → Postman → Newman', en: 'Test the endpoints: by hand, then Postman, then Newman' },
                     result: {
                         tr: 'Komut satırından koşan ve rapor üreten, tekrar edilebilir bir test paketi.',
                         en: 'A repeatable test pack that runs from the command line and produces a report.',
@@ -81,17 +81,13 @@ export const qaShopSetupData = {
             id: 'step-1-docker',
             number: 1,
             icon: '🐳',
-            title: { tr: 'Docker\'ı kur ve pratik yığınını çalıştır', en: 'Install Docker and start the practice stack' },
-            goal: {
-                tr: 'Sonunda: makinende bir PostgreSQL ve ona bağlı bir REST API ayakta olacak, sağlık ucu {"status":"ok","database":"up"} dönecek.',
-                en: 'By the end: a PostgreSQL and a REST API connected to it will be running on your machine, and the health endpoint will return {"status":"ok","database":"up"}.',
-            },
+            title: { tr: 'Docker\'ı kur ve pratik stack\'ini çalıştır', en: 'Install Docker and start the practice stack' },
             blocks: [
                 {
                     type: 'why',
                     title: { tr: 'Neden Docker? Veritabanını doğrudan kursak olmaz mı?', en: 'Why Docker? Could we not just install the database directly?' },
                     content: {
-                        tr: 'Bir veritabanını doğrudan kurmak şu zinciri gerektirir: kurulum sihirbazından geç, sürüm seç, servisi başlat, kullanıcı ve parola tanımla, sonra şemayı ve veriyi elle yükle. Bu zincirin her halkası makineden makineye değişir ve bir halka kayarsa hata çoğu zaman günler sonra "bende çalışıyordu" cümlesiyle ortaya çıkar. Docker aynı işi tek bir tarifeye bağlar: veritabanının sürümü, kullanıcısı, portu ve içine yüklenecek tohum veri tek bir dosyada yazılıdır ve her makinede aynı şeyi üretir. Peki bunun test yazan biri için önemi ne? Şu: bir testin güvenilir olması önce ortamın tekrar edilebilir olmasına bağlıdır. Aynı veriden başlamayan bir test, kırmızıya döndüğünde sana ürünün mü yoksa ortamın mı bozuk olduğunu söyleyemez — ve teşhis edilemeyen bir kırmızı, ekiplerin bir süre sonra görmezden gelmeye başladığı testtir.',
+                        tr: 'Bir veritabanını doğrudan kurmak şu zinciri gerektirir: kurulum sihirbazından geç, sürüm seç, servisi başlat, kullanıcı ve parola tanımla, sonra şemayı ve veriyi elle yükle. Bu zincirin her halkası makineden makineye değişir ve bir halka kayarsa hata çoğu zaman günler sonra "bende çalışıyordu" cümlesiyle ortaya çıkar. Docker aynı işi tek bir tarifeye bağlar: veritabanının sürümü, kullanıcısı, portu ve içine yüklenecek seed veri tek bir dosyada yazılıdır ve her makinede aynı şeyi üretir. Peki bunun test yazan biri için önemi ne? Şu: bir testin güvenilir olması önce ortamın tekrar edilebilir olmasına bağlıdır. Aynı veriden başlamayan bir test, kırmızıya döndüğünde sana ürünün mü yoksa ortamın mı bozuk olduğunu söyleyemez — ve teşhis edilemeyen bir kırmızı, ekiplerin bir süre sonra görmezden gelmeye başladığı testtir.',
                         en: 'Installing a database directly requires this chain: walk through an installer, pick a version, start the service, define a user and password, then load the schema and data by hand. Every link in that chain varies from machine to machine, and if one slips, the failure usually surfaces days later as "it worked on my machine". Docker binds the same work to a single recipe: the database version, its user, its port and the seed data loaded into it are written in one file and produce the same thing on every machine. Why does that matter to someone writing tests? Because a test can only be trustworthy if the environment is repeatable first. A test that does not start from the same data cannot tell you, when it goes red, whether the product or the environment is broken — and a red you cannot diagnose is the test teams eventually start ignoring.',
                     },
                 },
@@ -103,7 +99,7 @@ export const qaShopSetupData = {
                         [
                             { tr: 'Docker Desktop', en: 'Docker Desktop' },
                             { tr: 'Veritabanını ve API\'yi tek komutla ayağa kaldırır', en: 'Brings up the database and the API with one command' },
-                            { tr: 'Evet — yığının tamamı bunun üstünde çalışır', en: 'Yes — the whole stack runs on it' },
+                            { tr: 'Evet — stack\'in tamamı bunun üstünde çalışır', en: 'Yes — the whole stack runs on it' },
                         ],
                         [
                             { tr: 'DBeaver', en: 'DBeaver' },
@@ -258,9 +254,9 @@ docker run --rm hello-world
                 },
                 {
                     type: 'substep',
-                    title: { tr: 'Pratik yığınını başlat', en: 'Start the practice stack' },
+                    title: { tr: 'Pratik stack\'ini başlat', en: 'Start the practice stack' },
                     content: {
-                        tr: 'Depodaki qa-shop klasörüne gir ve tek komut ver. İlk açılış imajları indirdiği, şemayı kurduğu ve tohum veriyi yüklediği için yaklaşık 30-60 saniye sürer; sonraki açılışlar birkaç saniyedir. Komutu qa-shop klasörünün İÇİNDE çalıştırman gerekir — compose dosyası orada.',
+                        tr: 'Depodaki qa-shop klasörüne gir ve tek komut ver. İlk açılış imajları indirdiği, şemayı kurduğu ve seed veriyi yüklediği için yaklaşık 30-60 saniye sürer; sonraki açılışlar birkaç saniyedir. Komutu qa-shop klasörünün İÇİNDE çalıştırman gerekir — compose dosyası orada.',
                         en: 'Go into the repo\'s qa-shop folder and run one command. The first start takes about 30-60 seconds because it downloads images, creates the schema and loads the seed data; later starts take a few seconds. You must run the command INSIDE the qa-shop folder — that is where the compose file lives.',
                     },
                     code: {
@@ -287,19 +283,69 @@ docker compose up -d
                 },
                 {
                     type: 'substep',
+                    title: { tr: 'Depoyu indirmek istemiyorsan: yayınlanmış imajlar', en: 'If you do not want to download the repo: published images' },
+                    content: {
+                        tr: 'Yukarıdaki komut depoyu klonlamış olmanı gerektirir, çünkü compose dosyası şema ve seed veri dosyalarını bilgisayarından okur. Bunları indirmek istemiyorsan hazır imajları kullan: şema ve seed veri veritabanı imajının İÇİNDE, yani indirilecek tek şey aşağıdaki compose dosyası. İmajlar hem Intel/AMD hem Apple Silicon için yayınlanır; Docker makinenin mimarisini kendisi seçer.',
+                        en: 'The command above requires you to have cloned the repo, because the compose file reads the schema and seed files from your computer. If you would rather not download those, use the published images: the schema and seed data live INSIDE the database image, so the only thing to download is the compose file below. The images are published for both Intel/AMD and Apple Silicon; Docker picks your machine\'s architecture itself.',
+                    },
+                    code: {
+                        tr: `# Windows PowerShell — curl.exe yaz, curl YAZMA:
+# PowerShell'de "curl" gerçek cURL değil, Invoke-WebRequest takma adıdır ve
+# -o bayrağını farklı yorumlar.
+curl.exe -o docker-compose.yml https://raw.githubusercontent.com/hasankocaman/automationexercise/main/qa-shop/docker-compose.hub.yml
+docker compose up -d
+
+# macOS / Linux:
+#   curl -o docker-compose.yml https://raw.githubusercontent.com/hasankocaman/automationexercise/main/qa-shop/docker-compose.hub.yml
+#   docker compose up -d
+
+# Tek dosya bile indirmek istemiyorsan üç komut yeter:
+#   docker network create qashop-net
+#   docker run -d --name qashop-db --network qashop-net -p 5433:5432 ghcr.io/hasankocaman/qa-shop-db:latest
+#   docker run -d --name qashop-api --network qashop-net -p 4000:4000 \\
+#     -e DATABASE_URL=postgres://qashop:qashop@qashop-db:5432/qashop ghcr.io/hasankocaman/qa-shop-api:latest`,
+                        en: `# Windows PowerShell — type curl.exe, NOT curl:
+# in PowerShell "curl" is an alias for Invoke-WebRequest rather than real cURL,
+# and it interprets the -o flag differently.
+curl.exe -o docker-compose.yml https://raw.githubusercontent.com/hasankocaman/automationexercise/main/qa-shop/docker-compose.hub.yml
+docker compose up -d
+
+# macOS / Linux:
+#   curl -o docker-compose.yml https://raw.githubusercontent.com/hasankocaman/automationexercise/main/qa-shop/docker-compose.hub.yml
+#   docker compose up -d
+
+# If you do not want to download even one file, three commands are enough:
+#   docker network create qashop-net
+#   docker run -d --name qashop-db --network qashop-net -p 5433:5432 ghcr.io/hasankocaman/qa-shop-db:latest
+#   docker run -d --name qashop-api --network qashop-net -p 4000:4000 \\
+#     -e DATABASE_URL=postgres://qashop:qashop@qashop-db:5432/qashop ghcr.io/hasankocaman/qa-shop-api:latest`,
+                    },
+                    language: 'bash',
+                },
+                {
+                    type: 'callout',
+                    tone: 'warning',
+                    title: { tr: 'İmaj çekilemiyorsa', en: 'If the image cannot be pulled' },
+                    content: {
+                        tr: 'Komut "denied" ya da "manifest unknown" diyorsa imaj henüz yayınlanmamış ya da paket erişime kapalı olabilir. Bu durumda depodan kurulum yolunu kullan — o yol her zaman çalışır, çünkü şema ve seed veri dosyaları depoda duruyor. SQL test paketi de imajın içinde geliyor: docker exec -it qashop-db psql -U qashop -d qashop -f /opt/qa-shop/validation-queries.sql',
+                        en: 'If the command says "denied" or "manifest unknown", the image may not be published yet or the package may not be publicly readable. In that case use the repo-based path — it always works, because the schema and seed files live in the repo. The SQL test suite ships inside the image too: docker exec -it qashop-db psql -U qashop -d qashop -f /opt/qa-shop/validation-queries.sql',
+                    },
+                },
+                {
+                    type: 'substep',
                     title: { tr: 'Gerçekten ayakta mı?', en: 'Are they really up?' },
                     content: {
-                        tr: '"Started" yazması konteynerin başlatıldığını söyler, sağlıklı olduğunu söylemez. Veritabanı tohum veriyi yüklerken bir süre "starting" durumunda kalır. Durumu görmek ve tohumlamanın bittiğini anlamak için şu iki komut kullanılır.',
+                        tr: '"Started" yazması konteynerin başlatıldığını söyler, sağlıklı olduğunu söylemez. Veritabanı seed veriyi yüklerken bir süre "starting" durumunda kalır. Durumu görmek ve seed yüklemesinin bittiğini anlamak için şu iki komut kullanılır.',
                         en: '"Started" tells you the container was launched, not that it is healthy. While the database loads the seed data it stays in a "starting" state for a while. These two commands show the status and tell you when seeding is finished.',
                     },
                     code: {
                         tr: `docker compose ps
 # qashop-db satırında STATUS sütunu "healthy" olmalı.
-# "starting" görüyorsan tohumlama sürüyor demektir, birkaç saniye bekle.
+# "starting" görüyorsan seeding sürüyor demektir, birkaç saniye bekle.
 
 docker compose logs db
 # Şu satırı ara: "database system is ready to accept connections"
-# Bu satır göründüyse şema ve tohum veri yüklenmiş demektir.`,
+# Bu satır göründüyse şema ve seed veri yüklenmiş demektir.`,
                         en: `docker compose ps
 # On the qashop-db row, the STATUS column should read "healthy".
 # If you see "starting", seeding is still running — wait a few seconds.
@@ -312,9 +358,9 @@ docker compose logs db
                 },
                 {
                     type: 'substep',
-                    title: { tr: 'Sağlık kontrolü — yığının ilk cevabı', en: 'Health check — the stack\'s first answer' },
+                    title: { tr: 'Sağlık kontrolü — stack\'in ilk cevabı', en: 'Health check — the stack\'s first answer' },
                     content: {
-                        tr: 'API\'nin bir sağlık ucu var ve bu uç bilerek veritabanı kontrolünden ÖNCE cevap verecek şekilde yazıldı: servis ayakta ama veritabanı ölüyse "degraded" döner. Böylece "servis mi öldü, veritabanı mı" sorusu tek istekle ayrışır. Beklenen cevap iki alanın da yeşil olduğu hâlidir.',
+                        tr: 'API\'nin bir health endpoint\'i var ve bu endpoint bilerek veritabanı kontrolünden ÖNCE cevap verecek şekilde yazıldı: servis ayakta ama veritabanı ölüyse "degraded" döner. Böylece "servis mi öldü, veritabanı mı" sorusu tek istekle ayrışır. Beklenen cevap iki alanın da yeşil olduğu hâlidir.',
                         en: 'The API has a health endpoint, deliberately written to answer BEFORE the database check: if the service is up but the database is down it returns "degraded". That way a single request separates "did the service die or the database". The expected answer is the one where both fields are green.',
                     },
                     code: {
@@ -403,12 +449,12 @@ curl http://localhost:4000/health
                     type: 'substep',
                     title: { tr: 'Durdurma, yeniden başlatma, sıfırlama', en: 'Stopping, restarting, resetting' },
                     content: {
-                        tr: 'Üç komut ve aralarındaki tek fark: -v seçeneği veri dizinini de siler. Bu ayrım önemlidir çünkü PostgreSQL şema ve tohum dosyalarını YALNIZCA veri dizini boşken çalıştırır. Yani şemayı değiştirdiysen ve -v kullanmadıysan değişikliğin hiçbir etkisi olmaz — üstelik bunu sana söyleyen bir hata da almazsın. Sessizce eski veriyle çalışmaya devam edersin.',
+                        tr: 'Üç komut ve aralarındaki tek fark: -v seçeneği veri dizinini de siler. Bu ayrım önemlidir çünkü PostgreSQL şema ve seed dosyalarını YALNIZCA veri dizini boşken çalıştırır. Yani şemayı değiştirdiysen ve -v kullanmadıysan değişikliğin hiçbir etkisi olmaz — üstelik bunu sana söyleyen bir hata da almazsın. Sessizce eski veriyle çalışmaya devam edersin.',
                         en: 'Three commands, with one difference between them: the -v option also deletes the data directory. That distinction matters because PostgreSQL runs the schema and seed files ONLY when the data directory is empty. So if you changed the schema and did not use -v, your change has no effect — and you get no error telling you so. You simply keep working with the old data.',
                     },
                     code: {
                         tr: `docker compose down       # durdurur, veri KALIR
-docker compose down -v    # veriyi de siler (şema/tohum değiştirdiysen ZORUNLU)
+docker compose down -v    # veriyi de siler (şema/seed değiştirdiysen ZORUNLU)
 docker compose up -d      # yeniden başlatır
 
 # Sıfırdan temiz kurulum isteniyorsa ikisi arka arkaya:
@@ -430,7 +476,7 @@ docker compose up -d`,
                     items: [
                         { tr: 'Çalışan bir Docker motoru ve doğrulanmış bir kurulum (hello-world çıktısı)', en: 'A running Docker engine and a verified installation (the hello-world output)' },
                         { tr: 'Ayakta ve "healthy" durumda bir PostgreSQL konteyneri', en: 'A PostgreSQL container that is up and reporting "healthy"' },
-                        { tr: 'Ona bağlı, sağlık ucu yeşil dönen bir REST API', en: 'A REST API connected to it whose health endpoint returns green' },
+                        { tr: 'Ona bağlı, health endpoint\'i yeşil dönen bir REST API', en: 'A REST API connected to it whose health endpoint returns green' },
                         { tr: 'Veriyi silmeden durdurma ile sıfırdan kurma arasındaki farkı bilmek', en: 'Knowing the difference between stopping without data loss and a full reset' },
                     ],
                 },
@@ -443,10 +489,6 @@ docker compose up -d`,
             number: 2,
             icon: '🗄️',
             title: { tr: 'Veritabanına bağlan (DBeaver)', en: 'Connect to the database (DBeaver)' },
-            goal: {
-                tr: 'Sonunda: DBeaver ile veritabanına bağlanmış, tohum verinin yüklendiğini doğrulamış ve hazır doğrulama sorgu paketini çalıştırmış olacaksın.',
-                en: 'By the end: you will be connected to the database with DBeaver, have confirmed the seed data loaded, and have run the ready-made validation query pack.',
-            },
             blocks: [
                 {
                     type: 'why',
@@ -516,9 +558,9 @@ docker compose up -d`,
                 },
                 {
                     type: 'substep',
-                    title: { tr: 'İlk sorgun: tohum veri gerçekten yüklendi mi?', en: 'Your first query: did the seed data really load?' },
+                    title: { tr: 'İlk sorgun: seed veri gerçekten yüklendi mi?', en: 'Your first query: did the seed data really load?' },
                     content: {
-                        tr: 'Bağlantı kurulduktan sonra ilk iş verinin orada olduğunu görmektir. Bu sorgu şablon veri alanındaki satır sayılarını verir. Beklenen sayıları tutturamıyorsan tohumlama yarıda kalmış demektir — o durumda yığını -v ile sıfırlamak gerekir.',
+                        tr: 'Bağlantı kurulduktan sonra ilk iş verinin orada olduğunu görmektir. Bu sorgu şablon veri alanındaki satır sayılarını verir. Beklenen sayıları tutturamıyorsan seeding yarıda kalmış demektir — o durumda stack\'i -v ile sıfırlamak gerekir.',
                         en: 'Once connected, the first job is to see that the data is there. This query returns row counts in the template data area. If the numbers do not match, seeding was interrupted — in that case you need to reset the stack with -v.',
                     },
                     code: {
@@ -551,8 +593,36 @@ select 'order items', count(*) from order_items
                     type: 'substep',
                     title: { tr: 'Doğrulama sorgu paketini aç', en: 'Open the validation query pack' },
                     content: {
-                        tr: 'qa-shop/db/validation-queries.sql dosyasını DBeaver\'da aç (File > Open File). Bu dosya bir SQL test paketidir ve her sorgunun sözleşmesi aynıdır: 0 satır dönerse GEÇTİ, en az 1 satır dönerse KALDI. Dosyanın sonundaki özet sorgu hepsini tek tabloda toplar — sprint raporuna veya değerlendirme görüşmesine koyacağın çıktı odur.',
-                        en: 'Open qa-shop/db/validation-queries.sql in DBeaver (File > Open File). The file is a SQL test pack and every query has the same contract: 0 rows means PASS, one or more rows means FAIL. The summary query at the end collects them all into one table — that is the output you put in a sprint report or a performance review.',
+                        tr: 'Hazır bir SQL test paketi var ve her sorgunun sözleşmesi aynıdır: 0 satır dönerse GEÇTİ, en az 1 satır dönerse KALDI. Dosyanın sonundaki özet sorgu hepsini tek tabloda toplar — sprint raporuna veya değerlendirme görüşmesine koyacağın çıktı odur. Dosyaya üç yoldan ulaşabilirsin: aşağıdaki bağlantıdan indir, depoyu klonladıysan qa-shop/db/validation-queries.sql yolundan aç, ya da hiçbirini yapmadan konteynerin içinden çalıştır (bu son yol aşağıda anlatılıyor). DBeaver\'da File > Open File ile açman için elinde bir dosya olması gerekir; indirme bağlantısı bunun içindir.',
+                        en: 'There is a ready-made SQL test pack, and every query has the same contract: 0 rows means PASS, one or more rows means FAIL. The summary query at the end collects them all into one table — that is the output you put in a sprint report or a performance review. You can get the file three ways: download it from the link below, open qa-shop/db/validation-queries.sql if you cloned the repository, or run it from inside the container without obtaining it at all (that path is described further down). To open it in DBeaver with File > Open File you need the file on disk, which is what the download link is for.',
+                    },
+                },
+                {
+                    // İndirme bağlantısı BURADA, dizinin ÜSTÜNDE duruyor: rehber
+                    // bir zamanlar yalnızca repo yolunu veriyordu ve repoyu
+                    // indirmeyen kullanıcının açacağı dosya YOKTU. Paketin içinde
+                    // ne olduğunu göstermeden önce o dosyayı edinebilmesi gerekir.
+                    type: 'downloads',
+                    title: { tr: 'SQL doğrulama paketini indir', en: 'Download the SQL validation pack' },
+                    content: {
+                        tr: 'Depoyu indirmeden Docker imajlarıyla kurulum yaptıysan bu dosya makinende yoktur. Tek dosya, bağımlılığı yok.',
+                        en: 'If you installed from the Docker images without downloading the repository, this file is not on your machine. It is a single file with no dependencies.',
+                    },
+                    items: [
+                        {
+                            id: 'validation-queries',
+                            href: '/qa-shop/indirilebilir/qa-shop-validation-queries.sql',
+                            label: { tr: 'Doğrulama sorgu paketi (.sql)', en: 'Validation query pack (.sql)' },
+                            note: { tr: 'Otuz sorgu, altı grup ve sonunda tek tabloda özet. DBeaver\'da File > Open File ile açılır; psql için yazıldığı için iki satır uyarlama ister — bir sonraki adım bunu anlatıyor.', en: 'Thirty queries in six groups with a single-table summary at the end. Open it in DBeaver with File > Open File; it was written for psql, so it needs two small adaptations — the next step covers them.' },
+                        },
+                    ],
+                },
+                {
+                    type: 'sqlPack',
+                    title: { tr: 'Pakette ne var', en: 'What is in the pack' },
+                    intro: {
+                        tr: 'Otuz sorgu altı gruba ayrılıyor. Her satır o sorgunun neyi incelediğini söyler; hangi iş kuralına ya da hangi user story\'ye denk düştüğünü söylemez — o bağı kurmak testi yazan kişinin işidir. "rapor" etiketli sorgular geçti/kaldı üretmez, sana bir sayı ya da liste verir. Bu paket bir başlangıç noktasıdır: şemada burada hiç sorgusu olmayan kurallar var, onları kendin yazacaksın.',
+                        en: 'Thirty queries in six groups. Each line says what that query examines; it does not say which business rule or user story it corresponds to — making that connection is the job of the person writing the test. Queries tagged "report" produce no pass/fail, they hand you a number or a list. The pack is a starting point: the schema has rules with no query here at all, and you will write those yourself.',
                     },
                 },
                 {
@@ -609,24 +679,36 @@ select o.order_no, o.grand_total
                     type: 'substep',
                     title: { tr: 'Alternatif: dosyayı hiç değiştirmeden psql ile çalıştır', en: 'Alternative: run the file unchanged with psql' },
                     content: {
-                        tr: 'Dosyaya dokunmak istemiyorsan, onu yazıldığı istemciye verebilirsin. psql zaten veritabanı konteynerinin içinde kurulu — ayrıca bir şey kurman gerekmez. Dosyayı dışarıdan konteynerin içine akıtırsın, \\set ve :\'sandbox\' olduğu gibi çalışır. Bu yol aynı zamanda tüm paketi tek komutta koşturduğu için otomasyona daha yakındır.',
-                        en: 'If you would rather not touch the file, you can hand it to the client it was written for. psql is already installed inside the database container — you do not need to install anything. You pipe the file from outside into the container, and \\set and :\'sandbox\' work as written. This path is also closer to automation, since it runs the whole pack in one command.',
+                        tr: 'Dosyaya dokunmak istemiyorsan, onu yazıldığı istemciye verebilirsin. psql zaten veritabanı konteynerinin içinde kurulu — ayrıca bir şey kurman gerekmez ve \\set ile :\'sandbox\' olduğu gibi çalışır. İki durum var: elinde dosya varsa dışarıdan konteynerin içine akıtırsın; hiç indirmediysen paket zaten veritabanı imajının içinde geliyor ve doğrudan oradan çağrılır. İkinci yol repoyu istemeyen kurulum için tek adımdır. Bu yol aynı zamanda tüm paketi tek komutta koşturduğu için otomasyona daha yakındır.',
+                        en: 'If you would rather not touch the file, you can hand it to the client it was written for. psql is already installed inside the database container — nothing else to install, and \\set and :\'sandbox\' work as written. There are two cases: if you have the file, you pipe it from outside into the container; if you never downloaded it, the pack already ships inside the database image and is called straight from there. The second path is a single step for the repository-free install. This path is also closer to automation, since it runs the whole pack in one command.',
                     },
                     code: {
-                        tr: `# Windows (PowerShell) — qa-shop klasöründeyken:
-Get-Content db\\validation-queries.sql | docker exec -i qashop-db psql -U qashop -d qashop
+                        tr: `# EN KISA YOL — hiçbir dosya indirmeden. Paket veritabanı imajının içinde:
+docker exec -it qashop-db psql -U qashop -d qashop -f /opt/qa-shop/validation-queries.sql
+
+# Elindeki dosyayı dışarıdan akıtmak istersen (indirdiysen ya da depoyu klonladıysan),
+# aşağıdaki komutu dosyanın bulunduğu klasörde çalıştır:
+
+# Windows (PowerShell):
+Get-Content qa-shop-validation-queries.sql | docker exec -i qashop-db psql -U qashop -d qashop
 
 # macOS / Linux:
-docker exec -i qashop-db psql -U qashop -d qashop < db/validation-queries.sql
+docker exec -i qashop-db psql -U qashop -d qashop < qa-shop-validation-queries.sql
 
 # Veritabanına elle bağlanıp tek tek sorgu yazmak istersen:
 docker exec -it qashop-db psql -U qashop -d qashop
 # Çıkmak için: \\q`,
-                        en: `# Windows (PowerShell) — while inside the qa-shop folder:
-Get-Content db\\validation-queries.sql | docker exec -i qashop-db psql -U qashop -d qashop
+                        en: `# SHORTEST PATH — no file to download. The pack ships inside the database image:
+docker exec -it qashop-db psql -U qashop -d qashop -f /opt/qa-shop/validation-queries.sql
+
+# If you would rather pipe in your own copy (downloaded, or cloned from the
+# repository), run the command below from the folder holding the file:
+
+# Windows (PowerShell):
+Get-Content qa-shop-validation-queries.sql | docker exec -i qashop-db psql -U qashop -d qashop
 
 # macOS / Linux:
-docker exec -i qashop-db psql -U qashop -d qashop < db/validation-queries.sql
+docker exec -i qashop-db psql -U qashop -d qashop < qa-shop-validation-queries.sql
 
 # To connect by hand and type queries one at a time:
 docker exec -it qashop-db psql -U qashop -d qashop
@@ -639,7 +721,7 @@ docker exec -it qashop-db psql -U qashop -d qashop
                     tone: 'insight',
                     title: { tr: 'Yeşil kalan bir sorgu, çalıştığını kanıtlamaz', en: 'A query staying green does not prove it works' },
                     content: {
-                        tr: 'Tohum veri tutarlıdır, yani kontroller ilk çalıştırmada yeşil döner. Ama her zaman yeşil kalan bir kontrol ile hiçbir şeye bakmayan bozuk bir kontrol ekranda birbirinin aynısıdır. Dosyanın son bölümü kusuru bilerek üretir, kontrolün kırmızıya döndüğünü gösterir ve geri alır. Bir sorguya güvenmeden önce oradan geçir.',
+                        tr: 'Seed veri tutarlıdır, yani kontroller ilk çalıştırmada yeşil döner. Ama her zaman yeşil kalan bir kontrol ile hiçbir şeye bakmayan bozuk bir kontrol ekranda birbirinin aynısıdır. Dosyanın son bölümü defect\'i bilerek üretir, kontrolün kırmızıya döndüğünü gösterir ve geri alır. Bir sorguya güvenmeden önce oradan geçir.',
                         en: 'The seed data is consistent, so the checks come back green on the first run. But a check that is always green and a broken check that looks at nothing are indistinguishable on screen. The last section of the file injects a defect on purpose, shows the check turning red, and rolls it back. Put a query through it before you trust it.',
                     },
                 },
@@ -661,7 +743,7 @@ docker exec -it qashop-db psql -U qashop -d qashop
                         [
                             { tr: 'database "qashop" does not exist', en: 'database "qashop" does not exist' },
                             { tr: 'İlk açılış tamamlanmadan bağlanıldı', en: 'Connected before first-time init finished' },
-                            { tr: 'docker compose logs db ile tohum verinin bittiğini bekle', en: 'Wait for seeding to finish via docker compose logs db' },
+                            { tr: 'docker compose logs db ile seed verinin bittiğini bekle', en: 'Wait for seeding to finish via docker compose logs db' },
                         ],
                         [
                             { tr: 'Tablolar boş görünüyor', en: 'Tables look empty' },
@@ -680,9 +762,9 @@ docker exec -it qashop-db psql -U qashop -d qashop
                     title: { tr: 'Bu adımı bitirdiğinde elinde ne var?', en: 'What do you have when this step is done?' },
                     items: [
                         { tr: 'Kaydedilmiş, tek tıkla açılan bir veritabanı bağlantısı', en: 'A saved database connection you can open with one click' },
-                        { tr: 'Tohum verinin gerçekten yüklendiğinin sayısal kanıtı', en: 'Numerical proof that the seed data actually loaded' },
+                        { tr: 'Seed verinin gerçekten yüklendiğinin sayısal kanıtı', en: 'Numerical proof that the seed data actually loaded' },
                         { tr: 'Çalıştırılmış bir doğrulama sorgu paketi ve tek tabloluk özet çıktısı', en: 'A validation query pack you have run, and its single-table summary output' },
-                        { tr: 'Bir sorgunun gerçekten bir şeye baktığını kusur enjekte ederek kanıtlama alışkanlığı', en: 'The habit of proving a query really looks at something by injecting a defect' },
+                        { tr: 'Bir sorgunun gerçekten bir şeye baktığını defect enjekte ederek kanıtlama alışkanlığı', en: 'The habit of proving a query really looks at something by injecting a defect' },
                     ],
                 },
             ],
@@ -694,10 +776,6 @@ docker exec -it qashop-db psql -U qashop -d qashop
             number: 3,
             icon: '📜',
             title: { tr: 'API sözleşmesini oku (Swagger / OpenAPI)', en: 'Read the API contract (Swagger / OpenAPI)' },
-            goal: {
-                tr: 'Sonunda: pratik API\'sinin tüm uçlarını Swagger arayüzünde görüyor, hangi ucun ne döndüğünü ve hangi hatanın hangi kodla geldiğini sözleşmeden okuyabiliyor olacaksın.',
-                en: 'By the end: you will see every endpoint of the practice API in a Swagger interface, and be able to read from the contract what each endpoint returns and which error arrives with which code.',
-            },
             blocks: [
                 {
                     type: 'why',
@@ -711,7 +789,7 @@ docker exec -it qashop-db psql -U qashop -d qashop
                     type: 'substep',
                     title: { tr: 'Dosya nerede?', en: 'Where is the file?' },
                     content: {
-                        tr: 'Sözleşme depoda qa-shop/api/openapi.yaml yolunda duruyor. Servis ayaktaysa aynı dosyayı adresten de alabilirsin. İki yol da aynı içeriği verir; hangisini kullanacağın yalnızca yığının o an ayakta olup olmamasına bağlı.',
+                        tr: 'Sözleşme depoda qa-shop/api/openapi.yaml yolunda duruyor. Servis ayaktaysa aynı dosyayı adresten de alabilirsin. İki yol da aynı içeriği verir; hangisini kullanacağın yalnızca stack\'in o an ayakta olup olmamasına bağlı.',
                         en: 'The contract lives at qa-shop/api/openapi.yaml in the repo. If the service is up you can also fetch it over HTTP. Both give the same content; which one you use depends only on whether the stack happens to be running.',
                     },
                     code: {
@@ -739,9 +817,9 @@ curl.exe http://localhost:4000/api/v1/openapi.yaml
                         { tr: 'Tarayıcıda editor.swagger.io adresini aç.', en: 'Open editor.swagger.io in your browser.' },
                         { tr: 'Açılışta hazır bir örnek (Petstore) yüklü gelir. File > Clear editor ile temizle.', en: 'A sample document (Petstore) is loaded by default. Clear it with File > Clear editor.' },
                         { tr: 'File > Import file yolunu seç ve diskten qa-shop/api/openapi.yaml dosyasını göster. Bu yol her zaman çalışır.', en: 'Choose File > Import file and point it at qa-shop/api/openapi.yaml on disk. This path always works.' },
-                        { tr: 'Alternatif: yığın ayaktaysa File > Import URL ile http://localhost:4000/api/v1/openapi.yaml adresini verebilirsin.', en: 'Alternative: if the stack is up you can use File > Import URL with http://localhost:4000/api/v1/openapi.yaml.' },
-                        { tr: 'Sol tarafta ham sözleşme, sağ tarafta uçların gezilebilir listesi çıkar.', en: 'The raw contract appears on the left, a browsable endpoint list on the right.' },
-                        { tr: 'Sağdaki listede bir ucun üstüne tıkla: zorunlu parametreler, örnek istek gövdesi ve olası TÜM cevap kodları açılır.', en: 'Click an endpoint in the list on the right: required parameters, an example request body and ALL possible response codes unfold.' },
+                        { tr: 'Alternatif: stack ayaktaysa File > Import URL ile http://localhost:4000/api/v1/openapi.yaml adresini verebilirsin.', en: 'Alternative: if the stack is up you can use File > Import URL with http://localhost:4000/api/v1/openapi.yaml.' },
+                        { tr: 'Sol tarafta ham sözleşme, sağ tarafta endpoint\'lerin gezilebilir listesi çıkar.', en: 'The raw contract appears on the left, a browsable endpoint list on the right.' },
+                        { tr: 'Sağdaki listede bir endpoint\'in üstüne tıkla: zorunlu parametreler, örnek istek gövdesi ve olası TÜM cevap kodları açılır.', en: 'Click an endpoint in the list on the right: required parameters, an example request body and ALL possible response codes unfold.' },
                     ],
                 },
                 {
@@ -749,7 +827,7 @@ curl.exe http://localhost:4000/api/v1/openapi.yaml
                     tone: 'warning',
                     title: { tr: 'Import URL çalışmazsa dosyadan yükle', en: 'If Import URL does not work, load from the file' },
                     content: {
-                        tr: 'editor.swagger.io güvenli (https) bir sayfadır, senin API\'n ise makinende güvensiz (http) çalışır. Tarayıcılar güvenli bir sayfadan güvensiz bir adrese yapılan istekleri engelleyebilir. Bu bir kurulum hatası değildir ve düzeltmeye çalışman gerekmez — dosyayı Import file ile diskten yüklemek aynı sonucu verir ve yığının ayakta olmasını bile gerektirmez.',
+                        tr: 'editor.swagger.io güvenli (https) bir sayfadır, senin API\'n ise makinende güvensiz (http) çalışır. Tarayıcılar güvenli bir sayfadan güvensiz bir adrese yapılan istekleri engelleyebilir. Bu bir kurulum hatası değildir ve düzeltmeye çalışman gerekmez — dosyayı Import file ile diskten yüklemek aynı sonucu verir ve stack\'in ayakta olmasını bile gerektirmez.',
                         en: 'editor.swagger.io is a secure (https) page, while your API runs insecurely (http) on your machine. Browsers may block requests from a secure page to an insecure address. This is not a setup error and you do not need to fix it — loading the file from disk with Import file gives the same result and does not even require the stack to be running.',
                     },
                 },
@@ -766,14 +844,14 @@ curl.exe http://localhost:4000/api/v1/openapi.yaml
                     type: 'substep',
                     title: { tr: 'Sözleşmeyi okurken nelere bak', en: 'What to look for while reading the contract' },
                     content: {
-                        tr: 'Bir ucu okurken üç şey aranır: hangi girdiler zorunlu, başarı durumunda hangi kod dönüyor, ve hata durumunda kaç farklı kod mümkün. Üçüncüsü en çok atlanandır ve testin asıl değeri oradadır — bir ucun yalnızca mutlu yolunu test etmek, hiç test etmemekten yalnızca biraz daha iyidir.',
+                        tr: 'Bir endpoint\'i okurken üç şey aranır: hangi girdiler zorunlu, başarı durumunda hangi kod dönüyor, ve hata durumunda kaç farklı kod mümkün. Üçüncüsü en çok atlanandır ve testin asıl değeri oradadır — bir endpoint\'in yalnızca mutlu yolunu test etmek, hiç test etmemekten yalnızca biraz daha iyidir.',
                         en: 'While reading an endpoint, look for three things: which inputs are required, which code comes back on success, and how many distinct codes are possible on failure. The third is the most often skipped, and that is where the real value of testing lies — testing only the happy path of an endpoint is only slightly better than not testing it at all.',
                     },
                 },
                 {
                     type: 'table',
-                    title: { tr: 'Kupon ucu: tek "geçersiz" yok, beş ayrı neden var', en: 'The coupon endpoint: not one "invalid", but five distinct reasons' },
-                    headers: { tr: ['Hata kodu', 'Anlamı', 'Tohum verideki örnek'], en: ['Error code', 'Meaning', 'Example in seed data'] },
+                    title: { tr: 'Kupon endpoint\'i: tek "geçersiz" yok, beş ayrı neden var', en: 'The coupon endpoint: not one "invalid", but five distinct reasons' },
+                    headers: { tr: ['Hata kodu', 'Anlamı', 'Seed verideki örnek'], en: ['Error code', 'Meaning', 'Example in seed data'] },
                     rows: [
                         [{ tr: 'COUPON_NOT_FOUND', en: 'COUPON_NOT_FOUND' }, { tr: 'Böyle bir kupon yok', en: 'No such coupon' }, { tr: '—', en: '—' }],
                         [{ tr: 'COUPON_NOT_STARTED', en: 'COUPON_NOT_STARTED' }, { tr: 'Geçerlilik henüz başlamadı', en: 'Validity has not started yet' }, { tr: 'FUTURE15', en: 'FUTURE15' }],
@@ -796,7 +874,7 @@ curl.exe http://localhost:4000/api/v1/openapi.yaml
                     title: { tr: 'Bu adımı bitirdiğinde elinde ne var?', en: 'What do you have when this step is done?' },
                     items: [
                         { tr: 'Swagger arayüzünde açılmış, gezilebilir bir sözleşme', en: 'A browsable contract opened in a Swagger interface' },
-                        { tr: 'Hangi ucun hangi başlıkları zorunlu tuttuğunun net resmi', en: 'A clear picture of which endpoint requires which headers' },
+                        { tr: 'Hangi endpoint\'in hangi başlıkları zorunlu tuttuğunun net resmi', en: 'A clear picture of which endpoint requires which headers' },
                         { tr: 'Mutlu yolun yanında hata yollarının da listesi', en: 'A list of the failure paths alongside the happy path' },
                         { tr: 'Testi davranışa değil sözleşmeye dayandırma alışkanlığı', en: 'The habit of basing a test on the contract rather than on behaviour' },
                     ],
@@ -809,11 +887,7 @@ curl.exe http://localhost:4000/api/v1/openapi.yaml
             id: 'step-4-testing',
             number: 4,
             icon: '🧭',
-            title: { tr: 'Uçları test et — önce elle, sonra Postman', en: 'Test the endpoints — by hand first, then Postman' },
-            goal: {
-                tr: 'Sonunda: uçtan uca sipariş akışını elle geçmiş, sonra aynı akışı Postman koleksiyonu olarak kurmuş ve komut satırından koşturabiliyor olacaksın.',
-                en: 'By the end: you will have walked the end-to-end order flow by hand, then rebuilt the same flow as a Postman collection and run it from the command line.',
-            },
+            title: { tr: 'Endpoint\'leri test et — önce elle, sonra Postman', en: 'Test the endpoints — by hand first, then Postman' },
             blocks: [
                 {
                     type: 'why',
@@ -838,7 +912,7 @@ $sandbox = Invoke-RestMethod -Method Post -Uri "$BASE/sandbox" -ContentType "app
 $KEY = $sandbox.apiKey
 "Anahtar: $KEY"
 
-# 2) Giriş yap, token al (tohum veride hazır hesap)
+# 2) Giriş yap, token al (seed veride hazır hesap)
 $login = Invoke-RestMethod -Method Post -Uri "$BASE/auth/login" -Headers @{ "X-Sandbox-Key" = $KEY } -ContentType "application/json" -Body '{"email":"demo@qashop.test","password":"Password123!"}'
 $TOKEN = $login.token
 
@@ -981,13 +1055,37 @@ curl -s -X POST $BASE/orders -H "X-Sandbox-Key: $KEY" -H "Authorization: Bearer 
                     items: [
                         { tr: 'postman.com/downloads adresinden masaüstü uygulamasını indir ve kur. Hesap açman istenirse "Continue without an account" ile geçebilirsin.', en: 'Download and install the desktop app from postman.com/downloads. If it asks you to sign up, you can proceed with "Continue without an account".' },
                         { tr: 'Sol üstteki Import düğmesine bas.', en: 'Press the Import button at the top left.' },
-                        { tr: 'Açılan pencereye qa-shop/api/openapi.yaml dosyasını sürükle-bırak yap; ya da yığın ayaktaysa Link sekmesine http://localhost:4000/api/v1/openapi.yaml adresini yaz.', en: 'Drag and drop qa-shop/api/openapi.yaml into the dialog; or, if the stack is up, type http://localhost:4000/api/v1/openapi.yaml into the Link tab.' },
+                        { tr: 'Açılan pencereye qa-shop/api/openapi.yaml dosyasını sürükle-bırak yap; ya da stack ayaktaysa Link sekmesine http://localhost:4000/api/v1/openapi.yaml adresini yaz.', en: 'Drag and drop qa-shop/api/openapi.yaml into the dialog; or, if the stack is up, type http://localhost:4000/api/v1/openapi.yaml into the Link tab.' },
                         { tr: 'Postman "OpenAPI 3.0" algıladığını söyler; Import diyerek onayla.', en: 'Postman reports that it detected "OpenAPI 3.0"; confirm with Import.' },
-                        { tr: 'Tüm uçlar klasörlenmiş bir koleksiyon olarak sol panelde belirir — istekleri elle yazman gerekmez.', en: 'Every endpoint appears in the left panel as a foldered collection — you do not have to write the requests by hand.' },
+                        { tr: 'Tüm endpoint\'ler klasörlenmiş bir koleksiyon olarak sol panelde belirir — istekleri elle yazman gerekmez.', en: 'Every endpoint appears in the left panel as a foldered collection — you do not have to write the requests by hand.' },
                         { tr: 'Sağ üstteki göz simgesinden Environments > Create Environment ile yeni bir ortam aç, adını qa-shop-local koy.', en: 'From the eye icon at the top right, use Environments > Create Environment to create one and name it qa-shop-local.' },
                         { tr: 'Ortama üç değişken ekle: baseUrl, sandboxKey, token. baseUrl değerini http://localhost:4000/api/v1 yap, diğer ikisini boş bırak — onları script dolduracak.', en: 'Add three variables to the environment: baseUrl, sandboxKey, token. Set baseUrl to http://localhost:4000/api/v1 and leave the other two empty — a script will fill them.' },
                         { tr: 'Sağ üstteki açılır listeden qa-shop-local ortamını SEÇ. Bu adım atlanırsa değişkenler boş görünür ve istekler 401 döner.', en: 'SELECT the qa-shop-local environment from the dropdown at the top right. Skip this and the variables read as empty and requests come back 401.' },
                     ],
+                },
+                {
+                    type: 'callout',
+                    tone: 'warning',
+                    title: { tr: 'İlk isteği atmadan önce: Docker ayakta mı?', en: 'Before the first request: is Docker running?' },
+                    content: {
+                        tr: 'Postman kurulu olsa da koleksiyon içe aktarılmış olsa da, istek gidecek bir yer yoksa cevap gelmez. API senin makinende bir konteynerde çalışıyor: Docker Desktop kapalıysa ya da qa-shop klasöründe docker compose up -d verilmediyse Postman "Could not send request" der ve bu bir test hatası DEĞİLDİR — hedef ayakta değildir. Terminalde docker ps yazdığında qashop-api ve qashop-db satırlarını görüyor olman gerekir.',
+                        en: 'Postman can be installed and the collection imported, but if there is nowhere for the request to go, no response comes back. The API runs in a container on your own machine: if Docker Desktop is closed, or you never ran docker compose up -d inside the qa-shop folder, Postman says "Could not send request" — and that is NOT a test failure; the target is simply not running. Running docker ps in a terminal should list qashop-api and qashop-db.',
+                    },
+                },
+                {
+                    type: 'substep',
+                    title: { tr: 'İlk isteğin: GET /health', en: 'Your first request: GET /health' },
+                    content: {
+                        tr: 'Koleksiyonu kurcalamadan önce en basit endpoint\'i tek başına çağır. Adres çubuğuna http://localhost:4000/health yaz ve Send de. Bu endpoint kimlik istemez, gövde istemez ve veritabanı kontrolünden ÖNCE cevap verir — yani hem "API ayakta mı" hem "veritabanına ulaşıyor mu" sorusunu tek istekte ayırır. Aşağıdaki ekran, ayakta bir stack üstünde ölçülmüş gerçek cevaptır.',
+                        en: 'Before touching the collection, call the simplest endpoint on its own. Type http://localhost:4000/health into the address bar and hit Send. This endpoint needs no credentials and no body, and it answers BEFORE the database check — so one request separates "is the API up" from "can it reach the database". The screen below is a real response measured against a running stack.',
+                    },
+                },
+                {
+                    type: 'postmanEkrani',
+                    caption: {
+                        tr: 'Beklenen cevap: 200 OK ve gövdede status "ok" ile database "up". İkisi birden yeşilse stack tamamen hazır demektir. status "degraded" görürsen API ayakta ama veritabanına ulaşamıyor; sağdaki süre ve boyut (35 ms, 638 B) senin makinende farklı çıkacaktır, önemli olan status kodu ve gövdedir.',
+                        en: 'Expected response: 200 OK, with status "ok" and database "up" in the body. When both are green the stack is fully ready. If you see status "degraded" the API is up but cannot reach the database. The time and size on the right (35 ms, 638 B) will differ on your machine — what matters is the status code and the body.',
+                    },
                 },
                 {
                     type: 'callout',
@@ -1124,6 +1222,40 @@ newman run qa-shop-collection.json -e qa-shop-local.json --reporters cli,htmlext
                     language: 'bash',
                 },
                 {
+                    type: 'downloads',
+                    title: { tr: 'Hazır paketler — kendi koleksiyonunu kurduktan SONRA', en: 'Ready-made packs — AFTER you build your own collection' },
+                    content: {
+                        tr: 'Aynı sözleşmeye karşı yazılmış, canlı stack üstünde koşturulmuş iki paket. Bunları kendi koleksiyonundan önce açmak, hangi endpoint\'te hangi cevabın beklendiğini sana peşinen söyler; o soruyu kendin cevaplamak asıl öğrenilen şeydir. Kendi paketin çalıştıktan sonra aç ve neyi atladığını karşılaştır.',
+                        en: 'Two packs written against the same contract and run against a live stack. Opening them before your own collection hands you the expected response at every endpoint; answering that yourself is the part that actually teaches. Open them once your own pack runs, and compare what you missed.',
+                    },
+                    items: [
+                        {
+                            id: 'postman',
+                            href: '/qa-shop/indirilebilir/qa-shop.postman_collection.json',
+                            label: { tr: 'Postman koleksiyonu (.json)', en: 'Postman collection (.json)' },
+                            note: { tr: 'Altı klasör; mutlu yolun yanında negatif istekler de var. Postman > Import ile açılır, Newman ile komut satırından koşar.', en: 'Six folders; negative requests alongside the happy path. Open it with Postman > Import, run it from the CLI with Newman.' },
+                        },
+                        {
+                            id: 'postman-ortam',
+                            href: '/qa-shop/indirilebilir/qa-shop.postman_environment.json',
+                            label: { tr: 'Postman ortam dosyası (.json)', en: 'Postman environment file (.json)' },
+                            note: { tr: 'baseUrl, sandboxKey ve token değişkenleri hazır tanımlı. İçe aktardıktan sonra sağ üstteki listeden seçmeyi unutma.', en: 'The baseUrl, sandboxKey and token variables are already defined. After importing, remember to select it from the dropdown at the top right.' },
+                        },
+                        {
+                            id: 'postman-rehber',
+                            href: '/qa-shop/indirilebilir/postman-README.md',
+                            label: { tr: 'Koleksiyonun kendi rehberi (.md)', en: 'The collection\'s own guide (.md)' },
+                            note: { tr: 'Klasör klasör neyin nerede olduğu ve Newman komutu.', en: 'What lives in which folder, plus the Newman command.' },
+                        },
+                        {
+                            id: 'rest-assured',
+                            href: '/qa-shop/indirilebilir/qa-shop-rest-assured-starter.zip',
+                            label: { tr: 'REST Assured başlangıç projesi (.zip)', en: 'REST Assured starter project (.zip)' },
+                            note: { tr: 'Maven projesi: pom.xml, ortak kurulumu yapan taban sınıf ve dört test sınıfı. Aç, mvn test yaz; kendi sınıfını aynı tabanın üstüne kurabilirsin.', en: 'A Maven project: pom.xml, a base class doing the shared setup, and four test classes. Unzip, run mvn test; build your own class on the same base.' },
+                        },
+                    ],
+                },
+                {
                     type: 'checklist',
                     title: { tr: 'Bu adımı bitirdiğinde elinde ne var?', en: 'What do you have when this step is done?' },
                     items: [
@@ -1140,9 +1272,9 @@ newman run qa-shop-collection.json -e qa-shop-local.json --reporters cli,htmlext
 
     // ─────────────────────────── SIRADAKİ ADIM ───────────────────────────
     next: {
-        title: { tr: 'Sırada ne var: arayüz pratiği ve kusur avı', en: 'What comes next: UI practice and defect hunting' },
+        title: { tr: 'Sırada ne var: arayüz pratiği ve defect avı', en: 'What comes next: UI practice and defect hunting' },
         content: {
-            tr: 'Aynı veriye bağlı dükkân arayüzü hazır: QA Shop sayfasında ürün listesi, sepet, kupon ve sipariş akışı gerçek API üstünde çalışıyor. Her etkileşimli öğe kararlı bir test id taşıyor ve sayfadaki olay günlüğü, arayüzdeki her hareketin hangi API çağrısına dönüştüğünü satır satır gösteriyor — sepete eklemek bir rezervasyon yazar, siparişi tamamlamak stoğu düşürür, iptal etmek geri yükler. Bu zinciri gören kişi "buton çalışıyor mu" sorusundan "sistem tutarlı kaldı mı" sorusuna geçer. Bir adım sonrası ise kusur avı: API, kontrollü olarak bozulabilen anahtarlar sunuyor. Bir kusuru açıp kendi testini tekrar koşturduğunda testin kırmızıya dönmesi gerekir; dönmüyorsa o test, baktığını sandığın şeye bakmıyordur.',
+            tr: 'Aynı veriye bağlı dükkân arayüzü hazır: QA Shop sayfasında ürün listesi, sepet, kupon ve sipariş akışı gerçek API üstünde çalışıyor. Her etkileşimli öğe kararlı bir test id taşıyor ve sayfadaki olay günlüğü, arayüzdeki her hareketin hangi API çağrısına dönüştüğünü satır satır gösteriyor — sepete eklemek bir rezervasyon yazar, siparişi tamamlamak stoğu düşürür, iptal etmek geri yükler. Bu zinciri gören kişi "buton çalışıyor mu" sorusundan "sistem tutarlı kaldı mı" sorusuna geçer. Bir adım sonrası ise defect avı: API, kontrollü olarak bozulabilen anahtarlar sunuyor. Bir defect\'i açıp kendi testini tekrar koşturduğunda testin kırmızıya dönmesi gerekir; dönmüyorsa o test, baktığını sandığın şeye bakmıyordur.',
             en: 'The shop interface backed by the same data is ready: on the QA Shop page the product list, cart, coupon and order flow all run against the real API. Every interactive element carries a stable test id, and the page\'s event log shows, line by line, which API call each UI action turns into — adding to the cart writes a reservation, completing the order decrements stock, cancelling restores it. Someone who sees that chain moves from asking "does the button work" to asking "did the system stay consistent". The step after that is defect hunting: the API exposes flags that break it in controlled ways. Turn one on, run your own test again, and it should go red; if it does not, that test is not looking at what you think it is.',
         },
     },

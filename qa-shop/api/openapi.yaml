@@ -14,7 +14,7 @@ openapi: 3.0.3
 #   REST Assured / Playwright: şema doğrulaması için referans
 #
 # KİMLİK İKİ KATMANLI — karıştırılması en sık yapılan hata:
-#   1. X-Sandbox-Key  → HANGİ VERİ ALANI (kiracı). Neredeyse her uçta gerekir.
+#   1. X-Sandbox-Key  → HANGİ VERİ ALANI (tenant). Neredeyse her uçta gerekir.
 #   2. Authorization  → HANGİ KULLANICI (oturum). Yalnızca 🔒 işaretli uçlarda.
 #   Sandbox anahtarı olmadan token işe yaramaz; token olmadan sandbox anahtarı
 #   yalnızca okuma yaptırır.
@@ -176,7 +176,7 @@ paths:
   /api/v1/sandbox/reset:
     post:
       tags: [Sandbox]
-      summary: Tohum veriye dön
+      summary: Seed veriye dön
       description: |
         Tüm kullanıcı verisi silinir ve şablon yeniden kopyalanır. Açık
         oturumlar da silinir — sıfırlamadan sonra tekrar `login` gerekir.
@@ -642,7 +642,7 @@ paths:
         Reddetme nedeni AYRI bir kodla döner — "kupon geçersiz" demek hangi
         kuralın devreye girdiğini test edilemez kılardı:
 
-        | Kod | Anlamı | Tohum veride örnek |
+        | Kod | Anlamı | Seed veride örnek |
         |---|---|---|
         | `COUPON_NOT_FOUND` | Böyle bir kupon yok | — |
         | `COUPON_NOT_STARTED` | Henüz başlamadı | `FUTURE15` |
@@ -1265,6 +1265,89 @@ paths:
         "401": { $ref: "#/components/responses/ReadOnlySandbox" }
         "422":
           description: "`UNKNOWN_BUG_FLAG`, `INVALID_FLAG_VALUE` veya `EMPTY_BODY`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /api/v1/sandbox/bugs/hidden:
+    post:
+      tags: [Kusur]
+      summary: Gizli tur başlat
+      description: |
+        Sistem rastgele birkaç kusuru açar ve HANGİLERİ olduğunu söylemez.
+
+        Adını bilerek açtığın bir kusur şu soruyu cevaplar: testim kırmızıya
+        dönüyor mu? Gizli tur başka bir soru sorar: kusuru BULABİLİYOR muyum?
+        Sahada karşılaşılan soru ikincisidir, çünkü orada kimse hangi kusurun
+        açık olduğunu söylemez.
+
+        Tur sürerken `GET /sandbox/bugs` cevabında `enabled` ve `active`
+        alanları HİÇ bulunmaz — cevap sunucuda kalır, arayüzde saklanmaz.
+        Aynı sebeple `PATCH /sandbox/bugs` bu sırada `HIDDEN_ROUND_ACTIVE`
+        ile reddedilir: tek tek anahtar denemek cevabı deneme yanılmayla
+        bulmanın yoludur.
+
+        Denetim kaydına da seçilen anahtarlar YAZILMAZ, yalnızca adet yazılır.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                count:
+                  type: integer
+                  minimum: 1
+                  maximum: 10
+                  default: 3
+            example: { count: 3 }
+      responses:
+        "200":
+          description: Tur başladı — kaç kusur açık, hangileri DEĞİL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sandboxId: { type: string, format: uuid }
+                  hidden: { type: boolean }
+                  hiddenCount: { type: integer }
+                  message: { type: string }
+        "401": { $ref: "#/components/responses/ReadOnlySandbox" }
+        "422":
+          description: "`INVALID_COUNT`"
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /api/v1/sandbox/bugs/reveal:
+    post:
+      tags: [Kusur]
+      summary: Gizli turun cevabını aç
+      description: |
+        Kendini denetlemek için: bulduklarını yaz, sonra burayı çağır ve
+        kaçırdığını gör. Kaçırılan her kusur, onu yakalaması gereken
+        kontrolün henüz yazılmadığı anlamına gelir.
+
+        Kusurlar açık KALIR — artık hangileri olduğu bilinir. Kapatmak için
+        `PATCH /sandbox/bugs` ya da `POST /sandbox/reset`.
+      responses:
+        "200":
+          description: Açık olan kusurların listesi
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sandboxId: { type: string, format: uuid }
+                  hidden: { type: boolean }
+                  active:
+                    type: array
+                    items: { type: string }
+                  flags: { type: object, additionalProperties: { type: boolean } }
+        "401": { $ref: "#/components/responses/ReadOnlySandbox" }
+        "422":
+          description: "`NO_HIDDEN_ROUND` — açık bir gizli tur yok"
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Error" }

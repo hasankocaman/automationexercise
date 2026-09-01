@@ -5,7 +5,10 @@ import { query, withTransaction } from '../db.js'
 import { asyncRoute, badRequest, unauthorized, unprocessable } from '../lib/errors.js'
 import { auditFromRequest } from '../lib/audit.js'
 import { TEMPLATE_SANDBOX_ID } from '../middleware/sandbox.js'
-import { BUG_FLAG_KEYS, activeFlags, describeFlags, unknownFlagKeys } from '../core/bugFlags.js'
+import {
+    BUG_FLAG_KEYS, activeFlags, describeFlags, unknownFlagKeys,
+    HIDDEN_KEY, isHidden, pickRandomFlags, describeFlagsHidden, hiddenCount,
+} from '../core/bugFlags.js'
 
 export const sandboxRouter = express.Router()
 
@@ -70,7 +73,7 @@ sandboxRouter.get('/state', asyncRoute(async (req, res) => {
     })
 }))
 
-// POST /api/v1/sandbox/reset — tohum veriye dön
+// POST /api/v1/sandbox/reset — seed veriye dön
 //
 // "Her koşumdan önce temiz durum" otomasyonun temel disiplinidir. Burada bir
 // endpoint olarak var; test paketinin beforeAll adımına konulması beklenir.
@@ -87,7 +90,7 @@ sandboxRouter.post('/reset', asyncRoute(async (req, res) => {
         sandboxId: req.sandbox.id,
         resetAt: new Date().toISOString(),
         durationMs: Date.now() - startedAt,
-        message: 'Sandbox tohum veriye döndü. Açık oturumlar sonlandırıldı, tekrar login gerekiyor.',
+        message: 'Sandbox seed veriye döndü. Açık oturumlar sonlandırıldı, tekrar login gerekiyor.',
     })
 }))
 
@@ -97,12 +100,110 @@ sandboxRouter.post('/reset', asyncRoute(async (req, res) => {
 // alanı hangi kontrolün onu yakalaması GEREKTİĞİNİ söyler — pratiğin kendisi
 // tam olarak şu: anahtarı aç, testini koş, yakalayıp yakalamadığına bak.
 sandboxRouter.get('/bugs', asyncRoute(async (req, res) => {
+    const flags = req.sandbox.bug_flags
+
+    // Gizli turda hangi kusurun açık olduğu CEVABA HİÇ KONULMAZ. Arayüzde
+    // saklayıp burada göndermek, ağ sekmesini açan herkese cevabı vermek
+    // olurdu — bu sayfanın kitlesi tam olarak ağ sekmesini açan insanlar.
+    if (isHidden(flags)) {
+        res.json({
+            sandboxId: req.sandbox.id,
+            mode: 'private',
+            hidden: true,
+            hiddenCount: hiddenCount(flags),
+            available: describeFlagsHidden(),
+            howToUse: 'Hangilerinin açık olduğunu testlerinle bul. Cevap: POST /api/v1/sandbox/bugs/reveal',
+        })
+        return
+    }
+
     res.json({
         sandboxId: req.sandbox.id,
         mode: req.readOnly ? 'demo-readonly' : 'private',
-        active: activeFlags(req.sandbox.bug_flags),
-        available: describeFlags(req.sandbox.bug_flags),
+        hidden: false,
+        active: activeFlags(flags),
+        available: describeFlags(flags),
         howToUse: 'PATCH /api/v1/sandbox/bugs  { "oversell": true }',
+    })
+}))
+
+// POST /api/v1/sandbox/bugs/hidden  { "count": 3 }
+//
+// Gizli tur başlatır: sistem rastgele N kusuru açar ve HANGİLERİ olduğunu
+// söylemez. Adını bilerek açtığın kusur "testim kırmızıya dönüyor mu"
+// sorusunu cevaplar; gizli tur "kusuru bulabiliyor muyum" sorusunu — sahada
+// karşılaşılan soru budur, çünkü orada kimse hangi kusurun açık olduğunu
+// söylemez.
+sandboxRouter.post('/bugs/hidden', asyncRoute(async (req, res) => {
+    if (req.readOnly) {
+        throw unauthorized('Demo verisinde gizli tur açılamaz. Önce kendi alanını aç: POST /api/v1/sandbox')
+    }
+
+    const istenen = req.body?.count
+    if (istenen !== undefined && (!Number.isInteger(istenen) || istenen < 1 || istenen > BUG_FLAG_KEYS.length)) {
+        throw unprocessable('INVALID_COUNT', `count 1 ile ${BUG_FLAG_KEYS.length} arasında bir tam sayı olmalı`, { got: istenen })
+    }
+    const adet = istenen ?? 3
+
+    // Önceki turun kalıntısı taşınmaz: yeni tur TEMİZ başlar, yoksa
+    // kullanıcı bir önceki turda bulduğu kusuru bu turda da sayar.
+    const secilen = pickRandomFlags(adet)
+    const yeniFlags = Object.fromEntries(secilen.map((k) => [k, true]))
+    yeniFlags[HIDDEN_KEY] = true
+
+    await query('update sandbox set bug_flags = $2::jsonb where id = $1',
+        [req.sandbox.id, JSON.stringify(yeniFlags)])
+
+    // ⚠ Denetim kaydına SEÇİLEN ANAHTARLAR YAZILMAZ. Kullanıcı kendi
+    // günlüğünü okuyabiliyor (GET /sandbox/logs); anahtarları buraya yazmak
+    // cevabı arka kapıdan vermek olurdu.
+    await auditFromRequest(req, {
+        level: 'WARN',
+        action: 'sandbox.hidden_round', entity: 'sandbox', entityId: req.sandbox.id,
+        detail: { count: secilen.length },
+    })
+
+    res.json({
+        sandboxId: req.sandbox.id,
+        hidden: true,
+        hiddenCount: secilen.length,
+        message: `${secilen.length} kusur açıldı. Hangileri olduğu söylenmiyor — testlerinle bul.`,
+        note: 'Cevabı görmek için: POST /api/v1/sandbox/bugs/reveal',
+    })
+}))
+
+// POST /api/v1/sandbox/bugs/reveal — gizli turun cevabını aç
+//
+// Kullanıcı kendini denetlesin diye var: bulduklarını yazar, sonra burayı
+// çağırır ve kaçırdığını görür. Kaçırılan kusur, o kusuru yakalaması gereken
+// kontrolün eksik olduğu anlamına gelir.
+sandboxRouter.post('/bugs/reveal', asyncRoute(async (req, res) => {
+    if (req.readOnly) {
+        throw unauthorized('Demo verisinde gizli tur yok. Önce kendi alanını aç: POST /api/v1/sandbox')
+    }
+    if (!isHidden(req.sandbox.bug_flags)) {
+        throw unprocessable('NO_HIDDEN_ROUND', 'Açık bir gizli tur yok', {
+            howToStart: 'POST /api/v1/sandbox/bugs/hidden { "count": 3 }',
+        })
+    }
+
+    const acik = activeFlags(req.sandbox.bug_flags)
+
+    const { rows } = await query(
+        `update sandbox set bug_flags = bug_flags - $2 where id = $1 returning bug_flags`,
+        [req.sandbox.id, HIDDEN_KEY])
+
+    await auditFromRequest(req, {
+        action: 'sandbox.hidden_reveal', entity: 'sandbox', entityId: req.sandbox.id,
+        detail: { revealed: acik },
+    })
+
+    res.json({
+        sandboxId: req.sandbox.id,
+        hidden: false,
+        active: acik,
+        flags: rows[0]?.bug_flags ?? {},
+        note: 'Kusurlar hâlâ AÇIK — artık hangileri olduğunu biliyorsun. Kapatmak için PATCH ya da POST /sandbox/reset.',
     })
 }))
 
@@ -114,6 +215,15 @@ sandboxRouter.get('/bugs', asyncRoute(async (req, res) => {
 sandboxRouter.patch('/bugs', asyncRoute(async (req, res) => {
     if (req.readOnly) {
         throw unauthorized('Demo verisinde kusur açılamaz. Önce kendi alanını aç: POST /api/v1/sandbox')
+    }
+
+    // Gizli tur sürerken tek tek anahtar denemek, cevabı ikili aramayla
+    // sızdırmanın yoludur; turun kendisi anlamsızlaşır.
+    if (isHidden(req.sandbox.bug_flags)) {
+        throw unprocessable('HIDDEN_ROUND_ACTIVE', 'Gizli tur sürerken anahtarlar tek tek değiştirilemez', {
+            reveal: 'POST /api/v1/sandbox/bugs/reveal',
+            reset: 'POST /api/v1/sandbox/reset',
+        })
     }
 
     const body = req.body

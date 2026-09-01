@@ -28,8 +28,28 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4'
 
-// Verify against https://console.groq.com/docs/vision before relying on this.
-const VISION_MODEL = 'meta-llama/llama-4-scout-17b-16e-instruct'
+// ⚠ Bu fonksiyon `_shared/groq.ts` yardımcısını KULLANMAZ, Groq'a doğrudan
+// gider — yani ortak yardımcıdaki model düzeltmesi buraya UĞRAMAZ. 2026-08-28'de
+// öbür modelin emekliye ayrıldığı fark edildiğinde bu satır ilk taramada
+// gözden kaçtı; ayrı durduğu için ayrıca hatırlanması gerekiyor.
+//
+// Model adı yapılandırmadan okunur (bkz. `_shared/groq.ts`'teki gerekçe):
+// sağlayıcı kataloğu kaydığında düzeltme pano değişikliğidir, kod deploy'u değil.
+// Mevcut modeller: GET https://api.groq.com/openai/v1/models
+// ⚠ ŞU AN BAKIMDA — ve bu bilinçli olarak YAPILANDIRMAYLA kapatıldı.
+//
+// 2026-08-29'da hesabın Groq model listesi ölçüldü: `meta-llama/llama-4-scout`
+// kalkmış ve listede yerini alacak GÖRSEL destekli bir model yok. Yani bu
+// modül model adı değiştirilerek onarılamaz; yetenek şu an sağlayıcıda yok.
+//
+// Kodu yorum satırına almak yerine yapılandırmayla kapatıyoruz: `GROQ_VISION_MODEL`
+// secret'ı tanımlı DEĞİLSE fonksiyon bakım cevabı döner. Groq'a yeniden bir
+// görsel model geldiğinde secret'ı tanımlamak yeter — yeniden deploy gerekmez,
+// tıpkı sohbet modelinde olduğu gibi.
+//
+// ⚠ Ölü bir varsayılan BIRAKILAMAZ: `?? 'eski-model'` yazsaydık değer hep dolu
+// olur, bakım dalı hiç çalışmaz ve kullanıcı yine sonsuza kadar 502 alırdı.
+const VISION_MODEL = Deno.env.get('GROQ_VISION_MODEL') ?? ''
 
 const SYSTEM_PROMPT = `Sen bir kıdemli QA mühendisisin ve visual regression raporlarını triyaj ediyorsun.
 Sana bir UI'ın "ÖNCE" ve "SONRA" ekran görüntüsü verilecek. Aralarındaki farkı incele ve
@@ -82,6 +102,18 @@ Deno.serve(async (req) => {
         const { data: userData, error: userError } = await supabase.auth.getUser()
         if (userError || !userData?.user) {
             return jsonResponse({ error: 'Sadece üyeler visual diff analizi yapabilir. / Members only.' }, 401)
+        }
+
+        // Bakım dalı: görsel model yapılandırılmamışsa isteği HİÇ atma.
+        // Sağlayıcıya gidip 404 almak, kullanıcıya "tekrar dene" dedirten
+        // genel bir hataya dönüşüyordu — hiçbir denemenin başarılı olmayacağı
+        // bir durumda bu, kullanıcıyı boş yere uğraştırmaktır.
+        // `maintenance` bayrağı arayüzün bunu sıradan bir hatadan ayırması için.
+        if (!VISION_MODEL) {
+            return jsonResponse({
+                maintenance: true,
+                error: 'Görsel analiz özelliği şu anda bakımda. / Visual analysis is temporarily under maintenance.',
+            }, 503)
         }
 
         const groqApiKey = Deno.env.get('GROQ_API_KEY')
