@@ -7,6 +7,9 @@ reports/
 .env
 .env.local
 .env.*.local
+# .env.local'dan türetilen her yedek/kopya da gizli kalmalı — bir kez
+# .env.local.yedek üretildi ve varsayılan desenlerin HİÇBİRİNE uymuyordu.
+.env.local*
 
 # Local study notes - must never be committed
 Documents/_Java notlar.md
