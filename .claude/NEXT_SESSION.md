@@ -10,7 +10,85 @@
 
 ---
 
-## 🚩 OTURUM DEVİR NOTU (2026-09-01 · Opus · ikinci tur) — BURADAN BAŞLA
+## 🚩 OTURUM DEVİR NOTU (2026-09-01 · Opus · üçüncü tur) — BURADAN BAŞLA
+
+> Çelişki olursa BU bölüm günceldir.
+
+### 🧭 Kullanıcı teşhisi: "kullanıcı için kafa karıştırıcı çok şey var"
+
+Üç soru soruldu ve üçü de uygulamada karşılıksızdı:
+1. Rozetteki "Tarayıcı modu · kurulum yok" ne demek?
+2. Docker'ı aktif etmeden kullanmak için ne yapmalıyım?
+3. Docker kurup çalıştırdıysam neye gerek var, neye yok?
+
+Eskiden yalnızca rozete tıklayınca açılan **düz metin bir paragraf** vardı;
+birinci soruya kısmen, ikinci ve üçüncüye hiç cevap vermiyordu.
+
+### ✅ Yapılan
+
+Kullanıcı iki kararı verdi: **rozet katmanı zenginleştirilsin** (vitrin
+bozulmasın) ve **aynı anlatım kurulum rehberine de eklensin**.
+
+| Dosya | Ne |
+|---|---|
+| `src/data/qaShopModData.js` (YENİ) | İki kipin durakları, üç sorunun cevabı, 10 satırlık yetenek tablosu, kurulum karar kutusu metni. Tek kaynak — iki sayfa da buradan okur. |
+| `src/components/QaShopModAnlatimi.jsx` (YENİ) | Animasyonlu görsel anlatım: iki kipin veri yolu yan yana, paket rayda yürüyor, aktif kipte "ŞU AN BURADASIN". Saf CSS, dış kütüphane yok, `prefers-reduced-motion` saygılı. |
+| `src/components/QaShopPage.jsx` | Mod katmanı bu bileşeni kullanıyor · rozet metni netleşti ("Tarayıcı kipi · nasıl çalışıyor?") · ölü iki uzun metin silindi · katman z sırası düzeltildi |
+| `src/components/QaShopSetupPage.jsx` | En başa "Docker'a gerçekten ihtiyacın var mı?" karar kutusu — iki dal, gerekmiyorsa dükkâna geri dönüş linki, açılır görsel anlatım |
+| `tests/qa-shop-pages.spec.ts` | 5 yeni test |
+
+### 🐞 Bu turda BULUNAN ve düzeltilen iki gerçek görsel arıza
+
+Kullanıcı bunları bildirmedi; ekranı ölçerken çıktı.
+
+1. **Dar ekranda katman iki kenardan taşıyordu.** Yetenek tablosunun
+   `min-w-[420px]`'i tüm katmanı 420 px'e çıkarıyor, 375 px ekranda taşan
+   kısma kaydırarak da ulaşılamıyordu. Sebep: kaydırma kabında `min-w-0`
+   yoktu, kap kendi asgarisini içeriğin asgarisine eşitliyordu.
+2. **Yüzen öğeler katmanı kapatıyordu.** Geçiş şeridi ve manuel tur düğmesi
+   `z-[60]`, site geneli sohbet/yorum baloncukları `z-[999]`; katmanlar ise
+   `z-50`'deydi. Masaüstünde şerit tablonun alt satırlarını, mobilde
+   baloncuklar iki satır metni kapatıyordu. Katmanlar `z-[1000]`'e alındı —
+   açık bir katman ekranın sahibidir, kapanınca baloncuklar aynen döner.
+   Aynı düzeltme giriş katmanını da kapsıyor (aynı kusur oradaydı).
+
+⚠ İkisini de hiçbir görünürlük kontrolü göremezdi: öğe ekranda "görünür"
+olmaya devam ediyor. Birincisi `boundingBox()` ile konum ölçerek, ikincisi
+`elementFromPoint` ile o noktada EN ÜSTTE ne olduğunu sorarak yakalanır.
+
+### 🛡️ Eklenen bekçiler — hepsi bilerek bozulup kırmızıya döndürüldü
+
+| Test | Yakaladığı mutasyon |
+|---|---|
+| kip anlatımı üç soruyu da cevaplıyor | "ŞU AN BURADASIN" her kipte gösterilirse |
+| kip anlatımı dar ekranda taşmıyor | `min-w-0` kaldırılırsa |
+| Docker gerekip gerekmediği ilk adımdan ÖNCE | karar kutusu adımların altına taşınırsa |
+| yüzen öğeler kapatmıyor (masaüstü + mobil) | katman z-50'ye döndürülürse |
+
+Dördüncüsü İKİ genişlikte koşuyor ve bu şart: masaüstünde şerit, mobilde
+baloncuklar kapatıyordu — tek genişlik öbür kusuru hiç görmez.
+
+### ⚠️ Bu turda tekrar yaşanan iki bilinen tuzak
+
+- **CRLF körlüğü:** `node -e` ile çok satırlı desen değiştirme iki kez sessizce
+  eşleşmedi. Çok satırlı düzenlemede `Edit` aracı kullanılır.
+- **Mutasyon build gerektirir:** `npx playwright test` `pretest:e2e` build'ini
+  çalıştırmaz, eski `dist/`i servis eder.
+
+Ayrıca yeni bir hata: JSX ifade parantezinin İÇİNE (`{kosul && (` sonrasına)
+`{/* yorum */}` konulamaz — build "Expected )" ile kırılır. Yorum ifadenin
+ÜSTÜNE yazılır. Kapı bunu yakaladı ama önce `dist`te sınıfın üretilmediğini
+ölçerek fark edildi; "build çalıştı" sanıp devam etmek yanlış teşhise
+götürüyordu.
+
+### 🚧 Durum
+
+Commit edilmedi, push edilmedi. Bir önceki turun "SIRADAKİ İŞ" listesi
+(prod duman testi, CI kör noktası, `.gitattributes` …) aynen geçerli.
+
+---
+
+## 📌 Önceki Durum (2026-09-01 · Opus · ikinci tur — düğme düzeltmesi)
 
 > Çelişki olursa BU bölüm günceldir.
 

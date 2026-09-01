@@ -1220,6 +1220,26 @@ listesi ilk yeni sayfada sessizce eskiyordu, kod eskiyemez.
   kenarın da `viewportSize()` içinde kaldığını `expect` et. Dar ekranı
   (375px) ayrıca sına — yatay sıkıştırma asıl orada kırılır.
 
+- **İki ek kör nokta (ölçüldü, 2026-09-01, `/qa-shop` kip anlatımı):**
+  1. **Başka bir katman ÜSTÜNE binebilir.** Öğe görüş alanının İÇİNDE, dört
+     kenarı da yerinde, ama önünde duran bir şey var. Bu depoda üç ayrı z
+     seviyesi çakıştı: açılan katmanlar `z-50`, yüzen geçiş şeridi ve tur
+     düğmesi `z-[60]`, site geneli sohbet/yorum baloncukları `z-[999]`.
+     Masaüstünde şerit tablonun alt satırlarını, mobilde baloncuklar iki
+     satır metni kapatıyordu. `boundingBox()` bunu da göremez — konum
+     doğruydu. Doğru ölçüm: `document.elementFromPoint(x, y)` ile o noktada
+     EN ÜSTTE hangi öğenin durduğunu sor. Açık bir katman ekranın sahibi
+     olmalı; kapanınca yüzen öğeler aynen döner.
+  2. **Kaydırma kabı `min-w-0` olmadan içeriğin asgarisine büyür.** Bir
+     `overflow-x-auto` sarmalayıcının içindeki `min-w-[420px]` tablo, TÜM
+     katmanı 420 px'e çıkardı; 375 px ekranda katman iki kenardan taştı ve
+     taşan kısma kaydırarak da ulaşılamadı. `overflow-x-auto` tek başına
+     kaydırma kabı KURMAZ — kabın kendi asgari genişliği `auto` kaldığı
+     sürece içeriğe eşitlenir. Kaba `min-w-0` verilir.
+- **Doğrulama İKİ genişlikte koşmalı:** bu iki kusurdan biri yalnızca
+  masaüstünde, öbürü yalnızca mobilde görünüyordu. Tek genişlikte koşan bir
+  test öbürünü hiç görmez.
+
 ### 23.22. CRLF dosyada kör metin değiştirme SESSİZCE eşleşmez
 
 - **Belirti:** Toplu düzenleme script'i "hiçbir değişiklik olmadı" diyor ya da

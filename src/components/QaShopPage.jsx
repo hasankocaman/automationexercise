@@ -33,6 +33,8 @@ import StoryIpucu, { useStoryModu, StoryModuAnahtari, StoryModuSeridi } from './
 import Kavram from './QaShopKavram'
 import { useAuth } from '../context/AuthContext'
 import { uyeAlanAnahtariniOku, uyeAlanAnahtariniYaz } from '../lib/qaShopSandboxSync'
+import QaShopModAnlatimi from './QaShopModAnlatimi'
+import { QA_SHOP_MODLARI } from '../data/qaShopModData.js'
 
 // Tarayıcı katmanı (sql.js WASM + 328 KB tohum veri) YALNIZCA gerekince
 // yüklenir; ana sayfa paketine girmemesi için statik import edilmez.
@@ -155,23 +157,14 @@ const M = {
     parola: { tr: 'Parola', en: 'Password' },
     demoHesap: { tr: 'Demo hesap hazır — doğrudan giriş yapabilirsin.', en: 'A demo account is ready — you can sign in directly.' },
     kapat: { tr: 'Kapat', en: 'Close' },
-    modTarayici: { tr: 'Tarayıcı modu · kurulum yok', en: 'Browser mode · no setup' },
-    modYerel: { tr: 'Lokal API · localhost:4000', en: 'Local API · localhost:4000' },
+    modTarayici: { tr: 'Tarayıcı kipi · nasıl çalışıyor?', en: 'Browser mode · how does it work?' },
+    modYerel: { tr: 'Docker kipi · nasıl çalışıyor?', en: 'Docker mode · how does it work?' },
     modYukleniyor: { tr: 'Bağlanıyor…', en: 'Connecting…' },
     modBaslik: { tr: 'Bu dükkân hangi veriyle çalışıyor?', en: 'What data is this shop running on?' },
-    modTarayiciAnlat: {
-        tr: 'Dükkân şu an tamamen tarayıcının içinde çalışıyor: veritabanı sekmende, istekler Service Worker üzerinden geçiyor. Hiçbir kurulum gerekmedi ve DevTools → Network sekmesinde her isteği gerçek status koduyla görebilirsin.',
-        en: 'The shop is running entirely inside your browser: the database lives in your tab and requests pass through a Service Worker. No setup was needed, and you can see every request with its real status code in DevTools → Network.',
-    },
     modTarayiciSinir: {
-        tr: 'Sınırı: bu katmana DBeaver veya JDBC ile bağlanamazsın; Postman, Newman ve REST Assured de dışarıdan erişemez, çünkü veri yalnızca bu sekmede yaşıyor. Bunlar için Docker katmanı gerekiyor.',
-        en: 'The limit: you cannot connect to this layer with DBeaver or JDBC, and Postman, Newman or REST Assured cannot reach it from outside, because the data lives only in this tab. Those need the Docker layer.',
+        tr: 'Kısacası: arayüz otomasyonunun tamamını hiçbir şey kurmadan çalışabilirsin. Docker\'ı yalnızca veriye dışarıdan bakman gerektiğinde kurarsın — kurduğun anda dükkân kendiliğinden ona geçer ve o ana kadar öğrendiğin hiçbir şey geçersizleşmez.',
+        en: 'In short: you can practise all of UI automation without installing anything. You install Docker only when you need to look at the data from outside — the moment you do, the shop switches to it by itself and nothing you learned until then becomes invalid.',
     },
-    modYerelAnlat: {
-        tr: 'Kendi makinendeki stack ayakta, dükkân ona bağlandı. Aynı veriye DBeaver ile bağlanabilir, Postman ve REST Assured ile dışarıdan istek atabilirsin.',
-        en: 'Your local stack is up and the shop connected to it. You can reach the same data with DBeaver and send requests from Postman or REST Assured.',
-    },
-    kurulumaGit: { tr: 'Gerçek veritabanı istiyorum → kurulum rehberi', en: 'I want a real database → setup guide' },
     alaniSifirla: { tr: 'Alanı sıfırla', en: 'Reset data' },
 
     // ── Teknik panel ──
@@ -1869,9 +1862,21 @@ export default function QaShopPage() {
             </main>
 
             {/* ═══ GİRİŞ KUTUSU ═════════════════════════════════════════════ */}
+            {/* z-[1000]: yüzen geçiş şeridi ve manuel tur düğmesi z-[60]'ta, site
+                geneli sohbet ve yorum baloncukları z-[999]'da duruyor. Açılan
+                katmanlar z-50'deydi, yani ÜÇÜ DE onların üstüne biniyordu —
+                ölçüldü: masaüstünde şerit yetenek tablosunun alt satırlarını,
+                mobilde baloncuklar iki satır metni kapatıyordu.
+
+                Katman ekranda "görünür" olmaya devam ettiği için hiçbir
+                görünürlük kontrolü bunu göremezdi; ancak o noktada EN ÜSTTE
+                hangi öğenin durduğunu sorarak yakalanır.
+
+                Açık bir katman ekranın sahibidir: baloncuklar kapanana kadar
+                arkada kalır, katman kapanınca aynen geri gelir. */}
             {girisAcik && (
                 <div data-testid="giris-katman"
-                     className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4"
+                     className="fixed inset-0 z-[1000] grid place-items-center bg-black/60 p-4"
                      onClick={(e) => { if (e.target === e.currentTarget) setGirisAcik(false) }}>
                     <div className={`w-full max-w-sm rounded-2xl border p-5 ${card}`}>
                         <div className="mb-3 flex items-center justify-between">
@@ -1901,26 +1906,31 @@ export default function QaShopPage() {
 
             {/* Mod açıklaması — rozete tıklanınca */}
             {modAcik && (
-                <div data-testid="mod-katman" className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4"
+                <div data-testid="mod-katman" className="fixed inset-0 z-[1000] flex justify-center overflow-y-auto bg-black/60 p-3 md:p-6"
                      onClick={(e) => { if (e.target === e.currentTarget) setModAcik(false) }}>
-                    <div className={`w-full max-w-lg rounded-2xl border p-5 ${card}`}>
-                        <div className="mb-3 flex items-center justify-between">
+                    <div className={`my-auto w-full min-w-0 max-w-3xl rounded-2xl border p-4 md:p-5 ${card}`}>
+                        <div className="mb-3 flex items-start justify-between gap-3">
                             <h2 className="text-lg font-bold">{tx(M.modBaslik, isTr)}</h2>
                             <button type="button" data-testid="mod-katman-kapat" onClick={() => setModAcik(false)}
-                                    className="rounded-lg px-2 py-1 text-sm opacity-70 hover:opacity-100">✕</button>
+                                    className="shrink-0 rounded-lg px-2 py-1 text-sm opacity-70 hover:opacity-100">✕</button>
                         </div>
-                        <p data-testid="mod-aciklama" className="text-sm leading-relaxed">
-                            {mod === 'tarayici' ? tx(M.modTarayiciAnlat, isTr) : tx(M.modYerelAnlat, isTr)}
+
+                        {/* Tek cümlelik özet: diyagrama bakmadan önce hangi kipte
+                            olduğunu okuyabilmeli. Diyagram bunu GÖSTERİR, bu
+                            satır SÖYLER — ikisi birbirinin yerine geçmez. */}
+                        <p data-testid="mod-aciklama" className="mb-4 text-sm leading-relaxed">
+                            {mod === 'tarayici'
+                                ? tx(QA_SHOP_MODLARI.tarayici.ozet, isTr)
+                                : tx(QA_SHOP_MODLARI.docker.ozet, isTr)}
                         </p>
+
+                        <QaShopModAnlatimi mod={mod} isTr={isTr} darkMode={darkMode} />
+
                         {mod === 'tarayici' && (
-                            <p data-testid="mod-sinir" className="mt-3 rounded-xl border border-amber-500/50 bg-amber-500/10 p-3 text-sm leading-relaxed">
+                            <p data-testid="mod-sinir" className="mt-4 rounded-xl border border-amber-500/50 bg-amber-500/10 p-3 text-sm leading-relaxed">
                                 {tx(M.modTarayiciSinir, isTr)}
                             </p>
                         )}
-                        <Link to="/qa-shop-setup" data-testid="mod-kuruluma-git"
-                              className="mt-4 inline-block text-sm font-semibold text-indigo-400 hover:underline">
-                            {tx(M.kurulumaGit, isTr)} →
-                        </Link>
                     </div>
                 </div>
             )}

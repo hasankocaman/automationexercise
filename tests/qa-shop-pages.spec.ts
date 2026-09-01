@@ -1522,3 +1522,179 @@ test('/qa-shop — tarayıcı modunda "Kendi alanımı aç" sağlığı düşür
     await page.getByTestId('bildirim-kapat').click();
     await expect(page.locator('[data-testid="urun-listesi"] li').first()).toBeVisible();
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 3k. Kip anlatımı — üç soruyu da cevaplıyor ve hangi kipte olduğunu söylüyor
+// ─────────────────────────────────────────────────────────────────────────────
+// Kullanıcı raporu: rozetteki "kurulum yok" ifadesi anlaşılmadı ve üç soru
+// soruldu — kurulum yok ne demek, Docker'sız ne yapmalıyım, Docker kurduysam
+// neye gerek var neye yok. Önceki anlatım tek paragraftı ve yalnızca birine,
+// o da kısmen cevap veriyordu.
+test('/qa-shop — kip anlatımı üç soruyu da cevaplıyor', async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.addInitScript((adres) => {
+        localStorage.setItem('qaShopApiBase', adres);
+    }, KAPALI_API);
+
+    await page.goto('/qa-shop');
+    await waitForAppReady(page, { timeout: 60_000 });
+    await expect(page.locator('[data-testid="urun-listesi"]')).toBeVisible({ timeout: 60_000 });
+
+    await page.getByTestId('mod-rozeti').click();
+    await expect(page.getByTestId('mod-anlatimi')).toBeVisible();
+
+    // İki yol da gösterilir — kullanıcı ne KAÇIRDIĞINI de görmeli, yoksa
+    // Docker'ın ne getirdiğine dair hiçbir fikri olmaz.
+    await expect(page.getByTestId('mod-yolu-tarayici')).toBeVisible();
+    await expect(page.getByTestId('mod-yolu-docker')).toBeVisible();
+
+    // "Şu an buradasın" YALNIZCA gerçekten bulunulan kipte. İkisinde birden
+    // görünmesi ya hiçbirinde görünmemesi, işaretin hiçbir şey söylememesi
+    // demektir.
+    await expect(page.getByTestId('mod-buradasin-tarayici')).toBeVisible();
+    await expect(page.locator('[data-testid="mod-buradasin-docker"]')).toHaveCount(0);
+    await expect(page.getByTestId('mod-yolu-tarayici')).toHaveAttribute('data-aktif', 'evet');
+    await expect(page.getByTestId('mod-yolu-docker')).toHaveAttribute('data-aktif', 'hayir');
+
+    // Üç sorunun üçü de var ve cevapları gerçekten okunabiliyor.
+    // ⚠ Koşulsuz tıklama YANLIŞ: ilk soru bilerek AÇIK gelir (en çok sorulan
+    // sorunun cevabı hemen okunabilmeli), tıklamak onu KAPATIR. Açık olanı
+    // olduğu gibi bırak, kapalı olanı aç.
+    for (const id of ['kurulum-yok', 'dockersiz', 'docker-kurduysam']) {
+        const kutu = page.getByTestId(`mod-soru-${id}`);
+        await expect(kutu, `"${id}" sorusu yok`).toBeVisible();
+        if (!(await kutu.evaluate((el: HTMLDetailsElement) => el.open))) {
+            await kutu.getByTestId(`mod-soru-ac-${id}`).click();
+        }
+        await expect(page.getByTestId(`mod-cevap-${id}`), `"${id}" cevabı okunamıyor`).toBeVisible();
+    }
+    // En çok sorulan soru varsayılan olarak AÇIK gelmeli — kapanırsa kullanıcı
+    // yine tek satırlık bir başlıkla baş başa kalır.
+    await expect(page.getByTestId('mod-soru-kurulum-yok')).toHaveJSProperty('open', true);
+
+    // Yetenek tablosu, hem çalışanı hem çalışmayanı göstermeli. Yalnızca
+    // "şunlar çalışıyor" demek, kullanıcının Docker'ı NEDEN kuracağını
+    // anlamasını engeller.
+    const calisan = page.locator('[data-testid^="mod-yetenek-tarayici-"]', { hasText: '✅' });
+    const calismayan = page.locator('[data-testid^="mod-yetenek-tarayici-"]', { hasText: '—' });
+    expect(await calisan.count(), 'tarayıcı kipinde çalışan hiçbir şey listelenmemiş').toBeGreaterThan(2);
+    expect(await calismayan.count(), 'Docker gerektiren hiçbir şey listelenmemiş').toBeGreaterThan(2);
+
+    await expect(page.getByTestId('mod-kuruluma-git')).toHaveAttribute('href', /qa-shop-setup/);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 3l. Kip anlatımı dar ekranda OKUNABİLİR olmalı
+// ─────────────────────────────────────────────────────────────────────────────
+// `toBeVisible()` okunabilirlik sinyali DEĞİLDİR: görüş alanının dışındaki öğe
+// de görünürdür. Bu gerçek bir arıza olarak ölçüldü — yetenek tablosunun
+// asgari genişliği tüm katmanı 420 px'e çıkarıyordu ve 375 px'lik ekranda
+// katman iki kenardan birden taşıyordu; taşan kısma kaydırarak da
+// ulaşılamıyordu. Doğrulama görünürlüğe değil KONUMA bakar.
+test('/qa-shop — kip anlatımı dar ekranda taşmıyor', async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.setViewportSize({ width: 375, height: 800 });
+    await page.addInitScript((adres) => {
+        localStorage.setItem('qaShopApiBase', adres);
+    }, KAPALI_API);
+
+    await page.goto('/qa-shop');
+    await waitForAppReady(page, { timeout: 60_000 });
+    await expect(page.locator('[data-testid="urun-listesi"]')).toBeVisible({ timeout: 60_000 });
+
+    await page.getByTestId('mod-rozeti').click();
+    await expect(page.getByTestId('mod-anlatimi')).toBeVisible();
+
+    const vp = page.viewportSize()!;
+    for (const testid of ['mod-anlatimi', 'mod-yolu-tarayici', 'mod-yolu-docker', 'mod-yetenek-tablosu']) {
+        const kutu = await page.getByTestId(testid).boundingBox();
+        expect(kutu, `${testid} ölçülemedi`).not.toBeNull();
+        expect(kutu!.x, `${testid} sol kenardan taşıyor`).toBeGreaterThanOrEqual(0);
+        expect(Math.round(kutu!.x + kutu!.width),
+            `${testid} sağ kenardan taşıyor (${vp.width} px ekran)`).toBeLessThanOrEqual(vp.width);
+    }
+
+    // Sayfanın kendisi de yatay kaymamalı.
+    const yatayKayma = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
+    expect(yatayKayma, 'sayfa yatay kayıyor').toBe(false);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 3m. Kurulum rehberi, KURMADAN önce gerekip gerekmediğini söylüyor
+// ─────────────────────────────────────────────────────────────────────────────
+// "Rehberi açtıysa zaten karar vermiştir" varsayımı yanlıştı: çoğu kişi ne
+// kazanacağını bilmeden buraya geliyor ve dükkânın kurulum olmadan da
+// çalıştığını hiç öğrenmiyordu.
+test('/qa-shop-setup — Docker gerekip gerekmediği ilk adımdan ÖNCE söyleniyor', async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.goto('/qa-shop-setup');
+    await waitForAppReady(page, { timeout: 60_000 });
+
+    const karar = page.getByTestId('kurulum-karari');
+    await expect(karar).toBeVisible();
+
+    // Sıra önemli: karar kutusu ilk adımın ÜSTÜNDE olmalı, yoksa kullanıcı
+    // Docker'ı kurduktan sonra gerekmediğini öğrenir.
+    const kararKutusu = await karar.boundingBox();
+    const ilkAdim = await page.getByTestId('practice-step-1').boundingBox();
+    expect(kararKutusu!.y, 'karar kutusu ilk adımın altında kalmış').toBeLessThan(ilkAdim!.y);
+
+    // İki dal da var ve "gerekmiyor" dalı kullanıcıyı dükkâna geri gönderiyor.
+    await expect(page.getByTestId('kurulum-karari-gerekmiyor')).toBeVisible();
+    await expect(page.getByTestId('kurulum-karari-gerekiyor')).toBeVisible();
+    await expect(page.getByTestId('kurulum-karari-dukkana-don')).toHaveAttribute('href', /\/qa-shop$/);
+
+    // Aynı görsel anlatım burada da açılabilmeli — ama "şu an buradasın"
+    // işareti OLMADAN: bu sayfa hangi kipte olduğunu ölçmüyor ve tahmin
+    // etmek kullanıcıyı yanlış yönlendirir.
+    await page.getByTestId('kurulum-karari-detay-ac').click();
+    await expect(page.getByTestId('mod-anlatimi')).toBeVisible();
+    await expect(page.locator('[data-testid^="mod-buradasin-"]')).toHaveCount(0);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 3n. Açılan katmanı yüzen öğeler KAPATMAMALI
+// ─────────────────────────────────────────────────────────────────────────────
+// Gerçek bir arıza olarak ölçüldü: sayfanın altındaki geçiş şeridi ve manuel
+// tur düğmesi z-[60]'ta, açılan katmanlar z-50'deydi. Katman ekranda "görünür"
+// olmaya devam ediyordu ama alt kısmı şeridin ARKASINDA kalıyordu —
+// `toBeVisible()` bunu asla göremez (§23.21 ile aynı aile). Doğrulama, o
+// noktada EN ÜSTTE hangi öğenin durduğunu sorar.
+// İKİ genişlikte de koşar ve bu şart: masaüstünde geçiş şeridi, mobilde
+// sohbet/yorum baloncukları kapatıyordu. Tek genişlikte koşan bir doğrulama
+// öbür kusuru hiç görmez.
+for (const ekran of [{ ad: 'masaüstü', w: 1280, h: 900 }, { ad: 'mobil', w: 375, h: 800 }]) {
+    test(`/qa-shop — kip katmanını yüzen öğeler kapatmıyor (${ekran.ad})`, async ({ page }) => {
+        test.setTimeout(120_000);
+        await page.setViewportSize({ width: ekran.w, height: ekran.h });
+        await page.addInitScript((adres) => {
+            localStorage.setItem('qaShopApiBase', adres);
+        }, KAPALI_API);
+
+        await page.goto('/qa-shop');
+        await waitForAppReady(page, { timeout: 60_000 });
+        await expect(page.locator('[data-testid="urun-listesi"]')).toBeVisible({ timeout: 60_000 });
+
+        await page.getByTestId('mod-rozeti').click();
+        const katman = page.getByTestId('mod-katman');
+        await expect(katman).toBeVisible();
+
+        const kutu = (await katman.boundingBox())!;
+        const vp = page.viewportSize()!;
+
+        // Alt bant taranır: yüzen öğelerin hepsi oraya yerleşir. Köşeler de
+        // dahil — baloncuklar tam köşelerde duruyor.
+        const y = Math.round(Math.min(vp.height - 30, kutu.y + kutu.height - 30));
+        for (const oran of [0.08, 0.25, 0.5, 0.75, 0.92]) {
+            const x = Math.round(kutu.x + kutu.width * oran);
+            const ustteki = await page.evaluate(([px, py]) => {
+                const el = document.elementFromPoint(px, py);
+                if (!el) return 'yok';
+                return el.closest('[data-testid="mod-katman"]')
+                    ? 'katman'
+                    : (el.textContent || el.tagName).trim().slice(0, 40);
+            }, [x, y]);
+            expect(ustteki, `katmanın üstünü başka bir öğe kapatıyor (x oranı ${oran})`).toBe('katman');
+        }
+    });
+}

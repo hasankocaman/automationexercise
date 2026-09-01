@@ -22,6 +22,9 @@ import QaShopGecis from './QaShopGecis'
 import QaShopHizliGecis from './QaShopHizliGecis'
 import useHashKaydir from '../hooks/useHashKaydir'
 import { qaShopSetupData } from '../data/qaShopSetupData'
+import { Link } from 'react-router-dom'
+import QaShopModAnlatimi from './QaShopModAnlatimi'
+import { QA_SHOP_KURULUM_KARARI } from '../data/qaShopModData.js'
 // Yalnızca herkese açık dizin import edilir. Sorgu ↔ kural/story eşlemesi
 // (qaShopSqlMap.js) bu sayfaya HİÇ girmez — o admin tarafında kalır.
 import { SQL_PACK_GROUPS } from '../data/qaShopSqlPackData'
@@ -503,6 +506,71 @@ export default function QaShopSetupPage() {
                         🔒 {tx(meta.isolationNote, isTr)}
                     </p>
                 </div>
+
+                {/* Karar kutusu — YOL HARİTASINDAN ÖNCE gelir ve bu bilinçli.
+                    Rehberi açan kişinin kurmaya karar verdiğini varsaymak
+                    yanlıştı: çoğu kişi buraya ne kazanacağını bilmeden geliyor
+                    ve dükkânın kurulum olmadan da çalıştığını hiç öğrenmiyordu.
+                    Bu kutu önce "gerekiyor mu" sorusunu cevaplar, sonra adımlar
+                    başlar. */}
+                <section data-testid="kurulum-karari" className={`mb-8 rounded-2xl border-2 border-indigo-500/60 p-4 md:p-6 ${
+                    darkMode ? 'bg-indigo-500/5' : 'bg-indigo-50/60'
+                }`}>
+                    <h2 className="text-lg font-bold md:text-xl">
+                        🤔 {tx(QA_SHOP_KURULUM_KARARI.baslik, isTr)}
+                    </h2>
+                    <p className={`mt-2 text-sm leading-relaxed ${darkMode ? 'text-slate-300' : 'text-slate-700'}`}>
+                        {tx(QA_SHOP_KURULUM_KARARI.giris, isTr)}
+                    </p>
+
+                    <div className="mt-4 grid gap-3 md:grid-cols-2">
+                        {QA_SHOP_KURULUM_KARARI.dallar.map((dal) => {
+                            const gerekli = dal.id === 'gerekiyor'
+                            return (
+                                <div key={dal.id} data-testid={`kurulum-karari-${dal.id}`}
+                                     className={`rounded-xl border-2 p-3 ${
+                                         gerekli
+                                             ? `border-emerald-500 ${darkMode ? 'bg-emerald-500/10' : 'bg-emerald-50'}`
+                                             : `border-sky-500 ${darkMode ? 'bg-sky-500/10' : 'bg-sky-50'}`
+                                     }`}>
+                                    <p className={`text-sm font-extrabold ${
+                                        gerekli
+                                            ? darkMode ? 'text-emerald-300' : 'text-emerald-700'
+                                            : darkMode ? 'text-sky-300' : 'text-sky-700'
+                                    }`}>
+                                        <span aria-hidden="true">{dal.ikon}</span> {tx(dal.durum, isTr)}
+                                    </p>
+                                    <p className={`mt-1 text-sm font-bold ${darkMode ? 'text-slate-100' : 'text-slate-900'}`}>
+                                        {tx(dal.kosul, isTr)}
+                                    </p>
+                                    <p className={`mt-1 text-xs leading-relaxed ${darkMode ? 'text-slate-400' : 'text-slate-600'}`}>
+                                        {tx(dal.aciklama, isTr)}
+                                    </p>
+                                    {!gerekli && (
+                                        <Link to="/qa-shop" data-testid="kurulum-karari-dukkana-don"
+                                              className="mt-2 inline-block text-xs font-semibold text-indigo-400 hover:underline">
+                                            {isTr ? 'Dükkâna dön ve yazmaya başla' : 'Back to the shop and start writing'} →
+                                        </Link>
+                                    )}
+                                </div>
+                            )
+                        })}
+                    </div>
+
+                    {/* Aynı görsel anlatım dükkânda da var; metin tek dosyada
+                        durur, bileşen içeri alınır — kopya çıkmaz. Burada
+                        "şu an buradasın" işareti YOKTUR: bu sayfa hangi kipte
+                        olduğunu ölçmüyor ve tahmin etmek yanlış yönlendirir. */}
+                    <details className="mt-4" data-testid="kurulum-karari-detay">
+                        <summary data-testid="kurulum-karari-detay-ac"
+                                 className={`cursor-pointer text-sm font-bold ${darkMode ? 'text-slate-100' : 'text-slate-900'}`}>
+                            {isTr ? '🔍 İki kip arasındaki farkı görsel olarak göster' : '🔍 Show the difference between the two modes visually'}
+                        </summary>
+                        <div className="mt-3">
+                            <QaShopModAnlatimi mod={null} isTr={isTr} darkMode={darkMode} kurulumLinki={false} />
+                        </div>
+                    </details>
+                </section>
 
                 {/* Yol haritası: dört adımın hangi sırayla neyi kazandırdığı.
                     Uzun bir yordam rehberinde okuyucunun "kaç adım var, şu an
