@@ -125,6 +125,9 @@ function VisualDiffDetectiveBlock({ block, darkMode, language }) {
     const [analyzing, setAnalyzing] = useState(false)
     const [result, setResult] = useState(null)
     const [error, setError] = useState('')
+    // Bakım, sıradan bir hata DEĞİLDİR: hata 'tekrar dene' demeyi haklı
+    // kılar, bakım kılmaz. Ayrı durumda tutulur ki mesajlar karışmasın.
+    const [bakimda, setBakimda] = useState(false)
 
     const canAnalyzeLive = isSupabaseConfigured && !!session
 
@@ -152,9 +155,24 @@ function VisualDiffDetectiveBlock({ block, darkMode, language }) {
             const { data, error: fnError } = await supabase.functions.invoke('visual-diff-judge', {
                 body: { beforeImage: beforePreview, afterImage: afterPreview },
             })
+
+            // Bakım cevabı 503 ile gelir ve supabase-js her 2xx olmayan cevabı
+            // hata sayar: gövde `data` içinde DEĞİL, hatanın taşıdığı Response
+            // nesnesindedir. Bu ayrımı yapmazsak bakım durumu sıradan bir hataya
+            // karışır ve kullanıcıya asla başarılı olmayacak bir şey için
+            // "tekrar dene" demiş oluruz.
+            let govde = data
+            if (!govde && fnError?.context?.json) {
+                govde = await fnError.context.json().catch(() => null)
+            }
+            if (govde?.maintenance) {
+                setBakimda(true)
+                return
+            }
+
             if (fnError) throw fnError
-            if (data?.error) throw new Error(data.error)
-            setResult({ category: data.category, reasoning: data.reasoning })
+            if (govde?.error) throw new Error(govde.error)
+            setResult({ category: govde?.category, reasoning: govde?.reasoning })
         } catch (err) {
             console.error('visual-diff-judge failed:', err)
             setError(isTr ? 'Analiz yapılamadı, lütfen tekrar dene.' : 'Could not analyze, please try again.')
@@ -228,7 +246,7 @@ function VisualDiffDetectiveBlock({ block, darkMode, language }) {
                 <button
                     type="button"
                     onClick={analyze}
-                    disabled={!beforePreview || !afterPreview || analyzing}
+                    disabled={!beforePreview || !afterPreview || analyzing || bakimda}
                     data-testid="visual-diff-analyze"
                     className="mt-4 text-sm font-semibold px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 transition-colors disabled:opacity-50"
                 >
@@ -242,7 +260,28 @@ function VisualDiffDetectiveBlock({ block, darkMode, language }) {
                             : 'ℹ️ Live analysis is members-only (image tokens carry a real cost).'}
                     </p>
                 )}
-                {error && <p className={`mt-2 text-xs ${darkMode ? 'text-amber-300' : 'text-amber-600'}`}>{error}</p>}
+                {/* Bakım mesajı hatanın YERİNE geçer, yanına değil: ikisini
+                    birden göstermek "hem bozuk hem bakımda" gibi okunur ve
+                    kullanıcı yine tekrar denemeyi düşünür. */}
+                {bakimda ? (
+                    <div
+                        data-testid="visual-diff-bakim"
+                        className={`mt-3 rounded-xl border p-3 text-xs leading-relaxed ${
+                            darkMode ? 'border-sky-500/50 bg-sky-500/10 text-sky-200' : 'border-sky-300 bg-sky-50 text-sky-800'
+                        }`}
+                    >
+                        <p className="font-semibold">
+                            🔧 {isTr ? 'Görsel analiz özelliği geçici olarak bakımda' : 'Visual analysis is temporarily under maintenance'}
+                        </p>
+                        <p className="mt-1">
+                            {isTr
+                                ? 'Yüklediğin görseller yerinde duruyor. Bu arada aşağıdaki sınıflandırma alıştırmasını yapabilirsin — kritik, kozmetik ve kabul edilebilir farkı ayırt etmek zaten bu modülün asıl becerisi.'
+                                : 'The screenshots you uploaded are still here. In the meantime you can work through the classification exercise below — telling critical, cosmetic and acceptable differences apart is the real skill in this module anyway.'}
+                        </p>
+                    </div>
+                ) : (
+                    error && <p className={`mt-2 text-xs ${darkMode ? 'text-amber-300' : 'text-amber-600'}`}>{error}</p>
+                )}
 
                 {result && (
                     <div className={`mt-4 rounded-xl border p-3 det-vs-stoch-pop ${categoryClasses(CATEGORY_META[result.category]?.cls, darkMode)}`}>
