@@ -22,6 +22,7 @@
 // renklenmiyor, çünkü gerçek bir sitede her ürün fotoğrafının arka planı
 // aynıdır; bu tutarlılığın kendisi "gerçek" hissi veren şeydir.
 import { useId, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { FREE_SHIPPING_THRESHOLD } from '../data/generated/qaShopCore/pricing.js'
 import { URUN_GORSELLERI } from '../data/generated/qaShopUrunGorselleri.js'
 
@@ -301,10 +302,14 @@ const GOLGE_GENISLIK = {
 // üretilir (scripts/build-qa-shop-images.mjs). Manifest boşsa hiç `<img>`
 // denenmez — dosya olmayan ortamda (CI) 404 ve konsol hatası üretmemek için.
 //
-// Kategori eşlemesi YENİDEN YAZILMAZ: `siluetTipi()` zaten ad öncelikli
-// çalışıyor ve seed verisindeki "Shirt adlı ürün boots kategorisinde"
-// tuhaflığını doğru çözüyor. Fotoğraf da aynı karardan beslenir ki vitrinde
-// gömlek yazan kartta bot fotoğrafı çıkmasın.
+// Kategori eşlemesi YENİDEN YAZILMAZ: `siluetTipi()` ad öncelikli çalışır,
+// kategoriye yalnızca ad hiçbir kalıba uymazsa düşer. Fotoğraf da aynı
+// karardan beslenir ki vitrinde gömlek yazan kartta bot fotoğrafı çıkmasın.
+//
+// Bu sıralama BİR ZAMANLAR bir veri hatasını maskeliyordu: seed üretecinde tip
+// ile kategori kayıktı ("Shirt adlı ürün boots kategorisinde") ve burası onu
+// görünmez kılıyordu. Kayma kaynağında düzeltildi; ad önceliği yine de
+// korunuyor — ürünün ADI, kategori etiketinden daha güvenilir bir sinyaldir.
 function fotografYolu(urun, tip) {
     const secenekler = URUN_GORSELLERI[tip]
     if (!secenekler?.length) return null
@@ -453,7 +458,24 @@ export function Yildizlar({ puan = 0, adet = 0, id, isTr }) {
 
 // ─── Ürün kartı ─────────────────────────────────────────────────────────────
 
-export function UrunKarti({ urun, isTr, darkMode, para, onDetay, onHizliEkle, mesgul }) {
+// ⚠ GÖRSEL VE AD BİRER <Link> — düğme DEĞİL.
+//
+// Düğmeyken ürünün adresi yoktu: yeni sekmede açma, orta tık, bağlantıyı
+// kopyala ve tarayıcı geri tuşu çalışmıyordu; `getByRole('link')` de hiçbir
+// şey bulamıyordu. Otomasyon hedefi olarak bu, öğretilecek "link mi button
+// mu" ayrımını da yok ediyordu.
+//
+// ⚠ Sınıf yerleşimine dikkat: index.css'te KATMANSIZ bir kural var —
+// `.flex > a, li > a { display: inline-block }` — ve katmansız kurallar
+// Tailwind yardımcılarını özgüllükten bağımsız YENER. Bu yüzden `line-clamp-2`
+// bağlantının KENDİSİNE değil içindeki <span>'e verilir; anchor'a verilseydi
+// kırpma sessizce çalışmazdı. Görsel bağlantısında sorun yok: her ikisi de
+// flex öğesi olduğu için display zaten `block`a çevriliyor.
+//
+// `onDetay` artık YALNIZCA iyimser ön-yerleştirme yapar; adresi <Link> yazar.
+// İkisi de adres yazsaydı tek tıkta iki geçmiş kaydı oluşur ve geri tuşu iki
+// kez basmayı gerektirirdi.
+export function UrunKarti({ urun, isTr, darkMode, para, onDetay, onHizliEkle, mesgul, urunAdresi }) {
     const [favori, setFavori] = useState(false)
     const kart = darkMode
         ? 'border-slate-800 bg-slate-900 hover:border-slate-700'
@@ -470,8 +492,8 @@ export function UrunKarti({ urun, isTr, darkMode, para, onDetay, onHizliEkle, me
             data-testid={`urun-${urun.id}`}
             className={`group relative flex flex-col overflow-hidden rounded-2xl border transition hover:shadow-lg ${kart}`}
         >
-            <button
-                type="button"
+            <Link
+                to={urunAdresi(urun)}
                 data-testid={`urun-detay-${urun.id}`}
                 onClick={() => onDetay(urun)}
                 className="block w-full overflow-hidden text-left"
@@ -482,7 +504,7 @@ export function UrunKarti({ urun, isTr, darkMode, para, onDetay, onHizliEkle, me
                         <UrunGorseli urun={urun} />
                     </span>
                 </span>
-            </button>
+            </Link>
 
             <button
                 type="button"
@@ -507,14 +529,14 @@ export function UrunKarti({ urun, isTr, darkMode, para, onDetay, onHizliEkle, me
                 <span data-testid={`urun-marka-${urun.id}`} className="text-[11px] font-bold uppercase tracking-wide opacity-60">
                     {urun.brand}
                 </span>
-                <button
-                    type="button"
+                <Link
+                    to={urunAdresi(urun)}
                     data-testid={`urun-ad-${urun.id}`}
                     onClick={() => onDetay(urun)}
-                    className="line-clamp-2 text-left text-sm font-semibold hover:underline"
+                    className="text-left text-sm font-semibold hover:underline"
                 >
-                    {urun.name}
-                </button>
+                    <span className="line-clamp-2">{urun.name}</span>
+                </Link>
 
                 <Yildizlar puan={urun.rating_avg} adet={urun.rating_count} id={urun.id} isTr={isTr} />
 

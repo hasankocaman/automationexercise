@@ -19,10 +19,10 @@
 //   · Stack kapalıyken sayfa boş bir hata göstermez; ne yapılacağını söyler.
 //
 // TopicPage KULLANILMAZ: bu bir ders sayfası değil, canlı bir uygulama.
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import useOdakModu from '../hooks/useOdakModu'
 import useKaranlikMod from '../hooks/useKaranlikMod'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
 import TopicHeader from './TopicHeader'
 import { UrunKarti, UrunGorseli, Yildizlar } from './QaShopStore'
@@ -62,6 +62,10 @@ const DEPO_TOKEN = 'qaShopToken'
 // anlamsızlaşırdı. Cevabı görüp turu bitiren kullanıcıya da tur yeniden
 // dayatılmaz — değer, avı kendi istediğinde başlatabilmesindedir.
 const DEPO_AV = 'qaShopAvAlani'
+
+// Vitrin sayfa boyu. Sunucunun kendi tavanı ayrıdır (ve o tavan bilinçli bir
+// test konusudur) — burası yalnızca vitrinin istediği boy.
+const SAYFA_BOYU = 24
 // Kaç defect canlı olacak. Üç, on ihtimalin içinde aramayı anlamlı tutacak
 // kadar çok; bulguları birbirine karıştırmayacak kadar az.
 const VARSAYILAN_AV_ADEDI = 3
@@ -81,7 +85,11 @@ const M = {
     ara: { tr: 'Ürün, marka veya kategori ara', en: 'Search products, brands or categories' },
     aramaBtn: { tr: 'Ara', en: 'Search' },
     hesabim: { tr: 'Hesabım', en: 'Account' },
-    girisYap: { tr: 'Giriş yap', en: 'Sign in' },
+    // ⚠ "Giriş yap" DEĞİL — sayfada İKİ giriş var: üst şeritteki LearnQA
+    // (platform) girişi ve buradaki dükkân girişi. İkisi de "Giriş yap"
+    // dediğinde hem kullanıcı hem locator hangisinin hangisi olduğunu
+    // ayırt edemiyordu. Erişilebilir ad artık tekil.
+    girisYap: { tr: 'Dükkân girişi', en: 'Store sign-in' },
     cikisYap: { tr: 'Çıkış yap', en: 'Sign out' },
     siparislerim: { tr: 'Siparişlerim', en: 'My orders' },
     sepet: { tr: 'Sepet', en: 'Cart' },
@@ -94,6 +102,18 @@ const M = {
     siralaYeni: { tr: 'En yeniler', en: 'Newest' },
     urunBulunamadi: { tr: 'Aramanla eşleşen ürün yok.', en: 'No products match your search.' },
     sonucAdet: { tr: 'ürün', en: 'products' },
+    sayfalama: { tr: 'Sayfalar', en: 'Pagination' },
+    gunlukIstek: { tr: 'istek', en: 'requests' },
+    sayfaOnceki: { tr: 'Önceki', en: 'Previous' },
+    sayfaSonraki: { tr: 'Sonraki', en: 'Next' },
+    sayfaDurum: { tr: 'Sayfa {n} / {t}', en: 'Page {n} of {t}' },
+    sayfayaGit: { tr: '{n}. sayfaya git', en: 'Go to page {n}' },
+    sifirlaOnayMetin: {
+        tr: 'Bu işlem açık oturumları kapatır ve sepetini siler. Emin misin?',
+        en: 'This revokes open sessions and clears your cart. Are you sure?',
+    },
+    sifirlaOnayEvet: { tr: 'Evet, sıfırla', en: 'Yes, reset' },
+    vazgec: { tr: 'Vazgeç', en: 'Cancel' },
     geriVitrin: { tr: 'Vitrine dön', en: 'Back to store' },
     beden: { tr: 'Beden', en: 'Size' },
     renk: { tr: 'Renk', en: 'Color' },
@@ -278,7 +298,17 @@ const M = {
 
 // ─── Küçük yardımcılar ──────────────────────────────────────────────────────
 
-const para = (n) => `${Number(n ?? 0).toFixed(2)} TL`
+// Fiyat biçimi DİLE bağlıdır: TR'de "101,99 ₺", EN'de "₺101.99". Önceden her
+// iki dilde de "101.99 TL" yazıyordu — TR'de ne ondalık ayırıcı ne para simgesi
+// doğruydu. Intl kullanılıyor: nokta/virgülü elle değiştirmek binlik ayırıcıda
+// (1.234,56) kırılırdı. Biçimlendirici bir kez kurulur, her fiyatta yeniden
+// kurmak ölçülebilir biçimde pahalıdır.
+const paraBicimlendirici = (isTr) => new Intl.NumberFormat(isTr ? 'tr-TR' : 'en-US', {
+    style: 'currency',
+    currency: 'TRY',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+})
 
 const DURUM_RENK = {
     placed: 'bg-sky-500/20 text-sky-300',
@@ -366,16 +396,91 @@ export default function QaShopPage() {
     const [mesaj, setMesaj] = useState(null)
 
     // ── Mağaza ───────────────────────────────────────────────────────────────
-    const [gorunum, setGorunum] = useState('katalog')
+    //
+    // ⚠ GÖRÜNÜM VE FİLTRELER ADRESTE TUTULUR, BİLEŞEN STATE'İNDE DEĞİL.
+    //
+    // Önceden hepsi useState'teydi ve bunun üç sonucu vardı: ürünün adresi
+    // yoktu (`page.goto` ile bir ürüne gidilemiyordu), tarayıcı geri tuşu
+    // dükkândan ÇIKIYORDU, ve kartlar gerçek bağlantı olamıyordu (yeni sekmede
+    // aç, orta tık, getByRole('link') hiçbiri çalışmıyordu).
+    //
+    // Neden yol parçası (/qa-shop/urun/42) değil de sorgu parametresi: yol
+    // parçası her derin bağlantıda ANA SAYFANIN statik kabuğuna düşerdi
+    // (`dist/qa-shop/urun/42/index.html` diye bir dosya yok), yani metadata
+    // React açılana kadar yanlış olurdu. `/qa-shop`ın kendi kabuğu var; sorgu
+    // parametresi o kabuğu korur. Gerçek e-ticarette de katalog durumu
+    // (kategori/arama/sıralama/sayfa) sorgu parametresiyle taşınır.
+    const [adresParams, setAdresParams] = useSearchParams()
+
+    // Tek yazma noktası. Boş/null değer parametreyi SİLER — adres çubuğunda
+    // `?g=&kategori=` gibi anlamsız kalıntılar birikmesin.
+    const adresYaz = useCallback((degisiklikler) => {
+        setAdresParams((eski) => {
+            const yeni = new URLSearchParams(eski)
+            for (const [anahtar, deger] of Object.entries(degisiklikler)) {
+                if (deger === null || deger === undefined || deger === '') yeni.delete(anahtar)
+                else yeni.set(anahtar, String(deger))
+            }
+            return yeni
+        })
+    }, [setAdresParams])
+
+    const gorunum = adresParams.get('g') || 'katalog'
+    const aktifKategori = adresParams.get('kategori') || ''
+    const arama = adresParams.get('ara') || ''
+    const siralama = adresParams.get('sirala') || 'price:asc'
+    const sayfa = Math.max(1, Number.parseInt(adresParams.get('sayfa') || '1', 10) || 1)
+    const adrestekiUrunId = adresParams.get('urun') || ''
+
+    // Görünüm değişince ürün parametresi de temizlenir: sepete geçen bir
+    // kullanıcının adresinde artık anlamı olmayan bir ürün id'si kalmasın.
+    const setGorunum = useCallback((yeni) => {
+        adresYaz({ g: yeni === 'katalog' ? null : yeni, ...(yeni === 'urun' ? {} : { urun: null }) })
+    }, [adresYaz])
+
+    // Filtre değişimi sayfayı 1'e döndürür — 7. sayfadayken kategori
+    // değiştiren kullanıcı boş bir vitrin görürdü.
+    const setAktifKategori = useCallback((slug) => adresYaz({ kategori: slug || null, sayfa: null }), [adresYaz])
+    const setArama = useCallback((metin) => adresYaz({ ara: metin || null, sayfa: null }), [adresYaz])
+    const setSiralama = useCallback((deger) => adresYaz({ sirala: deger, sayfa: null }), [adresYaz])
+    const setSayfa = useCallback((n) => adresYaz({ sayfa: n <= 1 ? null : n }), [adresYaz])
+
     const [urunler, setUrunler] = useState([])
     const [toplamUrun, setToplamUrun] = useState(0)
+    const [toplamSayfa, setToplamSayfa] = useState(1)
+
+    const sayfayaGit = useCallback((n) => {
+        setSayfa(Math.min(Math.max(1, n), toplamSayfa))
+        // Sayfa değişince liste başa sarılır: aksi hâlde kullanıcı yeni
+        // sayfanın ORTASINDA açılır ve sayfanın değiştiğini fark etmez.
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+    }, [setSayfa, toplamSayfa])
+
+    // Numara penceresi: 40 sayfalık bir katalogda 40 düğme basmak mobilde
+    // ekranı doldururdu. Aktif sayfa ortada, beşli kayan pencere.
+    const sayfaNumaralari = useMemo(() => {
+        const pencere = 5
+        const son = Math.min(toplamSayfa, Math.max(1, sayfa - Math.floor(pencere / 2)) + pencere - 1)
+        const bas = Math.max(1, son - pencere + 1)
+        return Array.from({ length: son - bas + 1 }, (_, i) => bas + i)
+    }, [sayfa, toplamSayfa])
     const [kategoriler, setKategoriler] = useState([])
-    const [aktifKategori, setAktifKategori] = useState('')
-    const [arama, setArama] = useState('')
-    const [aramaGirdi, setAramaGirdi] = useState('')
-    const [siralama, setSiralama] = useState('price:asc')
+    // Arama KUTUSU yerel kalır: her tuşa basışta adres yazmak geçmişi
+    // kirletirdi. Adrese ancak gönderildiğinde (submit) yazılır.
+    const [aramaGirdi, setAramaGirdi] = useState(() => adresParams.get('ara') || '')
+    // Sıfırlama iki adımlı: ilk tık yalnızca niyeti sorar (bkz. vitrin altı).
+    const [sifirlaOnay, setSifirlaOnay] = useState(false)
+
+    const para = useMemo(() => {
+        const bicim = paraBicimlendirici(isTr)
+        return (n) => bicim.format(Number(n ?? 0))
+    }, [isTr])
 
     const [secilenUrun, setSecilenUrun] = useState(null)
+    // Ref'i besleyen effect, onu OKUYAN yükleme effect'inden ÖNCE tanımlı
+    // olmalı — React effect'leri tanım sırasına göre koşturur. Sonra
+    // tanımlansaydı vitrinden tıklanan ürün için gereksiz bir istek atılırdı.
+    useEffect(() => { secilenUrunIdRef.current = secilenUrun?.id ?? null }, [secilenUrun])
     const [detayVaryantlar, setDetayVaryantlar] = useState([])
     const [secilenVaryant, setSecilenVaryant] = useState(null)
     const [yorumlar, setYorumlar] = useState([])
@@ -410,6 +515,10 @@ export default function QaShopPage() {
     const [adliListe, setAdliListe] = useState(false)
     // Otomatik av turu alan başına BİR kez denenir.
     const avDenendi = useRef(false)
+    // Seçili ürünün id'si: yükleme effect'i "bu ürün elimde mi" diye sorarken
+    // `secilenUrun`u bağımlılık listesine almak zorunda kalmasın — alsaydı
+    // effect kendi yazdığı state yüzünden tekrar tekrar koşardı.
+    const secilenUrunIdRef = useRef(null)
     // Av şeridindeki düğme, varsayılan kapalı gelen QA panelini açar.
     const qaPaneliRef = useRef(null)
 
@@ -508,7 +617,7 @@ export default function QaShopPage() {
 
     const urunleriYukle = useCallback(async () => {
         const [alan, yon] = siralama.split(':')
-        const q = new URLSearchParams({ size: '24', sort: alan, order: yon })
+        const q = new URLSearchParams({ page: String(sayfa), size: String(SAYFA_BOYU), sort: alan, order: yon })
         if (arama.trim().length >= 2) q.set('q', arama.trim())
         const yol = aktifKategori
             ? `/categories/${aktifKategori}/products?${q}`
@@ -517,8 +626,12 @@ export default function QaShopPage() {
         if (sonuc.ok) {
             setUrunler(sonuc.govde?.items ?? [])
             setToplamUrun(sonuc.govde?.total ?? 0)
+            // Sunucu totalPages'i zaten hesaplıyor; burada yeniden bölmek iki
+            // ayrı doğruluk kaynağı yaratırdı. Yoksa toplamdan türetilir.
+            setToplamSayfa(sonuc.govde?.totalPages
+                ?? Math.max(1, Math.ceil((sonuc.govde?.total ?? 0) / SAYFA_BOYU)))
         }
-    }, [istek, siralama, arama, aktifKategori])
+    }, [istek, siralama, arama, aktifKategori, sayfa])
 
     const kategorileriYukle = useCallback(async () => {
         const sonuc = await istek('/categories')
@@ -748,23 +861,57 @@ export default function QaShopPage() {
     }
 
     // ── Ürün detayı ──────────────────────────────────────────────────────────
-    const urunAc = async (urun) => {
-        setSecilenUrun(urun); setSecilenVaryant(null); setDetayVaryantlar([]); setYorumlar([])
-        setGorunum('urun')
+    //
+    // Ürünü açmanın TEK yolu adrestir. Kart bir <Link>'tir; adresi o yazar,
+    // aşağıdaki effect de adresteki id'yi izleyip veriyi yükler. Böylece
+    // derin bağlantıyla (`?g=urun&urun=42`) gelen kullanıcı ile vitrinden
+    // tıklayan AYNI yoldan geçer — iki ayrı yükleme yolu olsaydı biri
+    // sessizce eskirdi.
+
+    // Kartın <Link>'i için adres. Mutlak yol yazılır ki `/en` oturumunda
+    // router basename'i kendisi eklesin — elle birleştirilseydi İngilizce
+    // gezen kullanıcı sessizce Türkçe sayfaya düşerdi.
+    const urunAdresi = useCallback((urun) => `/qa-shop?g=urun&urun=${urun.id}`, [])
+
+    // Tıklamada tek iş ürünü İYİMSER yerleştirmek: ad ve fiyat istek
+    // beklemeden görünsün. Adres yazımı burada YAPILMAZ — <Link> zaten
+    // yazıyor; ikisi birden yazsaydı tek tıkta iki geçmiş kaydı oluşur ve
+    // geri tuşu iki kez basmayı gerektirirdi.
+    const urunOnIzleme = useCallback((urun) => {
+        setSecilenUrun(urun)
         window.scrollTo({ top: 0, behavior: 'smooth' })
-        const [v, y] = await Promise.all([
-            istek(`/products/${urun.id}/variants`),
-            istek(`/products/${urun.id}/reviews`),
-        ])
-        if (v.ok) {
-            const liste = v.govde?.variants ?? []
-            setDetayVaryantlar(liste)
-            // İlk SATILABİLİR varyant otomatik seçilir: gerçek dükkânlarda da
-            // beden seçili gelir, kullanıcı hiçbir şey seçmeden fiyat görür.
-            setSecilenVaryant(liste.find((x) => x.available > 0) ?? liste[0] ?? null)
-        }
-        if (y.ok) setYorumlar(y.govde?.items ?? [])
-    }
+    }, [])
+
+    // Adresteki ürün id'si → tam ürün + varyantlar + yorumlar.
+    useEffect(() => {
+        if (gorunum !== 'urun' || !adrestekiUrunId) return
+        let iptal = false
+        setSecilenVaryant(null); setDetayVaryantlar([]); setYorumlar([])
+        ;(async () => {
+            // Derin bağlantıda vitrin hiç yüklenmemiş olabilir: ürün gövdesi de
+            // ayrıca çekilir. Elde varsa (vitrinden tıklandıysa) istek atılmaz.
+            if (String(secilenUrunIdRef.current) !== String(adrestekiUrunId)) {
+                const u = await istek(`/products/${adrestekiUrunId}`)
+                if (iptal) return
+                if (u.ok && u.govde?.product) setSecilenUrun(u.govde.product)
+                else { setSecilenUrun(null); return }
+            }
+            const [v, y] = await Promise.all([
+                istek(`/products/${adrestekiUrunId}/variants`),
+                istek(`/products/${adrestekiUrunId}/reviews`),
+            ])
+            if (iptal) return
+            if (v.ok) {
+                const liste = v.govde?.variants ?? []
+                setDetayVaryantlar(liste)
+                // İlk SATILABİLİR varyant otomatik seçilir: gerçek dükkânlarda da
+                // beden seçili gelir, kullanıcı hiçbir şey seçmeden fiyat görür.
+                setSecilenVaryant(liste.find((x) => x.available > 0) ?? liste[0] ?? null)
+            }
+            if (y.ok) setYorumlar(y.govde?.items ?? [])
+        })()
+        return () => { iptal = true }
+    }, [gorunum, adrestekiUrunId, istek])
 
     // ── Sepet ────────────────────────────────────────────────────────────────
     const sepetGetirVeyaAc = async () => {
@@ -1011,7 +1158,7 @@ export default function QaShopPage() {
                      darkMode ? 'border-slate-800 bg-slate-950/90' : 'border-slate-200 bg-white/90'}`}>
                 <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3 px-3 py-3 md:px-6">
                     <button type="button" data-testid="magaza-logo"
-                            onClick={() => { setGorunum('katalog'); setAktifKategori(''); setArama(''); setAramaGirdi('') }}
+                            onClick={() => { adresYaz({ g: null, urun: null, kategori: null, ara: null, sayfa: null }); setAramaGirdi('') }}
                             className="flex shrink-0 items-center gap-2">
                         <span className="grid h-9 w-9 place-items-center rounded-xl bg-orange-600 text-lg">🛍️</span>
                         <span className="text-left leading-tight">
@@ -1021,7 +1168,7 @@ export default function QaShopPage() {
                     </button>
 
                     <form className="order-3 flex w-full items-center gap-2 md:order-2 md:flex-1"
-                          onSubmit={(e) => { e.preventDefault(); setArama(aramaGirdi); setGorunum('katalog') }}>
+                          onSubmit={(e) => { e.preventDefault(); adresYaz({ ara: aramaGirdi || null, g: null, urun: null, sayfa: null }) }}>
                         <StoryIpucu storyId="US-04" {...sp}>
                             <input data-testid="urun-ara" className={input} placeholder={tx(M.ara, isTr)}
                                    value={aramaGirdi} onChange={(e) => setAramaGirdi(e.target.value)} />
@@ -1160,16 +1307,19 @@ export default function QaShopPage() {
                                     : tx(M.tumUrunler, isTr)}
                         </h1>
                         <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+                            {/* Yalnızca toplamı yazmak YANILTICIYDI: ekranda 24 kart
+                                varken "111 ürün" diyordu ve liste kesilmiş görünüyordu.
+                                Görünen aralık da yazılınca sayı ile ekran uyuşuyor. */}
                             <p className="text-sm opacity-70">
                                 <b data-testid="urun-sayisi">{toplamUrun}</b> {tx(M.sonucAdet, isTr)}
+                                {urunler.length > 0 && (
+                                    <span data-testid="urun-araligi" className="ml-2 opacity-75">
+                                        ({(sayfa - 1) * SAYFA_BOYU + 1}–{(sayfa - 1) * SAYFA_BOYU + urunler.length})
+                                    </span>
+                                )}
                             </p>
-                            <StoryIpucu storyId="US-16" {...sp}>
-                                <button type="button" data-testid="alani-sifirla" className={btnIkincil}
-                                        onClick={veriSifirla}>
-                                    ↺ {tx(M.alaniSifirla, isTr)}
-                                </button>
-                            </StoryIpucu>
-                            <select data-testid="urun-sirala" className={`${input} md:max-w-[240px]`}
+                            <select data-testid="urun-sirala" aria-label={tx(M.sirala, isTr)}
+                                    className={`${input} md:max-w-[240px]`}
                                     value={siralama} onChange={(e) => setSiralama(e.target.value)}>
                                 <option value="price:asc">{tx(M.siralaUcuz, isTr)}</option>
                                 <option value="price:desc">{tx(M.siralaPahali, isTr)}</option>
@@ -1185,10 +1335,71 @@ export default function QaShopPage() {
                             <ul data-testid="urun-listesi" className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
                                 {urunler.map((u) => (
                                     <UrunKarti key={u.id} urun={u} isTr={isTr} darkMode={darkMode} para={para}
-                                               onDetay={urunAc} onHizliEkle={hizliEkle} mesgul={mesgul} />
+                                               onDetay={urunOnIzleme} urunAdresi={urunAdresi}
+                                               onHizliEkle={hizliEkle} mesgul={mesgul} />
                                 ))}
                             </ul>
                         )}
+
+                        {/* Sayfalama: sunucu baştan beri page/size destekliyordu,
+                            arayüz yalnızca ilk sayfayı çekiyordu. Sayfa numarası
+                            adreste durur — 3. sayfa paylaşılabilir ve geri tuşu
+                            önceki sayfaya döner. */}
+                        {toplamSayfa > 1 && (
+                            <nav data-testid="sayfalama" aria-label={tx(M.sayfalama, isTr)}
+                                 className="mt-6 flex flex-wrap items-center justify-center gap-2">
+                                <button type="button" data-testid="sayfa-onceki" className={btnIkincil}
+                                        disabled={sayfa <= 1} onClick={() => sayfayaGit(sayfa - 1)}>
+                                    ‹ {tx(M.sayfaOnceki, isTr)}
+                                </button>
+                                {sayfaNumaralari.map((n) => (
+                                    <button key={n} type="button" data-testid={`sayfa-git-${n}`}
+                                            aria-current={n === sayfa ? 'page' : undefined}
+                                            aria-label={tx(M.sayfayaGit, isTr).replace('{n}', String(n))}
+                                            onClick={() => sayfayaGit(n)}
+                                            className={`min-h-[36px] min-w-[36px] rounded-lg px-3 py-2 text-sm font-bold transition ${
+                                                n === sayfa ? 'bg-orange-600 text-white'
+                                                    : darkMode ? 'bg-slate-800 hover:bg-slate-700' : 'bg-slate-200 hover:bg-slate-300'}`}>
+                                        {n}
+                                    </button>
+                                ))}
+                                <button type="button" data-testid="sayfa-sonraki" className={btnIkincil}
+                                        disabled={sayfa >= toplamSayfa} onClick={() => sayfayaGit(sayfa + 1)}>
+                                    {tx(M.sayfaSonraki, isTr)} ›
+                                </button>
+                                <span data-testid="sayfa-durum" className="ml-2 text-sm opacity-70">
+                                    {tx(M.sayfaDurum, isTr).replace('{n}', String(sayfa)).replace('{t}', String(toplamSayfa))}
+                                </span>
+                            </nav>
+                        )}
+
+                        {/* Sıfırlama vitrin araç çubuğundan ALINDI: sıralama
+                            select'inin yanında dururken yanlış tıklama üretiyordu ve
+                            TEK tıkta oturumları iptal edip sepeti siliyordu. Artık
+                            hem kenarda hem iki adımlı. */}
+                        <div className="mt-8 flex flex-wrap items-center justify-end gap-2 border-t border-slate-500/20 pt-4">
+                            {sifirlaOnay ? (
+                                <div data-testid="alani-sifirla-onay" className="flex flex-wrap items-center justify-end gap-2">
+                                    <span className="text-sm opacity-80">{tx(M.sifirlaOnayMetin, isTr)}</span>
+                                    <button type="button" data-testid="alani-sifirla-onayla" className={btnBirincil}
+                                            disabled={mesgul}
+                                            onClick={() => { setSifirlaOnay(false); veriSifirla() }}>
+                                        {tx(M.sifirlaOnayEvet, isTr)}
+                                    </button>
+                                    <button type="button" data-testid="alani-sifirla-vazgec" className={btnIkincil}
+                                            onClick={() => setSifirlaOnay(false)}>
+                                        {tx(M.vazgec, isTr)}
+                                    </button>
+                                </div>
+                            ) : (
+                                <StoryIpucu storyId="US-16" {...sp}>
+                                    <button type="button" data-testid="alani-sifirla" className={btnIkincil}
+                                            onClick={() => setSifirlaOnay(true)}>
+                                        ↺ {tx(M.alaniSifirla, isTr)}
+                                    </button>
+                                </StoryIpucu>
+                            )}
+                        </div>
                     </>
                 )}
 
@@ -1590,6 +1801,17 @@ export default function QaShopPage() {
                 <details ref={qaPaneliRef} data-testid="qa-paneli" className={`mt-10 rounded-2xl border ${card}`}>
                     <summary data-testid="qa-paneli-ac" className="cursor-pointer p-4 text-base font-bold">
                         🧪 {tx(M.qaPaneli, isTr)}
+                        {/* İstek sayacı özet satırında DURUR ve panel kapalıyken
+                            de tıklandıkça artar. Günlük vaadin en güçlü parçasıydı
+                            ama kapalı bir panelin İÇİNDE olduğu için keşfedilmiyordu;
+                            kıpırdayan bir sayı, duran bir başlıktan çok daha iyi
+                            bir davetiyedir. */}
+                        {gunluk.length > 0 && (
+                            <span data-testid="gunluk-sayaci"
+                                  className="ml-3 rounded-full bg-indigo-500/20 px-2 py-1 text-xs font-semibold text-indigo-300">
+                                📜 {gunluk.length} {tx(M.gunlukIstek, isTr)}
+                            </span>
+                        )}
                         <span data-testid="saglik-durumu"
                               className={`ml-3 rounded-full px-2 py-1 text-xs font-semibold ${
                                   saglik === 'ok' ? 'bg-emerald-500/20 text-emerald-300'

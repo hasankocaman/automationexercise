@@ -54,9 +54,25 @@ select :'TPL', c.name, c.slug, p.id
 --            i % 11 = 0  → markasız ürün (NULL FK)   → 10 ürün
 insert into products (sandbox_id, sku, name, description, category_id, brand_id,
                       price, currency, is_active, created_at)
+-- ⚠ ÜRETEÇ TASARIMI — modüler aritmetikte KORELASYON tuzağı:
+-- İlk sürümde sıfat, tip, renk, marka ve kategori BEŞİ DE `i % 8`in bir
+-- fonksiyonuydu (`i*3` ve `i*5` de 8'e göre i%8'i korur, çünkü 3 ve 5 tek
+-- sayıdır). Ölçüldü: 120 üründe yalnızca 8 FARKLI AD vardı, her biri 15 kopya
+-- ("Slim Fit Red Shirt" 15 kez, farklı fiyatlarla). Üstelik tip ile kategori
+-- kayıktı: "Bags" sekmesi 15 tişört gösteriyordu.
+--
+-- Düzeltme iki parçalı:
+--   1. Kategori artık satır sırasına (rn) DEĞİL slug'a göre eşlenir. Tip ve
+--      kategori aynı indeksten okunduğu için ikisi bir daha kayamaz.
+--   2. Sıfat/renk/marka `i % 8`e değil `i / 8`e (tam bölme) bağlanır — tam
+--      bölme mod 8'den BAĞIMSIZ bir eksendir. Renkteki `(i / 8) / 8` terimi
+--      de 8'lik periyodu kırar; olmasaydı her kategorideki 15 üründen 7'si
+--      yine aynı sıfat+renk çiftini tekrarlardı.
+--
+-- Sonuç ölçüldü: 120 üründe 120 farklı ad, her kategoride 8 markanın karışımı.
 with cats as (
-    select id, row_number() over (order by slug) - 1 as rn
-      from categories where sandbox_id = :'TPL' and parent_id is not null
+    select id, slug from categories
+     where sandbox_id = :'TPL' and parent_id is not null
 ),
 brs as (
     select id, row_number() over (order by name) - 1 as rn
@@ -65,13 +81,16 @@ brs as (
 gen as (
     select t.i,
            (array['Classic','Slim Fit','Oversize','Vintage',
-                  'Premium','Basic','Sport','Casual'])[1 + (t.i % 8)]        as adj,
+                  'Premium','Basic','Sport','Casual'])[1 + ((t.i / 8) % 8)]   as adj,
            (array['Black','White','Blue','Red',
-                  'Grey','Green','Beige','Navy'])[1 + ((t.i * 3) % 8)]       as col,
+                  'Grey','Green','Beige','Navy'])
+               [1 + (((t.i / 8) * 3 + (t.i / 8) / 8 + (t.i % 8)) % 8)]         as col,
            (array['T-Shirt','Shirt','Dress','Jeans',
-                  'Sneakers','Boots','Bag','Coat'])[1 + (t.i % 8)]           as typ,
-           (t.i % 8)                                                          as cat_rn,
-           ((t.i * 5) % 8)                                                    as br_rn
+                  'Sneakers','Boots','Bag','Coat'])[1 + (t.i % 8)]            as typ,
+           -- Tip dizisiyle AYNI sırada: her ürün kendi kategorisine düşer.
+           (array['tshirts','shirts','dresses','jeans',
+                  'sneakers','boots','bags','coats'])[1 + (t.i % 8)]          as cat_slug,
+           (((t.i / 8) * 5 + (t.i % 8) * 3) % 8)                              as br_rn
       from generate_series(1, 120) as t(i)
 )
 select :'TPL',
@@ -85,7 +104,7 @@ select :'TPL',
        (g.i % 13) <> 0,
        now() - ((g.i % 90) || ' days')::interval
   from gen g
-  join cats c on c.rn = g.cat_rn
+  join cats c on c.slug = g.cat_slug
   join brs  b on b.rn = g.br_rn;
 
 -- ─── Varyantlar (120 × 3 = 360) ─────────────────────────────────────────────
@@ -93,11 +112,14 @@ insert into product_variants (sandbox_id, product_id, size, color, sku, price_de
 select :'TPL',
        p.id,
        (array['S','M','L'])[v.k + 1],
-       -- Renk, ürün adından split_part ile ÇEKİLMEZ: 'Slim Fit' gibi iki
-       -- kelimeli sıfatlarda yanlış parçayı alırdı. SKU'daki sıra numarasından
-       -- ürün adıyla AYNI formülle yeniden üretilir.
-       (array['Black','White','Blue','Red','Grey','Green','Beige','Navy'])
-           [1 + ((substring(p.sku from 5)::int * 3) % 8)],
+       -- Renk ürünün KENDİ adından okunur; ad üretecindeki formül burada
+       -- TEKRARLANMAZ. Tekrarlansaydı üreteç değiştiğinde varyant rengi
+       -- sessizce ürün adından ayrışırdı.
+       -- Ad kalıbı "<sıfat> <renk> <tip>" ve tip TEK kelimedir; renk bu yüzden
+       -- SONDAN ikinci kelimedir. Baştan split_part ile alınamaz: 'Slim Fit'
+       -- gibi iki kelimeli sıfatlar yanlış parçayı verirdi.
+       (regexp_split_to_array(p.name, ' '))
+           [cardinality(regexp_split_to_array(p.name, ' ')) - 1],
        p.sku || '-' || (array['S','M','L'])[v.k + 1],
        (v.k * 15)::numeric
   from products p

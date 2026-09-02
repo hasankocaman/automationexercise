@@ -1698,3 +1698,273 @@ for (const ekran of [{ ad: 'masaüstü', w: 1280, h: 900 }, { ad: 'mobil', w: 37
         }
     });
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 14. Adres durumu, sayfalama, para biçimi ve otomasyon hedefinin temizliği
+// ─────────────────────────────────────────────────────────────────────────────
+// Bu bölümdeki testler bir dış değerlendirmenin ortaya çıkardığı kusurları
+// KİLİTLER. Hepsi tarayıcı modunda koşar (CI'da Docker yoktur) ve hepsi
+// ürünün gerçekten desteklediği yolu sınar.
+
+// Ürünün adresi VAR: derin bağlantı doğrudan ürün detayını açar.
+// Önceden görünüm bileşen state'indeydi; `page.goto` ile bir ürüne gitmek
+// imkânsızdı ve öğrencinin ilk testi burada kırılırdı.
+test('/qa-shop — ürün detayına derin bağlantıyla doğrudan girilebiliyor', async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.addInitScript((adres) => {
+        localStorage.setItem('qaShopApiBase', adres);
+    }, KAPALI_API);
+
+    const errors = collectErrors(page);
+
+    // Önce vitrinden gerçek bir ürün id'si okunur. Sabit id yazmak yanlış
+    // olurdu: id'ler tohum verinin sırasına bağlı ve sıfırlamada kayabilir.
+    await page.goto('/qa-shop');
+    await waitForAppReady(page, { timeout: 60_000 });
+    await expect(page.locator('[data-testid="urun-listesi"]')).toBeVisible({ timeout: 60_000 });
+
+    const ilkKart = page.locator('ul[data-testid="urun-listesi"] > li').first();
+    const testId = await ilkKart.getAttribute('data-testid');
+    const urunId = String(testId).replace('urun-', '');
+    expect(Number.isInteger(Number(urunId)), `ürün id okunamadı: ${testId}`).toBe(true);
+    const beklenenAd = (await ilkKart.locator(`[data-testid="urun-ad-${urunId}"]`).innerText()).trim();
+
+    // TEMİZ bir sayfa yüklemesi — vitrinden tıklamadan, doğrudan adresten.
+    await page.goto(`/qa-shop?g=urun&urun=${urunId}`);
+    await waitForAppReady(page, { timeout: 60_000 });
+
+    await expect(page.getByTestId('detay-ad')).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByTestId('detay-ad')).toHaveText(beklenenAd);
+    // Varyantlar da yüklendi: derin bağlantı yarım bir sayfa bırakmıyor.
+    await expect(page.getByTestId('beden-listesi')).toBeVisible({ timeout: 40_000 });
+
+    expect(errors, 'derin bağlantı: console/page hataları').toHaveLength(0);
+});
+
+// Kartlar GERÇEK bağlantı: href taşırlar ve tarayıcı geri tuşu vitrine döner.
+// Düğmeyken yeni sekmede açma, orta tık ve getByRole('link') çalışmıyordu.
+test('/qa-shop — ürün kartı gerçek bağlantı ve geri tuşu vitrine dönüyor', async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.addInitScript((adres) => {
+        localStorage.setItem('qaShopApiBase', adres);
+    }, KAPALI_API);
+
+    await page.goto('/qa-shop');
+    await waitForAppReady(page, { timeout: 60_000 });
+    await expect(page.locator('[data-testid="urun-listesi"]')).toBeVisible({ timeout: 60_000 });
+
+    const gorselBag = page.locator('[data-testid^="urun-detay-"]').first();
+    // Öğe gerçekten bir <a> ve href'i ürünün adresini gösteriyor.
+    expect(await gorselBag.evaluate((el) => el.tagName)).toBe('A');
+    await expect(gorselBag).toHaveAttribute('href', /\/qa-shop\?g=urun&urun=\d+/);
+
+    // Rol tabanlı locator da bulabiliyor — dersin "link mi button mu" kısmı.
+    const adBag = page.locator('[data-testid^="urun-ad-"]').first();
+    const ad = (await adBag.innerText()).trim();
+    expect(await page.getByRole('link', { name: ad }).count(),
+        'ürün adı link rolüyle bulunamadı').toBeGreaterThan(0);
+
+    await gorselBag.click();
+    await expect(page.getByTestId('detay-ad')).toBeVisible({ timeout: 60_000 });
+    expect(page.url()).toContain('g=urun');
+
+    // TEK geri tuşu vitrine döndürmeli. İki geçmiş kaydı oluşsaydı (hem <Link>
+    // hem elle adres yazımı) bu satır kırılırdı — mutasyon buradan yakalanır.
+    await page.goBack();
+    await expect(page.locator('[data-testid="urun-listesi"]')).toBeVisible({ timeout: 40_000 });
+    expect(page.url()).not.toContain('g=urun');
+});
+
+// Sayfalama: sunucu baştan beri page/size destekliyordu, arayüz ilk 24 ürünü
+// çekip "111 ürün" yazıyordu. Artık sayfa adreste ve gezilebilir.
+test('/qa-shop — sayfalama çalışıyor ve sayfa numarası adreste taşınıyor', async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.addInitScript((adres) => {
+        localStorage.setItem('qaShopApiBase', adres);
+    }, KAPALI_API);
+
+    await page.goto('/qa-shop');
+    await waitForAppReady(page, { timeout: 60_000 });
+    await expect(page.locator('[data-testid="urun-listesi"]')).toBeVisible({ timeout: 60_000 });
+
+    // Sayaç ile ekrandaki kart sayısı artık çelişmiyor: görünen aralık yazılı.
+    const toplam = Number(await page.getByTestId('urun-sayisi').innerText());
+    const kartSayisi = await page.locator('ul[data-testid="urun-listesi"] > li').count();
+    expect(toplam, 'toplam ürün okunamadı').toBeGreaterThan(kartSayisi);
+    await expect(page.getByTestId('urun-araligi')).toHaveText(`(1–${kartSayisi})`);
+
+    await expect(page.getByTestId('sayfalama')).toBeVisible();
+    await expect(page.getByTestId('sayfa-onceki')).toBeDisabled();
+
+    const ilkSayfaninIlkKarti = await page.locator('ul[data-testid="urun-listesi"] > li')
+        .first().getAttribute('data-testid');
+
+    await page.getByTestId('sayfa-sonraki').click();
+    await expect(page).toHaveURL(/sayfa=2/, { timeout: 40_000 });
+    await expect(page.getByTestId('sayfa-durum')).toContainText('2');
+    await expect(page.getByTestId('sayfa-onceki')).toBeEnabled();
+
+    // İçerik GERÇEKTEN değişti — yalnızca adres değil.
+    await expect(page.locator('ul[data-testid="urun-listesi"] > li').first())
+        .not.toHaveAttribute('data-testid', String(ilkSayfaninIlkKarti), { timeout: 40_000 });
+
+    // Sayfa 2 doğrudan adresten de açılabiliyor (paylaşılabilir bağlantı).
+    await page.goto('/qa-shop?sayfa=2');
+    await waitForAppReady(page, { timeout: 60_000 });
+    await expect(page.getByTestId('sayfa-durum')).toContainText('2', { timeout: 60_000 });
+});
+
+// Sıfırlama artık TEK tıkla oturumları iptal etmiyor: önce niyet sorulur.
+// Ayrıca vitrin araç çubuğundan (sıralama select'inin yanından) alındı.
+test('/qa-shop — alanı sıfırlama iki adımlı ve vazgeçilebiliyor', async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.addInitScript((adres) => {
+        localStorage.setItem('qaShopApiBase', adres);
+    }, KAPALI_API);
+
+    await page.goto('/qa-shop');
+    await waitForAppReady(page, { timeout: 60_000 });
+    await expect(page.locator('[data-testid="urun-listesi"]')).toBeVisible({ timeout: 60_000 });
+
+    // İlk tık yalnızca sorar: onay kutusu çıkar, sıfırlama HENÜZ olmaz.
+    await expect(page.getByTestId('alani-sifirla-onay')).toHaveCount(0);
+    await page.getByTestId('alani-sifirla').click();
+    await expect(page.getByTestId('alani-sifirla-onay')).toBeVisible();
+    await expect(page.getByTestId('alani-sifirla-onayla')).toBeVisible();
+
+    // Vazgeçmek başlangıç durumuna döndürür.
+    await page.getByTestId('alani-sifirla-vazgec').click();
+    await expect(page.getByTestId('alani-sifirla-onay')).toHaveCount(0);
+    await expect(page.getByTestId('alani-sifirla')).toBeVisible();
+
+    // Tehlikeli düğme sıralama select'inin YANINDA değil: ikisi ayrı satırda.
+    const sifirlaKutu = await page.getByTestId('alani-sifirla').boundingBox();
+    const siralaKutu = await page.getByTestId('urun-sirala').boundingBox();
+    expect(sifirlaKutu, 'sıfırla düğmesi ölçülemedi').not.toBeNull();
+    expect(siralaKutu, 'sıralama select ölçülemedi').not.toBeNull();
+    expect(sifirlaKutu!.y, 'sıfırlama hâlâ vitrin araç çubuğunda')
+        .toBeGreaterThan(siralaKutu!.y + 200);
+});
+
+// Fiyat biçimi DİLE bağlı: TR'de virgüllü ve ₺ simgeli. Önceden iki dilde de
+// "101.99 TL" yazıyordu.
+test('/qa-shop — fiyat TR biçiminde gösteriliyor', async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.addInitScript((adres) => {
+        localStorage.setItem('qaShopApiBase', adres);
+    }, KAPALI_API);
+
+    await page.goto('/qa-shop');
+    await waitForAppReady(page, { timeout: 60_000 });
+    await expect(page.locator('[data-testid="urun-listesi"]')).toBeVisible({ timeout: 60_000 });
+
+    const fiyat = (await page.locator('[data-testid^="urun-fiyat-"]').first().innerText()).trim();
+    expect(fiyat, `TR fiyat biçimi değil: ${fiyat}`).toMatch(/₺/);
+    expect(fiyat, `ondalık ayırıcı virgül değil: ${fiyat}`).toMatch(/\d,\d{2}/);
+    expect(fiyat, `eski "TL" biçimi hâlâ duruyor: ${fiyat}`).not.toContain('TL');
+});
+
+// Otomasyon hedefi temiz: site geneli sohbet/yorum baloncukları dükkânda YOK,
+// sitenin geri kalanında ise duruyor (yetenek kaybolmadı, yer değiştirdi).
+test('/qa-shop — site geneli baloncuklar otomasyon hedefini kirletmiyor', async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.addInitScript((adres) => {
+        localStorage.setItem('qaShopApiBase', adres);
+    }, KAPALI_API);
+
+    await page.goto('/qa-shop');
+    await waitForAppReady(page, { timeout: 60_000 });
+    await expect(page.locator('[data-testid="urun-listesi"]')).toBeVisible({ timeout: 60_000 });
+
+    const dukkandaYuzen = await page.locator('.z-\\[999\\]').count();
+    expect(dukkandaYuzen, 'dükkânda site geneli yüzen baloncuk kalmış').toBe(0);
+
+    // Aynı baloncuklar dükkân DIŞINDA hâlâ var — testin kendisi kör olmasın.
+    await page.goto('/qa-shop-setup');
+    await waitForAppReady(page, { timeout: 60_000 });
+    expect(await page.locator('.z-\\[999\\]').count(),
+        'baloncuklar sitenin geri kalanından da kaybolmuş').toBeGreaterThan(0);
+});
+
+// İki "Giriş" birbirinden ayrılıyor: üst şerit platformun, dükkân barı
+// dükkânın. İkisi de "Giriş yap" dediğinde locator da kullanıcı da şaşırıyordu.
+test('/qa-shop — platform girişi ile dükkân girişi ayırt edilebiliyor', async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.addInitScript((adres) => {
+        localStorage.setItem('qaShopApiBase', adres);
+    }, KAPALI_API);
+
+    await page.goto('/qa-shop');
+    await waitForAppReady(page, { timeout: 60_000 });
+    await expect(page.locator('[data-testid="urun-listesi"]')).toBeVisible({ timeout: 60_000 });
+
+    await expect(page.getByTestId('giris-ac')).toContainText(/Dükkân girişi|Store sign-in/);
+    // Erişilebilir ad artık tekil: "Dükkân girişi" tam olarak bir öğeyle eşleşir.
+    expect(await page.getByRole('button', { name: /Dükkân girişi/ }).count()).toBe(1);
+});
+
+// Olay günlüğü keşfedilebilir: sayaç KAPALI panelin özet satırında görünür ve
+// kullanıcı dükkânı kurcaladıkça artar.
+test('/qa-shop — olay günlüğü sayacı panel kapalıyken de görünüyor', async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.addInitScript((adres) => {
+        localStorage.setItem('qaShopApiBase', adres);
+    }, KAPALI_API);
+
+    await page.goto('/qa-shop');
+    await waitForAppReady(page, { timeout: 60_000 });
+    await expect(page.locator('[data-testid="urun-listesi"]')).toBeVisible({ timeout: 60_000 });
+
+    // Panel KAPALI ama sayaç görünür.
+    await expect(page.getByTestId('qa-paneli')).not.toHaveAttribute('open', /.*/);
+    await expect(page.getByTestId('gunluk-sayaci')).toBeVisible({ timeout: 40_000 });
+
+    const oku = async () => Number((await page.getByTestId('gunluk-sayaci').innerText()).replace(/\D+/g, ''));
+    const once = await oku();
+    expect(once, 'günlük sayacı boş başladı').toBeGreaterThan(0);
+
+    // Bir UI hareketi yeni istek üretiyor ve sayaç artıyor.
+    await page.locator('[data-testid^="urun-detay-"]').first().click();
+    await expect(page.getByTestId('detay-ad')).toBeVisible({ timeout: 40_000 });
+    await expect.poll(oku, { timeout: 40_000 }).toBeGreaterThan(once);
+});
+
+// Tohum verinin KENDİSİ doğru: ürün adları benzersiz ve her ürün kendi
+// kategorisinde. Üreteçte sıfat/tip/renk/marka/kategorinin BEŞİ de `i % 8`in
+// fonksiyonuydu; 120 ürün 8 ada çöküyor ve "Bags" sekmesi tişört gösteriyordu.
+// Bu test o korelasyonun geri gelmesini yakalar.
+test('/qa-shop — tohum veri: adlar benzersiz ve ürün kendi kategorisinde', async ({ page }) => {
+    test.setTimeout(150_000);
+    await page.addInitScript((adres) => {
+        localStorage.setItem('qaShopApiBase', adres);
+    }, KAPALI_API);
+
+    await page.goto('/qa-shop');
+    await waitForAppReady(page, { timeout: 60_000 });
+    await expect(page.locator('[data-testid="urun-listesi"]')).toBeVisible({ timeout: 60_000 });
+
+    const adlar = await page.locator('[data-testid^="urun-ad-"]').allInnerTexts();
+    expect(adlar.length, 'vitrinde ürün yok').toBeGreaterThan(10);
+    const benzersiz = new Set(adlar.map((a) => a.trim()));
+    expect(benzersiz.size, `ilk sayfada tekrar eden ürün adı var: ${adlar.length} kart, ${benzersiz.size} farklı ad`)
+        .toBe(adlar.length);
+
+    // Kategori süzgeci: seçilen kategorideki her ürünün TİPİ o kategoriye ait.
+    // Ad kalıbı "<sıfat> <renk> <tip>"; tip son kelimedir.
+    const kategoriTipi: Record<string, RegExp> = {
+        'kategori-tshirts': /T-Shirt$/i,
+        'kategori-shirts': /Shirt$/i,
+        'kategori-bags': /Bag$/i,
+        'kategori-boots': /Boots$/i,
+    };
+    for (const [testId, kalip] of Object.entries(kategoriTipi)) {
+        const chip = page.getByTestId(testId);
+        if (await chip.count() === 0) continue;
+        await chip.click();
+        await expect(page.locator('[data-testid="urun-listesi"]')).toBeVisible({ timeout: 40_000 });
+        await expect.poll(async () => {
+            const kategoriAdlari = await page.locator('[data-testid^="urun-ad-"]').allInnerTexts();
+            return kategoriAdlari.length > 0 && kategoriAdlari.every((a) => kalip.test(a.trim()));
+        }, { timeout: 40_000, message: `${testId} kategorisinde tipi uymayan ürün var` }).toBe(true);
+    }
+});

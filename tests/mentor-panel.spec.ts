@@ -75,7 +75,14 @@ test.describe('Kişisel AI Mentor — Katman A (yerel, üyeliksiz, CI\'da tam ç
         // hiç sekme tıklamadan görünür olmalı.
         await panel.getByRole('link', { name: /Tahmin bloklarıyla kendini test et/ }).click();
         await waitForAppReady(page, { timeout: 30_000 });
-        await expect(page).toHaveURL(/\/java$/);
+        // Burada hub adresi BEKLENMEZ: openTab varken TopicPage aktif sekmeyi
+        // adrese yazar (navigate replace) ve adres /java/java-syntax olur —
+        // ürünün bilinçli davranışı. Önceki iddia hub adresini bekliyordu,
+        // yani ürünün ANINDA terk ettiği bir durumu doğruluyordu: tek başına
+        // koşarken iddia yeniden yazmayı yarışta yeniyor, tam paket yükü
+        // altında kaybediyordu. Aşağıdaki ikinci iddiada aynı kalıp DOĞRUDUR:
+        // orada openTab yoktur, sekme 0 kalır ve hub adresi zaten değişmez.
+        await expect(page).toHaveURL(/\/java(\/|$)/);
         // javaData büyük bir chunk — sekme içeriğinin render'ı 5s'i aşabilir (bkz. §14).
         await expect(page.getByText('Önce Tahmin Et').first()).toBeVisible({ timeout: 30_000 });
 

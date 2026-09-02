@@ -10,7 +10,262 @@
 
 ---
 
-## 🚩 OTURUM DEVİR NOTU (2026-09-01 · Opus · üçüncü tur) — BURADAN BAŞLA
+## 🚩 OTURUM DEVİR NOTU (2026-09-01 · Opus · dördüncü tur) — BURADAN BAŞLA
+
+> Çelişki olursa BU bölüm günceldir.
+
+### 🧭 Giriş: dış değerlendirme geldi, yarısı doğruydu
+
+Kullanıcı `/qa-shop` için dışarıdan bir değerlendirme paylaştı. Maddeler
+koda karşı tek tek ölçüldü ve üçe ayrıldı: **doğru olanlar düzeltildi**,
+**uydurulmuş olanlar** (var olmayan testid/rota adları) reddedildi,
+**bilinçli kararla çelişenler** (av panelinde kusur ipucu, manuel tura
+senaryo listesi) uygulanmadı — ikisi de cevabı peşinen veren türden.
+
+### 🐞 En büyük bulgu: değerlendiricinin GÖREMEDİĞİ ikinci kusur
+
+Rapor "aynı ürün üç farklı fiyatla" diyordu. Ölçünce daha kötüsü çıktı ve
+yanında bambaşka bir kusur duruyordu:
+
+- 120 üründe yalnızca **8 farklı ad** vardı (her biri 15 kopya).
+- **Her ürün YANLIŞ kategorideydi**: "Bags" sekmesi 15 tişört gösteriyordu.
+
+Kök neden `qa-shop/db/seed.sql`'de tek bir tasarım hatasıydı: sıfat, tip,
+renk, marka ve kategorinin **beşi de `i % 8`in fonksiyonuydu** (`i*3` ve
+`i*5` de 8'e göre kalanı korur, çünkü 3 ve 5 tek sayıdır). Beş "bağımsız"
+eksen aslında tek eksendi.
+
+⚠️ Kod tabanı bu kaymayı **zaten fark etmişti** ama kaynağı düzeltmek yerine
+görüntü katmanında maskelemişti (`QaShopStore.jsx`'te "seed verisindeki
+'Shirt adlı ürün boots kategorisinde' tuhaflığını doğru çözüyor" diyen bir
+yorum vardı). Maske, hatanın bulunmasını yıllarca geciktirdi. **Ders: bir
+tuhaflığı görüntüde çözmek, onu düzeltmek değil saklamaktır.**
+
+Düzeltme: kategori artık satır sırası yerine `slug` ile eşleniyor; sıfat/
+renk/marka `i / 8`e (tam bölme — mod 8'den bağımsız eksen) bağlandı.
+Ölçüldü: **120/120 farklı ad**, her kategoride kendi ürün tipi ve 8 markanın
+karışımı, varyant renkleri ürün adıyla %100 tutarlı.
+
+### ✅ Yapılan sekiz düzeltme
+
+| # | Ne | Dosya |
+|---|---|---|
+| 1 | Seed üreteci korelasyon düzeltmesi (yukarıdaki) | `qa-shop/db/seed.sql`, `src/data/generated/qaShopSeed.js` |
+| 2 | Dükkânın tüm görünüm/filtre durumu **adrese** taşındı | `QaShopPage.jsx` |
+| 3 | Sayfalama arayüzü (sunucu zaten destekliyordu) | `QaShopPage.jsx` |
+| 4 | "Alanı sıfırla" araç çubuğundan alındı + iki adımlı onay | `QaShopPage.jsx` |
+| 5 | Fiyat biçimi dile duyarlı (`Intl`, TR'de `101,99 ₺`) | `QaShopPage.jsx` |
+| 6 | Site geneli sohbet/yorum baloncukları dükkânda gizlendi | `App.jsx` |
+| 7 | İki "Giriş"ten dükkânınki "Dükkân girişi" olarak ayrıldı | `QaShopPage.jsx` |
+| 8 | Olay günlüğü sayacı kapalı panelin özetinde görünür | `QaShopPage.jsx` |
+
+**2 numara neden sorgu parametresi, yol parçası değil:** `/qa-shop/urun/42`
+her derin bağlantıda ANA SAYFANIN statik kabuğuna düşerdi (o yolda
+`index.html` yok), yani metadata React açılana kadar yanlış olurdu.
+`/qa-shop`ın kendi kabuğu var. Kazanım aynı: ürünün adresi var, geri tuşu
+çalışıyor, kartlar gerçek `<a href>`.
+
+⚠️ **Kart bağlantısında sınıf yerleşimine dikkat:** `index.css`'teki
+katmansız `li > a, .flex > a { display: inline-block }` kuralı Tailwind
+yardımcılarını yener. Bu yüzden `line-clamp-2` bağlantının kendisine değil
+içindeki `<span>`'e verildi.
+
+### 🧪 Doğrulama
+
+- Tam build zinciri yeşil (içerik bütünlüğü, i18n, seed hash, SEO kapıları).
+- `tests/qa-shop-pages.spec.ts`: **48/48** (9 yeni test eklendi).
+- **Mutasyon sınandı:** kart `<button>`a geri çevrildi ve baloncuk gizlemesi
+  kaldırıldı → ilgili iki test KIRMIZIYA döndü, sonra geri alındı. Bekçiler
+  kör değil.
+
+⚠️ Mutasyon sınaması `npm run build`'den SONRA koşturuldu; `npx playwright
+test` tek başına eski `dist`i servis eder ve bozuk kod yeşil geçer.
+
+### 🔍 Tam pakette çıkan İLGİSİZ bir kusur (düzeltildi)
+
+Tam paket (458 test) koşturuldu: 1 düşüş, `tests/mentor-panel.spec.ts`.
+Sahipliği ölçüldü — değişiklikler geri alınıp temiz kaynakta koşuldu, sonra
+geri konup tekrar koşuldu: **her iki hâlde de tek başına geçiyor.** Yani
+düşüş yüke bağlıydı, bu turun işiyle ilgisi yoktu.
+
+Ama "testin yarışı" deyip geçilmedi, mesajı okundu: beklenen `/java$`,
+gelen `/java/java-syntax`. Kök neden testin kendisiydi — `openTab` varken
+`TopicPage` aktif sekmeyi adrese YAZAR (navigate replace), yani iddia ürünün
+ANINDA terk ettiği bir durumu doğruluyordu. Tek başına koşarken iddia
+yeniden yazmayı yarışta yeniyor, 458 testin yükü altında kaybediyordu.
+Kalıcı gerçeğe çevrildi: `/java(\/|$)`. Aynı dosyadaki İKİNCİ aynı iddia
+bilerek DOKUNULMADAN bırakıldı — orada `openTab` yok, sekme 0 kalıyor ve hub
+adresi gerçekten değişmiyor.
+
+⚠️ **Yama yazarken tuzak:** JS `String.replace` metin biçiminde `$` +
+backtick dizisini "eşleşmeden önceki tüm metin" olarak yorumlar ve dosyanın
+başını içeri enjekte eder. Bu turda bir test dosyası tam olarak böyle
+bozuldu. Toplu düzenlemede DAİMA fonksiyon değiştirici kullan:
+`s.replace(eski, () => yeni)`.
+
+
+### 🖐️ ELLE TEST REHBERİ — bu turda değişen her şey nasıl doğrulanır
+
+> Otomatik testler geçti ama gözle de görmek istersen: aşağıdaki 9 kontrol
+> sırayla yapılır, toplam 10-15 dakika sürer. Her maddede **ne yapacağın**,
+> **ne görmen gerektiği** ve **bozuksa neye benzeyeceği** yazılı.
+
+#### Hazırlık
+
+```bash
+npm run dev          # http://localhost:5173
+```
+
+Dükkân iki kipte çalışır ve **ikisini de denemelisin**, çünkü bazı kusurlar
+yalnızca birinde görünür:
+
+- **Tarayıcı kipi** (Docker kapalı): yayındaki ziyaretçilerin çoğunun gördüğü
+  hâl. Docker'ı durdur (`cd qa-shop && docker compose stop`) ya da dükkânın
+  QA panelinden API adresini `http://127.0.0.1:45999` yap.
+- **Docker kipi**: `cd qa-shop && docker compose up -d`, API adresi
+  `http://localhost:4000`.
+
+Rozet (üst şeritte) hangi kipte olduğunu söyler.
+
+---
+
+#### 1. Tohum veri — ürün adları ve kategoriler
+
+**Yap:** `/qa-shop` aç. Vitrindeki kartların adlarını oku. Sonra üstteki
+kategori şeridinden sırayla **Shirts**, **Bags**, **Sneakers**'a bas.
+
+**Görmen gereken:** Hiçbir ad tekrar etmiyor. Shirts'te yalnızca `... Shirt`,
+Bags'te yalnızca `... Bag`, Sneakers'ta yalnızca `... Sneakers` bitişli ürünler
+var. Marka satırı (kartın üstündeki küçük yazı) kategori içinde değişiyor —
+hepsi aynı marka değil.
+
+**Bozuksa:** Aynı ad birden çok kartta çıkar (eskiden "Slim Fit Red Shirt" 15
+kez vardı) ya da "Bags" sekmesinde tişört görürsün.
+
+**Veritabanından da bakmak istersen** (Docker açıkken, DBeaver ya da terminal):
+
+```sql
+select count(*), count(distinct name) from products
+ where sandbox_id = '00000000-0000-0000-0000-000000000000';
+-- 120 | 120 dönmeli. İkinci sayı 8 dönüyorsa eski veri duruyor demektir:
+-- cd qa-shop && docker compose down -v && docker compose up -d
+```
+
+#### 2. Ürünün adresi var (derin bağlantı)
+
+**Yap:** Bir ürüne tıkla. Adres çubuğuna bak — `?g=urun&urun=42` gibi bir şey
+yazıyor olmalı. O adresi **kopyala**, sekmeyi kapat, yeni sekmeye yapıştır.
+
+**Görmen gereken:** Sayfa doğrudan o ürünün detayında açılıyor; beden listesi
+ve yorumlar da geliyor.
+
+**Bozuksa:** Vitrine düşersin (eskiden böyleydi — ürünün adresi yoktu).
+
+#### 3. Geri tuşu ve gerçek bağlantılar
+
+**Yap:** Vitrinden bir ürüne gir, sonra tarayıcının **geri** tuşuna **bir kez**
+bas. Ardından bir ürün görseline **orta tıkla** (ya da sağ tık → yeni sekmede aç).
+
+**Görmen gereken:** Tek geri tuşu vitrine döndürüyor. Orta tık ürünü yeni
+sekmede açıyor.
+
+**Bozuksa:** Geri tuşu seni siteden/dükkândan tamamen çıkarıyorsa adres durumu
+çalışmıyor. İki kez basman gerekiyorsa çift geçmiş kaydı oluşuyor demektir.
+Orta tık hiçbir şey yapmıyorsa kart yine düğme olmuş.
+
+#### 4. Sayfalama
+
+**Yap:** Vitrinin altına in.
+
+**Görmen gereken:** Sayfa numaraları, ‹ Önceki / Sonraki › ve "Sayfa 1 / 5"
+göstergesi. Ürün sayacının yanında görünen aralık var: **111 ürün (1–24)**.
+"Sonraki"ye bas → adres `?sayfa=2` oluyor, kartlar değişiyor, sayfa başa
+sarıyor. `?sayfa=3` adresini elle yaz → doğrudan 3. sayfa açılıyor.
+
+**Bozuksa:** Eskiden yalnızca "111 ürün" yazıyordu ama ekranda 24 kart vardı ve
+kalanına ulaşmanın hiçbir yolu yoktu.
+
+#### 5. Sıfırlama artık iki adımlı
+
+**Yap:** Vitrinin en altındaki **↺ Alanı sıfırla**'ya bas.
+
+**Görmen gereken:** Hemen sıfırlamıyor; "Bu işlem açık oturumları kapatır ve
+sepetini siler. Emin misin?" diye soruyor, **Evet, sıfırla** / **Vazgeç**
+çıkıyor. Vazgeç'e basınca hiçbir şey olmuyor.
+
+**Ayrıca:** Düğme artık sıralama açılır listesinin yanında DEĞİL, listenin
+altında ayrı bir satırda. Eskiden oradaydı ve tek yanlış tıklama sepetini
+siliyordu.
+
+#### 6. Fiyat biçimi
+
+**Yap:** TR dilindeyken bir fiyata bak. Sonra sağ üstten **ENG**'e geç.
+
+**Görmen gereken:** TR'de `₺101,99` — simge BAŞTA, ondalık ayırıcı virgül.
+EN'de `TRY 101.99` — nokta ve üç harfli kod. Binlikli bir fiyatta fark daha
+net: TR `₺1.234,50`, EN `TRY 1,234.50`.
+
+**Bozuksa:** İki dilde de `101.99 TL` görürsün — eski hâli buydu.
+
+#### 7. Otomasyon hedefi temiz
+
+**Yap:** `/qa-shop`'ta sayfanın sol-alt ve sağ-alt köşelerine bak. Sonra
+`/qa-shop-setup`'a git ve aynı köşelere bak.
+
+**Görmen gereken:** Dükkânda site geneli sohbet/yorum baloncukları YOK.
+Kurulum sayfasında hâlâ VARLAR (yetenek silinmedi, dükkândan çekildi).
+
+**Neden önemli:** O baloncuklar dükkânın kendi düğmelerinin üstüne biniyor ve
+dar ekranda metni kapatıyordu.
+
+#### 8. İki "Giriş" ayrıldı
+
+**Yap:** Dükkânda üst şeride ve mağaza barına bak.
+
+**Görmen gereken:** Üstte **🔑 Giriş Yap** (LearnQA platformu), mağaza barında
+**👤 Dükkân girişi**. İkisi artık aynı adı taşımıyor.
+
+#### 9. Olay günlüğü keşfedilebilir
+
+**Yap:** Sayfanın altındaki **🧪 QA paneli** başlığına bak — panele DOKUNMA.
+Sonra bir ürüne tıkla ve başlığa tekrar bak.
+
+**Görmen gereken:** Başlığın yanında **📜 N istek** rozeti var ve tıkladıkça
+sayı artıyor. Paneli açınca günlük tablosunda her isteğin method/path/status/ms
+bilgisi duruyor.
+
+**Bozuksa:** Rozet hiç görünmüyorsa günlük yine kapalı panelin içinde saklı
+kalmış demektir.
+
+---
+
+#### Bir şey ters giderse
+
+- **Vitrin boş / "API kapalı" uyarısı:** Docker kipindesin ama yığın ayakta
+  değil. `cd qa-shop && docker compose up -d` ya da tarayıcı kipine geç.
+- **Eski ürün adlarını görüyorsun (aynı ad tekrar ediyor):** Docker'daki veri
+  eski. `docker compose down -v && docker compose up -d` ile yeniden tohumla.
+  Tarayıcı kipinde bu sorun olmaz, veri paketin içinden gelir.
+- **Değişiklikleri hiç göremiyorsun:** Tarayıcı önbelleği. Sert yenile
+  (Ctrl+Shift+R). Dükkân ayarları `localStorage`'da durur; QA panelinden
+  "anahtarı unut" ile temizleyebilirsin.
+
+### 📋 Sıradaki adımlar (yapılmadı)
+
+- **Docker'daki yerel veritabanı hâlâ ESKİ tohum veriyi taşıyor.** Türev,
+  mevcut ortama dokunmamak için geçici bir konteynerde üretildi. Yerel
+  Docker'ı düzeltmek için: `cd qa-shop && docker compose down -v && docker
+  compose up -d`. Tarayıcı kipi ve yeni kurulum yapanlar zaten doğru veriyi
+  alıyor.
+- Görsel çeşitliliği: adlar artık benzersiz ama fotoğraf havuzu ürün
+  tipi başına sınırlı, kartlarda tekrar görülebiliyor.
+- Değerlendirmenin uygulanmayan maddeleri: kategori chip'lerine/sıralamaya
+  testid eklemek (zaten var), `product-card` adlandırması (bu depoda
+  `urun-{id}`), erişilebilirlik için ayrı "bilinçli a11y ihlali" katmanı.
+
+---
+
+## 🚩 OTURUM DEVİR NOTU (2026-09-01 · Opus · üçüncü tur) (önceki tur)
 
 > Çelişki olursa BU bölüm günceldir.
 

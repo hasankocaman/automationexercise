@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import SeoMeta from './components/SeoMeta'
 import RequireAdmin from './components/RequireAdmin'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -122,11 +122,20 @@ function App() {
     // veri yoksa no-op). Böylece "N gündür" sayımı HomePage'e uğramasa da ilerler.
     useEffect(() => { try { recordSnapshot() } catch { /* localStorage kapalı olabilir */ } }, [])
 
+    // basename (/en) router tarafından zaten soyulur; burada çıplak yol görünür.
+    const otomasyonHedefi = useLocation().pathname.replace(/\/+$/, '') === '/qa-shop'
+
     return (
         <>
             <SeoMeta />
-            <ChatWidget />
-            <CommentsWidget />
+            {/* /qa-shop bir OTOMASYON HEDEFİDİR. Site geneli sohbet ve yorum
+                baloncukları orada üç ayrı zarar veriyordu: (1) locator kirliliği
+                — dükkânın kendi düğmeleriyle karışan iki fazladan yüzen kontrol,
+                (2) z-[999] ile dükkânın kendi katmanlarının ÜSTÜNE binip dar
+                ekranda metni kapatmaları, (3) "hangisi uygulamaya ait?" sorusu.
+                Sitenin geri kalanında aynen dururlar. */}
+            {!otomasyonHedefi && <ChatWidget />}
+            {!otomasyonHedefi && <CommentsWidget />}
             <MentorNudge />
             <Suspense fallback={<RouteFallback />}>
                 <Routes>
