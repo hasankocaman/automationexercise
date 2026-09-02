@@ -104,7 +104,12 @@ bozuldu. Toplu düzenlemede DAİMA fonksiyon değiştirici kullan:
 `s.replace(eski, () => yeni)`.
 
 
-### 🔴 PUSH SONRASI bulunan kusur: iki arka uç sıralamada anlaşmıyordu
+### 🔴 PUSH SONRASI bulunan İKİ kusur: arka uçlar katalogda anlaşmıyordu
+
+> Aynı kök nedenin iki ayrı görünümü. İkisini de kullanıcı buldu, ikisi de
+> Docker kipinde ortaya çıktı, ikisi de tarayıcı kipinde görünmüyordu.
+
+#### (a) Sıralama alanı
 
 Kullanıcı Docker kipinde `/qa-shop?sirala=created_at:desc` adresinde **"0 ürün"**
 gördü. Ölçüldü ve kök neden tek bir yazım hatası değil, **üç yerde ayrışmış bir
@@ -147,8 +152,93 @@ Ek olarak `tests/qa-shop-pages.spec.ts`'e sıralamanın vitrini GERÇEKTEN
 yeniden dizdiğini doğrulayan bir test eklendi (alan adı doğru olsa bile
 sunucu sessizce başka bir sütuna düşebilirdi).
 
+#### (b) Kategori id'si — aynı hastalığın ikinci nöbeti
+
+Sıralama düzeltildikten sonra kullanıcı "Jeans" sekmesine bastı ve vitrin yine
+boş geldi. Bu kez ekranda **hata yazıyordu** — çünkü bir önceki turda eklenen
+"başarısız yükleme sessiz kalmaz" dalı devreye girmişti:
+`BAD_REQUEST — Kategori id sayı olmalı`. Kusuru saatlerce aratacak olan şey,
+bir gün önce kapatılan sessizlikti.
+
+| Katman | Kabul ettiği | Arayüzün gönderdiği (`jeans`) |
+|---|---|---|
+| Sözleşme (`openapi.yaml`) | `id: integer` | — |
+| Docker API | yalnızca sayısal id | **400** |
+| Tarayıcı katmanı | `slug = ? or id = ?` | sorunsuz çalışıyordu |
+
+⚠️ **Kritik ders — gevşek olan taraf, hatayı saklayan taraftır.** Taklit
+katmanın "hem slug hem id kabul edeyim, kolaylık olsun" hoşgörüsü, arayüzün
+yanlış istek attığını iki ay boyunca gizledi. Taklit katman sözleşmeden daha
+hoşgörülü olmamalıdır; olduğu anda testler ürünü değil taklidi doğrular.
+
+Aynı fonksiyonda iki drift daha bulundu ve düzeltildi: tarayıcı katmanı
+kategori listelerken sıralamayı TAMAMEN yok sayıyordu (sabit `order by p.id`)
+ve alt kategorileri kapsamıyordu — sözleşme ikisini de gerektiriyor.
+
+**Düzeltmeler:** tarayıcı katmanı sözleşmeye sıkılaştırıldı (sayısal id, 400
+döndürür) · arayüz slug→id çevirisini istek anında yapıyor (adres okunabilir
+`?kategori=jeans` kalıyor, paylaşılabilirlik korunuyor) · kategoriler henüz
+gelmemişse istek atılmıyor, uydurma slug ise temizleniyor.
+
+**Koruma üç katmanlı:**
+1. Statik kapı genişletildi: taklit katmanın slug kabul etmesini ve arayüzün
+   yola slug koymasını hard-fail eder. Mutasyon sınandı, ikisi de yakalandı.
+2. E2E testi istegin ŞEKLİNİ denetler (yolda sayısal id var mı), yalnızca
+   sonucuna bakmaz — hoşgörülü taraf sonucu zaten doğru gösteriyordu.
+3. **Yeni: Docker kipi testi.** Yığın ayaktaysa gerçek API'ye karşı koşar,
+   kapalıysa atlanır (yanlış yeşil vermez). Mutasyon sınandı: kullanıcının
+   bulduğu hata geri konunca bu test kırmızıya döndü. Bu depodaki dükkân
+   testlerinin tamamı tarayıcı kipinde koşuyordu; iki kusurun da oradan
+   kaçmasının sebebi buydu.
+
 ---
 
+### 🌐 KARAR: katalog İKİ DİLLİ (çeviri veride, arayüzde değil)
+
+Kullanıcı sordu: "sayfa dili Türkçe iken ürün isimleri neden İngilizce?"
+Ölçüldü — şemada `name` TEK sütundu ve bu konuda alınmış yazılı bir karar
+yoktu: argümanlanmış bir tercih değil, hiç konuşulmamış bir boşluktu.
+
+⚠️ **İLK ÇÖZÜM YANLIŞTI ve geri alındı.** Önce yalnızca kategori adları
+ARAYÜZDE çevrildi (slug → Türkçe sözlük). Kullanıcı ürün adlarını yeniden
+sorunca asıl kusur görüldü: burası bir otomasyon pratiği hedefi ve öğrenci
+ekrandaki metni API'nin döndürdüğüyle karşılaştırıyor. Arayüzde çeviri
+yapmak, ekranda "Klasik Beyaz Gömlek" gösterip API'de "Classic White Shirt"
+döndürmek demekti — öğrencinin yazdığı **her karşılaştırma yalan söylerdi**.
+Ucuz çözüm, hedefin varlık sebebini bozuyordu.
+
+**Doğru çözüm: çeviri VERİDE.** Şemaya eklendi ve her cevapta dönüyor:
+
+| Tablo | Yeni alan |
+|---|---|
+| `products` | `name_tr`, `description_tr` |
+| `categories` | `name_tr` |
+| `product_variants` | `color_tr` |
+
+Çevrilmeyenler: **marka** (Nike, Zara — özel isim), **beden** (S/M/L —
+evrensel), **SKU** ve tüm alan/hata kodları.
+
+**Neden Accept-Language ile içerik pazarlığı DEĞİL:** başlığa göre değişen
+bir cevap gövdesi, "aynı isteği attım başka şey geldi" diyen bir sınıf hata
+üretirdi. İki alan da HER cevapta döner; hangisini göstereceğine arayüz
+karar verir. Değişiklik EKLEME yönünde olduğu için `name`e bakan mevcut
+Postman ve REST Assured örnekleri aynen çalışmaya devam eder.
+
+Arama da iki dilli: TR arayüzde "Gömlek" yazan kullanıcı boş vitrin görmüyor
+(ölçüldü: Gömlek → 14, Shirt → 28 sonuç).
+
+⚠️ **Klonlama fonksiyonu sütunları ELLE sayar.** Yeni sütunlar
+`clone_sandbox`'a da eklendi; eklenmeseydi "kendi alanımı aç" diyen kullanıcıda
+alanlar NULL gelir ve dükkân YALNIZCA o kişide yarı İngilizce görünürdü —
+şablonda doğru olduğu için hiçbir kapı görmezdi. Klonlama ayrıca sınandı:
+120/120 ürün, 12/12 kategori, 360/360 varyant çeviriyle taşınıyor.
+
+**Koruma:** kapı, dört iki dilli alanın ÜÇ katmanda da (sunucu, tarayıcı
+katmanı, sözleşme) bulunduğunu doğrular ve arayüzde yeniden bir çeviri
+sözlüğü kurulmasını hard-fail eder. Mutasyon sınandı. E2E testi de ekrandaki
+metni API cevabıyla BİREBİR karşılaştırır — asıl kilit budur.
+
+---
 ### 🖐️ ELLE TEST REHBERİ — bu turda değişen her şey nasıl doğrulanır
 
 > Otomatik testler geçti ama gözle de görmek istersen: aşağıdaki 9 kontrol
@@ -298,6 +388,35 @@ kapısı var: `npm run qa-shop:sort`.
 
 ⚠️ **Bu maddeyi Docker kipinde de dene.** Tarayıcı kipi yanlış alan adında
 hata vermez, sessizce yanlış sıralar — yani orada "çalışıyor" gibi görünür.
+
+#### 11. Kategori sekmeleri ve İKİ DİLLİ katalog (Docker kipinde de dene)
+
+**Önce:** Docker kipini deneyeceksen yığını YENİDEN KUR — şema değişti, eski
+konteyner ve eski veritabanı yeni sütunları bilmiyor:
+
+```bash
+cd qa-shop && docker compose down -v && docker compose up -d --build
+```
+
+(`--build` şart: API kodu da değişti, yalnızca `up -d` eski imajı çalıştırır.)
+
+**Dil kontrolü:** TR arayüzde ürün adları Türkçe olmalı ("Klasik Beyaz Gömlek"),
+ENG'e geçince İngilizceye dönmeli ("Classic White Shirt"). Marka (Nike, Zara) ve
+beden (S/M/L) iki dilde de aynı kalır. Arama kutusuna "Gömlek" yazınca sonuç
+gelmeli, "Shirt" yazınca da.
+
+**Yap:** Üstteki kategori şeridinden **Jeans**, **Dresses**, **Bags**'e bas.
+Sonra **Tümü**'ye dön. Ardından adrese elle `?kategori=uydurma` yazıp aç.
+
+**Görmen gereken:** Her sekmede ürün sayısı düşüyor ve gelen ürünlerin hepsi o
+tipten. Adres `?kategori=jeans` oluyor (paylaşılabilir). "Tümü" tam listeye
+dönüyor. Uydurma kategoride vitrin boşalmıyor, tam listeye düşüyor.
+
+**Bozuksa:** `BAD_REQUEST — Kategori id sayı olmalı` yazan kırmızı bir şerit
+ve **0 ürün** görürsün. Bu kusur tam olarak yaşandı.
+
+⚠️ Yine Docker kipinde dene: tarayıcı kipi bir süre hem slug hem id kabul
+ettiği için burada da "çalışıyor" gösteriyordu.
 
 ---
 

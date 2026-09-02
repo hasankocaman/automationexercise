@@ -1506,14 +1506,29 @@ components:
       properties:
         id: { type: integer }
         sku: { type: string, example: SKU-0001 }
-        name: { type: string, example: Slim Fit White T-Shirt }
+        name:
+          type: string
+          example: Classic White Shirt
+          description: |
+            İngilizce ad. Katalog İKİ DİLLİDİR: her cevapta hem `name` hem
+            `name_tr` döner ve hangisinin gösterileceğine istemci karar verir.
+            Accept-Language ile içerik pazarlığı BİLEREK yapılmaz — başlığa göre
+            değişen bir gövde, aynı isteğin farklı cevap vermesi demek olurdu ve
+            otomasyon pratiğinde bu bir hata kaynağıdır.
+        name_tr:
+          type: string
+          nullable: true
+          example: Klasik Beyaz Gömlek
+          description: Türkçe ad. Marka adları çevrilmez (özel isim).
         description: { type: string, nullable: true }
+        description_tr: { type: string, nullable: true }
         price: { type: number, example: 137.99 }
         currency: { type: string, example: TRY }
         is_active: { type: boolean }
         created_at: { type: string, format: date-time }
         category: { type: string, nullable: true, example: tshirts }
-        category_name: { type: string, nullable: true }
+        category_name: { type: string, nullable: true, example: Shirts }
+        category_name_tr: { type: string, nullable: true, example: Gömlek }
         brand:
           type: string
           nullable: true
@@ -1537,8 +1552,12 @@ components:
       properties:
         id: { type: integer }
         sku: { type: string, example: SKU-0001-M }
-        size: { type: string, enum: [S, M, L] }
-        color: { type: string }
+        size:
+          type: string
+          enum: [S, M, L]
+          description: Beden çevrilmez, evrenseldir.
+        color: { type: string, example: White }
+        color_tr: { type: string, nullable: true, example: Beyaz }
         price: { type: number }
         stock_qty: { type: integer }
         reserved_qty: { type: integer }
@@ -1550,7 +1569,8 @@ components:
       type: object
       properties:
         id: { type: integer }
-        name: { type: string }
+        name: { type: string, example: Shirts }
+        name_tr: { type: string, nullable: true, example: Gömlek }
         slug: { type: string }
         parent_id: { type: integer, nullable: true }
         product_count: { type: integer }

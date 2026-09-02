@@ -40,6 +40,20 @@ const yetkisiz = (m = 'Geçersiz veya eksik token') => hata(401, 'UNAUTHORIZED',
 const yasak = (m = 'Bu kayda erişemezsin') => hata(403, 'FORBIDDEN', m)
 const cakisma = (kod, m, a) => hata(409, kod, m, a)
 const islenemez = (kod, m, a) => hata(422, kod, m, a)
+const kotuIstek = (m, a) => hata(400, 'BAD_REQUEST', m, a)
+
+// ⚠ SIRALAMA ALANLARI SÖZLEŞMEDEN gelir (qa-shop/api/src/routes/catalog.js
+// SORTABLE) — burada serbestçe adlandırılamaz. Modül düzeyinde TEK yerde durur
+// ki iki ayrı listeleme ucu (tüm ürünler / kategori ürünleri) birbirinden
+// ayrışamasın. scripts/check-qa-shop-sort-contract.mjs bu sözlüğü sunucununkiyle
+// karşılaştırır.
+const siralanabilir = { price: 'p.price', name: 'p.name', created: 'p.created_at', sku: 'p.sku' }
+
+const siralamaCumlesi = (s) => {
+    const alan = siralanabilir[s?.sort] ?? 'p.id'
+    const yon = String(s?.order ?? 'asc').toLowerCase() === 'desc' ? 'desc' : 'asc'
+    return `${alan} ${yon}`
+}
 
 // ─── Yardımcılar ────────────────────────────────────────────────────────────
 
@@ -64,9 +78,15 @@ function kullaniciGerekli(istek) {
 
 // Ürün satırı: liste ve detay aynı şekli döndürmeli, yoksa iki mod arasında
 // değil AYNI mod içinde tutarsızlık çıkar.
+// ⚠ ALAN LİSTESİ SUNUCUYLA AYNI OLMALI (catalog.js). Bugün üç kez ölçüldü:
+// iki arka uç bir alanda ayrıştığında hata Docker kipinde patlıyor, tarayıcı
+// kipinde ise sessizce yanlış davranıyor — ve testlerin tamamı tarayıcı
+// kipinde koştuğu için kimse görmüyor.
 const URUN_ALANLARI = `
-    p.id, p.sku, p.name, p.description, p.price, p.currency, p.is_active, p.created_at,
-    c.slug as category, c.name as category_name, b.name as brand,
+    p.id, p.sku, p.name, p.name_tr, p.description, p.description_tr,
+    p.price, p.currency, p.is_active, p.created_at,
+    c.slug as category, c.name as category_name, c.name_tr as category_name_tr,
+    b.name as brand,
     (select count(*) from product_variants v where v.product_id = p.id) as variant_count,
     (select coalesce(sum(i.stock_qty - i.reserved_qty), 0) from product_variants v
        join inventory i on i.variant_id = v.id where v.product_id = p.id) as total_stock`
@@ -252,18 +272,13 @@ function urunler(istek, bayraklar) {
     const { size, page, offset } = sayfala(istek)
     const kosullar = ['p.is_active = 1']
     const p = []
-    if (s.q) { kosullar.push('(p.name like ? or p.description like ?)'); p.push(`%${s.q}%`, `%${s.q}%`) }
+    // Arama İKİ dilde de çalışır: Türkçe arayüzde "Gömlek" yazan kullanıcı boş
+    // vitrin görmemeli. Sunucudaki süzgeçle aynı alanlara bakar.
+    if (s.q) {
+        kosullar.push('(p.name like ? or p.name_tr like ? or p.description like ?)')
+        p.push(`%${s.q}%`, `%${s.q}%`, `%${s.q}%`)
+    }
     const nerede = kosullar.join(' and ')
-
-    // ⚠ ALAN ADLARI SÖZLEŞMEDEN gelir (qa-shop/api/src/routes/catalog.js
-    // SORTABLE) — burada serbestçe adlandırılamaz. Ölçüldü: burası
-    // `created_at` kabul ederken sunucu `created` istiyordu ve aynı arayüz
-    // iki kipte iki farklı sonuç veriyordu: Docker kipinde istek 400 dönüp
-    // vitrin BOŞALIYOR, tarayıcı kipinde ise sessizce `id`ye düşüp yanlış
-    // sıralıyordu — hata vermediği için kimse fark etmiyordu.
-    const siralanabilir = { price: 'p.price', name: 'p.name', created: 'p.created_at', sku: 'p.sku' }
-    const alan = siralanabilir[s.sort] ?? 'p.id'
-    const yon = String(s.order ?? 'asc').toLowerCase() === 'desc' ? 'desc' : 'asc'
 
     const toplam = tekSatir(`select count(*) as n from products p where ${nerede}`, p)?.n ?? 0
     const satirlar = sorgu(`
@@ -271,7 +286,7 @@ function urunler(istek, bayraklar) {
           from products p
           left join categories c on c.id = p.category_id
           left join brands b on b.id = p.brand_id
-         where ${nerede} order by ${alan} ${yon} limit ? offset ?`, [...p, size, offset])
+         where ${nerede} order by ${siralamaCumlesi(s)} limit ? offset ?`, [...p, size, offset])
 
     return ok({
         page, size, total: toplam,
@@ -281,18 +296,48 @@ function urunler(istek, bayraklar) {
     })
 }
 
-function kategoriUrunleri(slug, istek, bayraklar) {
-    const kategori = tekSatir('select * from categories where slug = ? or id = ?', [slug, slug])
+// ⚠ SÖZLEŞME SAYISAL id İSTER (/categories/{id}/products, id: integer).
+//
+// Burası eskiden `slug = ? or id = ?` diyordu, yani slug'ı da kabul ediyordu.
+// Bu hoşgörü arayüzün YANLIŞ istek attığını GİZLEDİ: arayüz slug gönderiyordu,
+// tarayıcı kipinde çalışıyor, Docker kipinde 400 dönüp vitrin boşalıyordu.
+// Ölçüldü (2026-09-02): "Jeans" sekmesi Docker kipinde hiç ürün getirmiyordu.
+//
+// Ders: iki arka uçtan GEVŞEK olanı, hatayı saklayan taraftır. Taklit katman
+// sözleşmeden daha hoşgörülü olmamalıdır.
+function kategoriUrunleri(idHam, istek, bayraklar) {
+    const id = Number.parseInt(idHam, 10)
+    if (!Number.isInteger(id) || String(id) !== String(idHam)) {
+        return kotuIstek('Kategori id sayı olmalı', { got: idHam })
+    }
+    const kategori = tekSatir('select * from categories where id = ?', [id])
     if (!kategori) return yok('Kategori bulunamadı')
     const { size, page, offset } = sayfala(istek)
-    const toplam = tekSatir('select count(*) as n from products where category_id = ? and is_active = 1', [kategori.id])?.n ?? 0
+
+    // Alt kategoriler DAHİL — sözleşme böyle diyor. Yalnızca doğrudan eşleşmeye
+    // bakan bir sorgu üst kategorilerde ("Clothing") her zaman boş dönerdi.
+    const idler = [kategori.id]
+    for (let i = 0; i < idler.length; i += 1) {
+        for (const c of sorgu('select id from categories where parent_id = ?', [idler[i]])) {
+            idler.push(c.id)
+        }
+    }
+    const yerTutucu = idler.map(() => '?').join(',')
+
+    const toplam = tekSatir(
+        `select count(*) as n from products where category_id in (${yerTutucu}) and is_active = 1`,
+        idler)?.n ?? 0
+    // Sıralama BURADA DA uygulanır: eskiden sabit `order by p.id` yazılıydı,
+    // yani bir kategoriye girince kullanıcının seçtiği sıralama sessizce
+    // yok sayılıyordu.
     const satirlar = sorgu(`
         select ${URUN_ALANLARI}
           from products p
           left join categories c on c.id = p.category_id
           left join brands b on b.id = p.brand_id
-         where p.category_id = ? and p.is_active = 1 order by p.id limit ? offset ?`,
-    [kategori.id, size, offset])
+         where p.category_id in (${yerTutucu}) and p.is_active = 1
+         order by ${siralamaCumlesi(istek.sorguParam ?? {})} limit ? offset ?`,
+    [...idler, size, offset])
     return ok({
         page, size, total: toplam, totalPages: Math.ceil(toplam / size),
         hasNext: offset + satirlar.length < toplam,
@@ -314,7 +359,7 @@ function urunDetay(id, bayraklar) {
 
 function varyantlar(urunId) {
     const satirlar = sorgu(`
-        select v.id, v.sku, v.size, v.color, (p.price + v.price_delta) as price,
+        select v.id, v.sku, v.size, v.color, v.color_tr, (p.price + v.price_delta) as price,
                i.stock_qty, i.reserved_qty
           from product_variants v
           join products p on p.id = v.product_id
@@ -336,7 +381,7 @@ function yorumlar(urunId) {
 }
 
 function kategoriler() {
-    const hepsi = sorgu('select id, name, slug, parent_id from categories order by id')
+    const hepsi = sorgu('select id, name, name_tr, slug, parent_id from categories order by id')
     const sayilar = Object.fromEntries(sorgu(
         'select category_id, count(*) as n from products where is_active = 1 group by category_id')
         .map((r) => [r.category_id, r.n]))

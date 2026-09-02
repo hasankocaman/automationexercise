@@ -67,10 +67,21 @@ create table addresses (
 );
 
 -- ─── Katalog ────────────────────────────────────────────────────────────────
+-- ⚠ İKİ DİLLİ KATALOG: `name` İngilizce, `name_tr` Türkçedir.
+--
+-- Neden Accept-Language ile içerik pazarlığı DEĞİL: bu bir otomasyon pratiği
+-- hedefidir ve öğrenci ekrandaki metinle API'nin döndürdüğünü karşılaştırır.
+-- Başlığa göre değişen bir cevap gövdesi, "aynı isteği attım başka şey geldi"
+-- diyen bir sınıf hata üretirdi. İki alan da HER cevapta döner; hangisinin
+-- gösterileceğine arayüz karar verir. Ekleme yönünde olduğu için `name`e
+-- bakan mevcut Postman/REST Assured örnekleri aynen çalışmaya devam eder.
+--
+-- Marka adları (Nike, Zara) çevrilmez: özel isimdir.
 create table categories (
     id         bigserial primary key,
     sandbox_id uuid not null references sandbox on delete cascade,
     name       text not null,
+    name_tr    text,
     slug       text not null,
     parent_id  bigint references categories on delete set null,  -- self-join pratiği
     unique (sandbox_id, slug)
@@ -88,7 +99,9 @@ create table products (
     sandbox_id  uuid not null references sandbox on delete cascade,
     sku         text not null,
     name        text not null,
-    description text,
+    name_tr        text,
+    description    text,
+    description_tr text,
     category_id bigint references categories on delete set null,
     -- brand_id BİLEREK nullable: INNER JOIN ile LEFT JOIN farkını gösteren
     -- satırlar olmadan JOIN dersi anlatılamaz.
@@ -107,6 +120,9 @@ create table product_variants (
     product_id  bigint not null references products on delete cascade,
     size        text,
     color       text,
+    -- Beden (S/M/L) çevrilmez, evrenseldir; renk ürün adının İÇİNDE de geçtiği
+    -- için çevrilmezse "Klasik Lacivert Mont" ürününün varyantı "Navy" görünürdü.
+    color_tr    text,
     sku         text not null,
     price_delta numeric(10,2) not null default 0,
     unique (sandbox_id, sku)
@@ -287,8 +303,8 @@ begin
 
     -- Kategoriler iki geçişte: önce parent'sız, sonra parent bağlanır
     -- (self-referencing FK tek geçişte kurulamaz).
-    insert into categories (sandbox_id, name, slug, parent_id)
-    select p_dst, name, slug, null from categories where sandbox_id = p_src;
+    insert into categories (sandbox_id, name, name_tr, slug, parent_id)
+    select p_dst, name, name_tr, slug, null from categories where sandbox_id = p_src;
 
     update categories dst
        set parent_id = dp.id
@@ -300,9 +316,10 @@ begin
        and dst.slug = src.slug
        and src.parent_id is not null;
 
-    insert into products (sandbox_id, sku, name, description, category_id, brand_id,
+    insert into products (sandbox_id, sku, name, name_tr, description, description_tr,
+                          category_id, brand_id,
                           price, currency, is_active, created_at)
-    select p_dst, p.sku, p.name, p.description, dc.id, db.id,
+    select p_dst, p.sku, p.name, p.name_tr, p.description, p.description_tr, dc.id, db.id,
            p.price, p.currency, p.is_active, p.created_at
       from products p
       left join categories sc on sc.id = p.category_id
@@ -311,8 +328,8 @@ begin
       left join brands     db on db.sandbox_id = p_dst and db.name = sb.name
      where p.sandbox_id = p_src;
 
-    insert into product_variants (sandbox_id, product_id, size, color, sku, price_delta)
-    select p_dst, dp.id, v.size, v.color, v.sku, v.price_delta
+    insert into product_variants (sandbox_id, product_id, size, color, color_tr, sku, price_delta)
+    select p_dst, dp.id, v.size, v.color, v.color_tr, v.sku, v.price_delta
       from product_variants v
       join products sp on sp.id = v.product_id
       join products dp on dp.sandbox_id = p_dst and dp.sku = sp.sku

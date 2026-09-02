@@ -1788,10 +1788,23 @@ test('/qa-shop — sayfalama çalışıyor ve sayfa numarası adreste taşınıy
     await expect(page.locator('[data-testid="urun-listesi"]')).toBeVisible({ timeout: 60_000 });
 
     // Sayaç ile ekrandaki kart sayısı artık çelişmiyor: görünen aralık yazılı.
+    // ⚠ Sayaç ile kart sayısını AYRI anlarda okumak kırılgandır: liste hâlâ
+    // yüklenirken alınan bir kart sayısı, beklenen aralık metnini kalıcı
+    // olarak yanlış kurar ve test ürün doğruyken düşer. İkisini tek poll
+    // içinde, aynı anda karşılaştırıyoruz.
+    await expect.poll(async () => {
+        const kart = await page.locator('ul[data-testid="urun-listesi"] > li').count();
+        if (kart === 0) return false;
+        const aralik = (await page.getByTestId('urun-araligi').innerText()).trim();
+        return aralik === `(1–${kart})`;
+    }, {
+        timeout: 40_000,
+        message: 'görünen aralık kart sayısıyla uyuşmuyor',
+    }).toBe(true);
+
     const toplam = Number(await page.getByTestId('urun-sayisi').innerText());
     const kartSayisi = await page.locator('ul[data-testid="urun-listesi"] > li').count();
-    expect(toplam, 'toplam ürün okunamadı').toBeGreaterThan(kartSayisi);
-    await expect(page.getByTestId('urun-araligi')).toHaveText(`(1–${kartSayisi})`);
+    expect(toplam, 'toplam, sayfadaki kart sayısından büyük olmalı').toBeGreaterThan(kartSayisi);
 
     await expect(page.getByTestId('sayfalama')).toBeVisible();
     await expect(page.getByTestId('sayfa-onceki')).toBeDisabled();
@@ -1950,12 +1963,15 @@ test('/qa-shop — tohum veri: adlar benzersiz ve ürün kendi kategorisinde', a
         .toBe(adlar.length);
 
     // Kategori süzgeci: seçilen kategorideki her ürünün TİPİ o kategoriye ait.
-    // Ad kalıbı "<sıfat> <renk> <tip>"; tip son kelimedir.
+    //
+    // Kalıplar TÜRKÇE: varsayılan arayüz dili TR ve katalog iki dilli, yani
+    // ekranda Türkçe ad görünür. İngilizce kalıp aramak, çeviri hiç
+    // uygulanmasa bile geçen bir test üretirdi.
     const kategoriTipi: Record<string, RegExp> = {
-        'kategori-tshirts': /T-Shirt$/i,
-        'kategori-shirts': /Shirt$/i,
-        'kategori-bags': /Bag$/i,
-        'kategori-boots': /Boots$/i,
+        'kategori-tshirts': /Tişört$/,
+        'kategori-shirts': /Gömlek$/,
+        'kategori-bags': /Çanta$/,
+        'kategori-boots': /Bot$/,
     };
     for (const [testId, kalip] of Object.entries(kategoriTipi)) {
         const chip = page.getByTestId(testId);
@@ -2010,22 +2026,231 @@ test('/qa-shop — sıralama seçenekleri vitrini gerçekten yeniden sıralıyor
     await expect(page).toHaveURL(/sirala=created%3Adesc/, { timeout: 40_000 });
     await expect(page.locator('ul[data-testid="urun-listesi"] > li').first())
         .toBeVisible({ timeout: 40_000 });
-    const yeniSayi = await page.locator('ul[data-testid="urun-listesi"] > li').count();
-    expect(yeniSayi, '"En yeniler" seçilince vitrin boşaldı').toBeGreaterThan(0);
     await expect(page.getByTestId('urun-sayisi')).not.toHaveText('0');
 
-    // Sıra gerçekten değişti: fiyat artık azalan DEĞİL (tarihe göre dizildi).
-    const tariheGore = await fiyatlariOku();
-    const halaAzalan = tariheGore.every((v, i) => i === 0 || tariheGore[i - 1] >= v);
-    expect(halaAzalan, '"En yeniler" hiçbir şeyi değiştirmedi — istek yok sayılmış olabilir').toBe(false);
+    // ⚠ POLL ŞART: adres seçim anında değişir ama liste ASENKRON gelir. Tek
+    // seferlik okuma, henüz güncellenmemiş (fiyata göre azalan) listeyi yakalar
+    // ve test ürün doğruyken düşer. Kalıcı gerçeği bekliyoruz: sıra artık
+    // fiyata göre azalan DEĞİL, çünkü tarihe göre dizildi.
+    await expect.poll(async () => {
+        const f = await fiyatlariOku();
+        if (f.length < 2) return true;
+        return f.every((v, i) => i === 0 || f[i - 1] >= v);
+    }, {
+        timeout: 40_000,
+        message: '"En yeniler" hiçbir şeyi değiştirmedi — istek yok sayılmış olabilir',
+    }).toBe(false);
+
+    const yeniSayi = await page.locator('ul[data-testid="urun-listesi"] > li').count();
+    expect(yeniSayi, '"En yeniler" seçilince vitrin boşaldı').toBeGreaterThan(0);
 
     // Adresteki UYDURMA bir sıralama vitrini kilitlememeli: varsayılana düşer.
     await page.goto('/qa-shop?sirala=uydurma%3Adesc');
     await waitForAppReady(page, { timeout: 60_000 });
     await expect(page.locator('[data-testid="urun-listesi"]')).toBeVisible({ timeout: 60_000 });
-    const guvenli = await fiyatlariOku();
-    expect(guvenli.length, 'geçersiz sıralama vitrini boşalttı').toBeGreaterThan(1);
-    expect(guvenli, 'geçersiz sıralama varsayılana düşmedi').toEqual([...guvenli].sort((a, b) => a - b));
+    // Burada da tek seferlik okuma yerine poll: sayfa yeni açıldı, liste
+    // görünür olduktan sonra bile ilk istek dönerken değişebilir.
+    await expect.poll(async () => {
+        const f = await fiyatlariOku();
+        return f.length > 1 && f.every((v, i) => i === 0 || f[i - 1] <= v);
+    }, {
+        timeout: 40_000,
+        message: 'geçersiz sıralama varsayılana düşmedi ya da vitrini boşalttı',
+    }).toBe(true);
 
     expect(errors, 'sıralama: console/page hataları').toHaveLength(0);
+});
+
+// Kategori sekmeleri gercekten suzuyor VE istegin SEKLI sozlesmeye uyuyor.
+//
+// ⚠ Burada sonuca bakmak YETMEZ: tarayici katmani bir sure slug'i da kabul
+// ediyordu, yani ekranda dogru urunler cikiyor ama ayni istek Docker kipinde
+// 400 donuyordu. Bu yuzden test atilan YOLU da denetler — sozlesme kategori
+// icin sayisal id ister.
+test('/qa-shop — kategori sekmesi süzüyor ve istek sözleşmedeki sayısal id ile gidiyor', async ({ page }) => {
+    test.setTimeout(150_000);
+    await page.addInitScript((adres) => {
+        localStorage.setItem('qaShopApiBase', adres);
+    }, KAPALI_API);
+
+    const errors = collectErrors(page);
+    const kategoriYollari: string[] = [];
+    page.on('request', (r) => {
+        const m = r.url().match(/\/categories\/([^/?]+)\/products/);
+        if (m) kategoriYollari.push(m[1]);
+    });
+
+    await page.goto('/qa-shop');
+    await waitForAppReady(page, { timeout: 60_000 });
+    await expect(page.locator('[data-testid="urun-listesi"]')).toBeVisible({ timeout: 60_000 });
+
+    const tumuSayisi = Number(await page.getByTestId('urun-sayisi').innerText());
+    expect(tumuSayisi, 'vitrin bos acildi').toBeGreaterThan(0);
+
+    // Jeans sekmesi: adres slug tasir (paylasilabilir baglanti), istek id tasir.
+    await page.getByTestId('kategori-jeans').click();
+    await expect(page).toHaveURL(/kategori=jeans/, { timeout: 40_000 });
+
+    await expect.poll(async () => Number(await page.getByTestId('urun-sayisi').innerText()),
+        { timeout: 40_000, message: 'kategori secilince sayac guncellenmedi' })
+        .toBeLessThan(tumuSayisi);
+
+    const jeansSayisi = Number(await page.getByTestId('urun-sayisi').innerText());
+    expect(jeansSayisi, 'Jeans kategorisi hic urun getirmedi').toBeGreaterThan(0);
+
+    // Ekrandaki her urun gercekten o kategoriden. Varsayilan dil TR oldugu
+    // icin ad kalibi de Turkce: "<sifat> <renk> Kot Pantolon".
+    await expect.poll(async () => {
+        const adlar = await page.locator('[data-testid^="urun-ad-"]').allInnerTexts();
+        return adlar.length > 0 && adlar.every((a) => /Kot Pantolon$/.test(a.trim()));
+    }, {
+        timeout: 40_000,
+        message: 'Jeans sekmesinde baska tipte urun var',
+    }).toBe(true);
+
+    // ⚠ ASIL KONTROL: atilan yolda slug DEGIL sayisal id olmali.
+    expect(kategoriYollari.length, 'kategori istegi hic atilmadi').toBeGreaterThan(0);
+    for (const parca of kategoriYollari) {
+        expect(parca, `kategori yoluna sayi disi deger konmus: ${parca}`).toMatch(/^\d+$/);
+    }
+
+    // "Tumu"ye donunce tam listeye geri donuluyor.
+    await page.getByTestId('kategori-tumu').click();
+    await expect(page).not.toHaveURL(/kategori=/, { timeout: 40_000 });
+    await expect.poll(async () => Number(await page.getByTestId('urun-sayisi').innerText()),
+        { timeout: 40_000 }).toBe(tumuSayisi);
+
+    // Adreste UYDURMA bir kategori vitrini kilitlememeli: temizlenip tam liste gelir.
+    await page.goto('/qa-shop?kategori=uydurma');
+    await waitForAppReady(page, { timeout: 60_000 });
+    await expect(page.locator('[data-testid="urun-listesi"]')).toBeVisible({ timeout: 60_000 });
+    await expect.poll(async () => Number(await page.getByTestId('urun-sayisi').innerText()),
+        { timeout: 40_000, message: 'gecersiz kategori vitrini bosaltti' }).toBe(tumuSayisi);
+
+    expect(errors, 'kategori suzme: console/page hatalari').toHaveLength(0);
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 15. DOCKER KİPİ — yığın ayaktaysa koşar, değilse atlanır
+// ─────────────────────────────────────────────────────────────────────────────
+// Bu depodaki dükkân testlerinin TAMAMI tarayıcı kipinde koşar, çünkü CI'da
+// Docker yoktur. Bu kör nokta iki gerçek kusuru sakladı: sıralama alanı ve
+// kategori id'si tarayıcı katmanında çalışıp Docker kipinde 400 dönüyordu.
+//
+// Statik sözleşme kapısı (scripts/check-qa-shop-sort-contract.mjs) CI'yı korur.
+// Buradaki test ise geliştiricinin makinesinde GERÇEK yığına karşı koşar —
+// "derleme geçti, mock'lu test yeşil" ile "sistem çalışıyor" arasındaki farkı
+// kapatan tek şey budur. Yığın kapalıysa test atlanır, YANLIŞ yeşil vermez.
+test('/qa-shop — Docker kipinde kategori ve sıralama gerçekten çalışıyor', async ({ page }) => {
+    test.setTimeout(150_000);
+
+    const ayakta = await page.request.get('http://localhost:4000/health', { timeout: 4_000 })
+        .then((r) => r.ok()).catch(() => false);
+    test.skip(!ayakta, 'QA Shop Docker yığını ayakta değil — bu test yalnızca yerelde koşar.');
+
+    const errors = collectErrors(page);
+
+    // API adresi BİLEREK yazılır: kipi ortama bırakan bir test, hangi yolu
+    // sınadığını söyleyemez.
+    await page.addInitScript(() => {
+        localStorage.setItem('qaShopApiBase', 'http://localhost:4000');
+    });
+
+    await page.goto('/qa-shop');
+    await waitForAppReady(page, { timeout: 60_000 });
+    await expect(page.locator('[data-testid="urun-listesi"]')).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByTestId('mod-rozeti')).toContainText(/Docker/i);
+
+    const tumu = Number(await page.getByTestId('urun-sayisi').innerText());
+    expect(tumu, 'Docker kipinde vitrin boş açıldı').toBeGreaterThan(0);
+
+    // Kategori: 400 dönseydi sayaç 0 olur ve hata balonu çıkardı.
+    await page.getByTestId('kategori-jeans').click();
+    await expect.poll(async () => Number(await page.getByTestId('urun-sayisi').innerText()),
+        { timeout: 40_000, message: 'Docker kipinde kategori süzmesi ürün getirmedi' })
+        .toBeGreaterThan(0);
+    await expect(page.getByTestId('bildirim')).toHaveCount(0);
+
+    // "En yeniler": sözleşmedeki alan adı gitmezse sunucu 400 döner.
+    await page.getByTestId('kategori-tumu').click();
+    await page.getByTestId('urun-sirala').selectOption('created:desc');
+    await expect.poll(async () => Number(await page.getByTestId('urun-sayisi').innerText()),
+        { timeout: 40_000, message: 'Docker kipinde "En yeniler" vitrini boşalttı' })
+        .toBeGreaterThan(0);
+    await expect(page.getByTestId('bildirim')).toHaveCount(0);
+
+    expect(errors, 'Docker kipi: console/page hataları').toHaveLength(0);
+});
+
+// Katalog İKİ DİLLİ: TR arayüzde ürün adı, kategori ve renk Türkçe; EN de
+// İngilizce. Marka (özel isim) ve beden (evrensel) iki dilde de aynı.
+//
+// ⚠ Bu test ekranı API ile KARŞILAŞTIRIR. Çeviri bir ara arayüzde yapılıyordu
+// ve o hâliyle ekran "Klasik Beyaz Gömlek" derken API "Classic White Shirt"
+// döndürüyordu — otomasyon hedefinde bu, öğrencinin yazdığı her
+// karşılaştırmayı yalancı yapardı. Aşağıdaki son blok tam olarak bunu kilitler.
+test('/qa-shop — katalog iki dilli ve ekran API ile birebir aynı', async ({ page }) => {
+    test.setTimeout(150_000);
+    await page.addInitScript((adres) => {
+        localStorage.setItem('qaShopApiBase', adres);
+    }, KAPALI_API);
+
+    await page.goto('/qa-shop');
+    await waitForAppReady(page, { timeout: 60_000 });
+    await expect(page.locator('[data-testid="urun-listesi"]')).toBeVisible({ timeout: 60_000 });
+
+    // ── TR ──
+    await expect(page.getByTestId('kategori-jeans')).toHaveText('Kot Pantolon');
+    await expect(page.getByTestId('kategori-dresses')).toHaveText('Elbise');
+    await expect(page.getByTestId('kategori-tumu')).toHaveText('Tümü');
+
+    await page.getByTestId('kategori-jeans').click();
+    await expect(page.getByTestId('vitrin-basligi')).toHaveText('Kot Pantolon', { timeout: 40_000 });
+
+    // Ürün adları da Türkçe. Poll şart: başlık anında değişir, liste asenkron gelir.
+    await expect.poll(async () => {
+        const adlar = await page.locator('[data-testid^="urun-ad-"]').allInnerTexts();
+        return adlar.length > 0 && adlar.every((a) => /Kot Pantolon$/.test(a.trim()));
+    }, {
+        timeout: 40_000,
+        message: 'TR modda ürün adları Türkçeye dönmedi',
+    }).toBe(true);
+
+    const trAd = (await page.locator('[data-testid^="urun-ad-"]').first().innerText()).trim();
+
+    // ── EN ──
+    await page.getByRole('button', { name: 'ENG', exact: true }).click();
+    await expect(page.getByTestId('kategori-jeans')).toHaveText('Jeans', { timeout: 40_000 });
+    await expect(page.getByTestId('kategori-tumu')).toHaveText('All');
+    await expect.poll(async () => {
+        const adlar = await page.locator('[data-testid^="urun-ad-"]').allInnerTexts();
+        return adlar.length > 0 && adlar.every((a) => /Jeans$/.test(a.trim()));
+    }, {
+        timeout: 40_000,
+        message: 'EN modda ürün adları İngilizceye dönmedi',
+    }).toBe(true);
+
+    const enAd = (await page.locator('[data-testid^="urun-ad-"]').first().innerText()).trim();
+    expect(trAd, 'iki dilde aynı ad görünüyor — çeviri hiç uygulanmamış').not.toBe(enAd);
+
+    // ── ASIL KİLİT: ekrandaki metin API cevabındaki ALANLA birebir aynı mı ──
+    const kartId = await page.locator('ul[data-testid="urun-listesi"] > li').first()
+        .getAttribute('data-testid');
+    const urunId = String(kartId).replace('urun-', '');
+    const govde = await page.evaluate(async (id) => {
+        const r = await fetch(`/api/v1/products/${id}`);
+        return r.json();
+    }, urunId);
+
+    expect(govde?.product?.name, 'API İngilizce adı döndürmüyor').toBe(enAd);
+    expect(govde?.product?.name_tr, 'API Türkçe adı döndürmüyor').toBe(trAd);
+
+    // Marka özel isimdir: çevrilmez ve API ne diyorsa ekranda o yazar.
+    //
+    // ⚠ BOŞ OLABİLİR ve bu bir hata değil: tohum veride her 11. ürünün markası
+    // BİLEREK NULL (LEFT JOIN dersi olmadan JOIN anlatılamaz). "Marka dolu
+    // olmalı" diye bir iddia, o kasıtlı boşluğa denk gelince ürün doğruyken
+    // düşerdi — ilk yazımda tam olarak bu oldu.
+    const marka = (await page.locator(`[data-testid="urun-marka-${urunId}"]`).innerText()).trim();
+    expect(marka, 'ekrandaki marka API ile uyuşmuyor').toBe(govde?.product?.brand ?? '');
 });

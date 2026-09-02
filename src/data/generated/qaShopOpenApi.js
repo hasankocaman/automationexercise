@@ -7,7 +7,7 @@
 // sözleşme iki yerde elle tutulursa kaçınılmaz olarak ayrışır.
 /* eslint-disable */
 
-export const KAYNAK_HASH = "74545c9d9be7060ae6043ac0cfda9b0a"
+export const KAYNAK_HASH = "f667c086058aecddc00797f37c69a96c"
 export const UC_SAYISI = 46
 
 export const OPENAPI = {
@@ -1154,10 +1154,17 @@ export const OPENAPI = {
        "tip": "string",
        "zorunlu": false,
        "kisit": "enum: S | M | L",
-       "aciklama": ""
+       "aciklama": "Beden çevrilmez, evrenseldir."
       },
       {
        "ad": "variants[].color",
+       "tip": "string",
+       "zorunlu": false,
+       "kisit": "",
+       "aciklama": ""
+      },
+      {
+       "ad": "variants[].color_tr",
        "tip": "string",
        "zorunlu": false,
        "kisit": "",
@@ -1253,6 +1260,13 @@ export const OPENAPI = {
        "aciklama": ""
       },
       {
+       "ad": "categories[].name_tr",
+       "tip": "string",
+       "zorunlu": false,
+       "kisit": "",
+       "aciklama": ""
+      },
+      {
        "ad": "categories[].slug",
        "tip": "string",
        "zorunlu": false,
@@ -1289,6 +1303,13 @@ export const OPENAPI = {
       },
       {
        "ad": "categories[].children[].name",
+       "tip": "string",
+       "zorunlu": false,
+       "kisit": "",
+       "aciklama": ""
+      },
+      {
+       "ad": "categories[].children[].name_tr",
        "tip": "string",
        "zorunlu": false,
        "kisit": "",

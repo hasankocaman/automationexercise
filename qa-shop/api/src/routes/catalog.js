@@ -58,7 +58,9 @@ catalogRouter.get('/products', asyncRoute(async (req, res) => {
     if (req.query.brand)    { params.push(req.query.brand);    where.push(`b.name = $${params.length}`) }
     if (req.query.minPrice) { params.push(Number(req.query.minPrice)); where.push(`p.price >= $${params.length}`) }
     if (req.query.maxPrice) { params.push(Number(req.query.maxPrice)); where.push(`p.price <= $${params.length}`) }
-    if (req.query.q)        { params.push(`%${req.query.q}%`);  where.push(`p.name ILIKE $${params.length}`) }
+    // Arama İKİ dilde de çalışır: Türkçe arayüzde "Gömlek" yazan kullanıcı
+    // İngilizce ada göre süzülen boş bir vitrin görmemeli.
+    if (req.query.q)        { params.push(`%${req.query.q}%`);  where.push(`(p.name ILIKE $${params.length} or p.name_tr ILIKE $${params.length})`) }
 
     const whereSql = where.join(' and ')
 
@@ -73,8 +75,9 @@ catalogRouter.get('/products', asyncRoute(async (req, res) => {
          where ${whereSql}`
 
     const listSql = `
-        select p.id, p.sku, p.name, p.description, p.price, p.currency, p.is_active, p.created_at,
-               c.slug as category, c.name as category_name,
+        select p.id, p.sku, p.name, p.name_tr, p.description, p.description_tr,
+               p.price, p.currency, p.is_active, p.created_at,
+               c.slug as category, c.name as category_name, c.name_tr as category_name_tr,
                b.name as brand,
                (select count(*)::int from product_variants v where v.product_id = p.id) as variant_count,
                (select coalesce(sum(i.stock_qty), 0)::int
@@ -101,8 +104,10 @@ catalogRouter.get('/products/:id', asyncRoute(async (req, res) => {
     if (!Number.isInteger(id)) throw badRequest('Ürün id sayı olmalı', { got: req.params.id })
 
     const { rows } = await query(
-        `select p.id, p.sku, p.name, p.description, p.price, p.currency, p.is_active, p.created_at,
-                c.slug as category, c.name as category_name, b.name as brand,
+        `select p.id, p.sku, p.name, p.name_tr, p.description, p.description_tr,
+                p.price, p.currency, p.is_active, p.created_at,
+                c.slug as category, c.name as category_name, c.name_tr as category_name_tr,
+                b.name as brand,
                 round(avg(r.rating) filter (where r.status = 'approved'), 2) as rating_avg,
                 count(r.id) filter (where r.status = 'approved')::int as rating_count
            from products p
@@ -110,7 +115,7 @@ catalogRouter.get('/products/:id', asyncRoute(async (req, res) => {
            left join brands b on b.id = p.brand_id
            left join reviews r on r.product_id = p.id
           where p.sandbox_id = $1 and p.id = $2
-          group by p.id, c.slug, c.name, b.name`,
+          group by p.id, c.slug, c.name, c.name_tr, b.name`,
         [req.sandbox.id, id],
     )
     const product = rows[0]
@@ -135,7 +140,7 @@ catalogRouter.get('/products/:id/variants', asyncRoute(async (req, res) => {
     if (!exists.rows.length) throw notFound('Ürün bulunamadı')
 
     const { rows } = await query(
-        `select v.id, v.sku, v.size, v.color,
+        `select v.id, v.sku, v.size, v.color, v.color_tr,
                 round(p.price + v.price_delta, 2) as price,
                 i.stock_qty, i.reserved_qty,
                 greatest(i.stock_qty - i.reserved_qty, 0) as available
@@ -152,7 +157,7 @@ catalogRouter.get('/products/:id/variants', asyncRoute(async (req, res) => {
 // GET /api/v1/categories — ağaç yapısı
 catalogRouter.get('/categories', asyncRoute(async (req, res) => {
     const { rows } = await query(
-        `select c.id, c.name, c.slug, c.parent_id,
+        `select c.id, c.name, c.name_tr, c.slug, c.parent_id,
                 (select count(*)::int from products p
                   where p.category_id = c.id and p.is_active) as product_count
            from categories c
@@ -199,7 +204,7 @@ catalogRouter.get('/categories/:id/products', asyncRoute(async (req, res) => {
                  union all
                  select c.id from categories c join tree t on c.parent_id = t.id
              )
-             select p.id, p.sku, p.name, p.price, p.currency, b.name as brand
+             select p.id, p.sku, p.name, p.name_tr, p.price, p.currency, b.name as brand
                 from products p
                 left join brands b on b.id = p.brand_id
                where p.sandbox_id = $1 and p.is_active and p.category_id in (select id from tree)
@@ -245,15 +250,18 @@ catalogRouter.get('/search', asyncRoute(async (req, res) => {
         query(
             `select count(*)::int as total from products p
               where p.sandbox_id = $1 and p.is_active
-                and (p.name ILIKE $2 or p.sku ILIKE $2 or p.description ILIKE $2)`,
+                and (p.name ILIKE $2 or p.name_tr ILIKE $2
+                     or p.sku ILIKE $2 or p.description ILIKE $2)`,
             [req.sandbox.id, like]),
         query(
-            `select p.id, p.sku, p.name, p.price, p.currency, b.name as brand, c.slug as category
+            `select p.id, p.sku, p.name, p.name_tr, p.price, p.currency,
+                    b.name as brand, c.slug as category
                from products p
                left join brands b on b.id = p.brand_id
                left join categories c on c.id = p.category_id
               where p.sandbox_id = $1 and p.is_active
-                and (p.name ILIKE $2 or p.sku ILIKE $2 or p.description ILIKE $2)
+                and (p.name ILIKE $2 or p.name_tr ILIKE $2
+                     or p.sku ILIKE $2 or p.description ILIKE $2)
               order by p.name
               limit $3 offset $4`,
             [req.sandbox.id, like, size, offset]),

@@ -76,6 +76,96 @@ if (tanimsiz.length) {
     )
 }
 
+// ── 4. Kategori ucu: taklit katman sözleşmeden GEVŞEK olamaz ───────────────
+//
+// Sözleşme /categories/{id}/products için id: integer der. Tarayıcı katmanı bir
+// süre `slug = ? or id = ?` diyerek slug'ı da kabul etti; bu hoşgörü arayüzün
+// yanlış istek attığını GİZLEDİ. Docker kipinde her kategori sekmesi 400
+// dönerken tarayıcı kipinde sorunsuz görünüyordu.
+//
+// Ders: iki arka uçtan gevşek olanı, hatayı saklayan taraftır.
+const kategoriBlok = tarayiciMetin.match(/function kategoriUrunleri\([\s\S]*?\n\}/)
+if (!kategoriBlok) {
+    console.error('✖ qa-shop-browser/api.js icinde kategoriUrunleri bulunamadi.')
+    process.exit(1)
+}
+if (/categories where slug/.test(kategoriBlok[0])) {
+    hatalar.push(
+        'Tarayıcı katmanı kategori ucunda SLUG kabul ediyor, sözleşme ise sayısal id istiyor.\n'
+        + '    Gevşek taklit katman, arayüzün yanlış istek attığını gizler:\n'
+        + '    Docker kipinde 400 dönerken tarayıcı kipinde sorunsuz görünür.',
+    )
+}
+if (!/Number\.parseInt\(idHam/.test(kategoriBlok[0])) {
+    hatalar.push('Tarayıcı katmanı kategori id\'sini sayıya çevirip doğrulamıyor.')
+}
+
+// ── 5. Arayüz kategori yoluna SLUG koymamalı ───────────────────────────────
+if (/\/categories\/\$\{aktifKategori\}/.test(arayuzMetin)) {
+    hatalar.push(
+        'Arayüz kategori yoluna slug koyuyor (/categories/${aktifKategori}/products).\n'
+        + '    Sözleşme sayısal id ister; slug gonderen istek 400 doner ve vitrin bosalir.',
+    )
+}
+
+// ── 6. İki dilli katalog alanları ÜÇ katmanda da bulunmalı ────────────────
+//
+// Katalog iki dillidir: her cevapta hem İngilizce hem Türkçe alan döner ve
+// hangisinin gösterileceğine arayüz karar verir. Bu ancak üç katman da aynı
+// alanları taşırsa çalışır:
+//
+//   · sunucu   (catalog.js select listeleri)
+//   · tarayıcı (qa-shop-browser/api.js)
+//   · sözleşme (openapi.yaml)
+//
+// Bir katman bir alanı unutursa sonuç SESSİZDİR: alan undefined gelir,
+// arayüzdeki tercih İngilizceye düşer ve dükkân o ekranda yarı Türkçe
+// görünür. Hiçbir test bunu kırmaz, çünkü sayfa çalışmaya devam eder.
+//
+// ⚠ Bir ara bu çeviri ARAYÜZDE yapılıyordu. Yanlıştı: burası bir otomasyon
+// hedefi ve öğrenci ekrandaki metni API nin döndürdüğüyle karşılaştırır.
+// Ekranda "Klasik Lacivert Mont" gösterip API de "Classic Navy Coat"
+// döndürmek, öğrencinin yazdığı her karşılaştırmayı yalancı yapardı.
+const sozlesmeMetin = oku('qa-shop/api/openapi.yaml')
+
+const IKI_DILLI_ALANLAR = [
+    { alan: 'name_tr', nerede: 'ürün adı' },
+    { alan: 'description_tr', nerede: 'ürün açıklaması' },
+    { alan: 'category_name_tr', nerede: 'kategori adı (ürün cevabında)' },
+    { alan: 'color_tr', nerede: 'varyant rengi' },
+]
+
+for (const { alan, nerede } of IKI_DILLI_ALANLAR) {
+    const eksik = []
+    if (!sunucuMetin.includes(alan)) eksik.push('sunucu (catalog.js)')
+    if (!tarayiciMetin.includes(alan)) eksik.push('tarayıcı (qa-shop-browser/api.js)')
+    if (!sozlesmeMetin.includes(alan)) eksik.push('sözleşme (openapi.yaml)')
+    if (eksik.length) {
+        hatalar.push(
+            `İki dilli alan ${alan} (${nerede}) şu katmanlarda YOK: ${eksik.join(', ')}\n`
+            + '    Eksik katman alanı undefined döndürür, arayüz İngilizceye düşer ve\n'
+            + '    dükkân o ekranda sessizce yarı Türkçe görünür.',
+        )
+    }
+}
+
+// Kategori ağacı cevabında da Türkçe ad dönmeli: şerit etiketleri oradan gelir.
+if (!/c\.name_tr/.test(sunucuMetin) || !/name_tr, slug, parent_id/.test(tarayiciMetin)) {
+    hatalar.push(
+        'Kategori ağacı cevabı name_tr taşımıyor.\n'
+        + '    Kategori şeridi etiketlerini oradan okur; eksikse şerit İngilizce kalır.',
+    )
+}
+
+// Arayüz kendi çeviri sözlüğünü YENİDEN kurmamalı: çeviri veridedir.
+if (/KATEGORI_ADLARI_TR|URUN_ADLARI_TR/.test(arayuzMetin)) {
+    hatalar.push(
+        'Arayüzde katalog çeviri sözlüğü var. Çeviri VERİDEDİR (name_tr/color_tr).\n'
+        + '    İkinci bir mekanizma kaçınılmaz olarak veriden ayrışır ve ekranla\n'
+        + '    API birbirini tutmaz — otomasyon hedefinde bu bir hata kaynağıdır.',
+    )
+}
+
 const gecersizYon = arayuzSecenekler.filter((s) => !['asc', 'desc'].includes(s.split(':')[1]))
 if (gecersizYon.length) {
     hatalar.push(`Sıralama yönü yalnızca asc|desc olabilir, geçersiz: ${gecersizYon.join(', ')}`)
@@ -102,6 +192,6 @@ if (hatalar.length) {
 }
 
 console.log(
-    `QA Shop sıralama sözleşmesi uyumlu (alanlar: ${sunucuAlanlar.join(', ')} · `
-    + `arayüz: ${arayuzSecenekler.join(', ')}).`,
+    `QA Shop katalog sözleşmesi uyumlu (sıralama: ${sunucuAlanlar.join(', ')} · `
+    + `arayüz: ${arayuzSecenekler.join(', ')} · kategori ucu sayısal id).`,
 )

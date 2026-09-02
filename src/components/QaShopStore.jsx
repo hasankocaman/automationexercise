@@ -320,7 +320,35 @@ function fotografYolu(urun, tip) {
     return `${import.meta.env.BASE_URL}${secenekler[sira]}`
 }
 
-export function UrunGorseli({ urun, boyut = 'kart' }) {
+// ─── İki dilli katalog alanları ─────────────────────────────────────────────
+//
+// KATALOG İKİ DİLLİDİR ve çeviri VERİDEDİR, arayüzde değil.
+//
+// ⚠ Bir ara kategori adları arayüzde çevrilmişti. Yanlıştı: burası bir otomasyon
+// pratiği hedefi ve öğrenci ekrandaki metni API'nin döndürdüğüyle karşılaştırır.
+// Arayüzde çeviri yapmak, ekranda "Klasik Lacivert Mont" gösterip API'de
+// "Classic Navy Coat" döndürmek demekti — öğrencinin yazdığı her karşılaştırma
+// yalan söylerdi.
+//
+// Bu yüzden `name_tr`/`description_tr`/`color_tr`/`category_name_tr` alanları
+// şemaya eklendi ve HER cevapta dönüyor. Accept-Language ile içerik pazarlığı
+// bilerek seçilmedi: başlığa göre değişen bir gövde, "aynı isteği attım başka
+// şey geldi" diyen bir sınıf hata üretirdi. Ekleme yönünde olduğu için `name`e
+// bakan mevcut Postman/REST Assured örnekleri aynen çalışır.
+//
+// Marka adları (Nike, Zara) çevrilmez: özel isimdir. Beden (S/M/L) evrenseldir.
+//
+// Yardımcılar BURADA durur, sayfada değil: hem kart hem sayfa aynı seçimi
+// yapmalı. Sayfada tanımlanıp prop olarak gezdirilseydi, yeni bir bileşen
+// eklendiğinde sessizce İngilizceye düşerdi.
+export const tercihliMetin = (tr, en, isTr) => ((isTr ? (tr || en) : en) ?? '')
+
+export const urunAdi = (urun, isTr) => tercihliMetin(urun?.name_tr, urun?.name, isTr)
+export const urunAciklamasi = (urun, isTr) => tercihliMetin(urun?.description_tr, urun?.description, isTr)
+export const kategoriAdi = (kategori, isTr) => tercihliMetin(kategori?.name_tr, kategori?.name, isTr)
+export const varyantRengi = (varyant, isTr) => tercihliMetin(varyant?.color_tr, varyant?.color, isTr)
+
+export function UrunGorseli({ urun, boyut = 'kart', isTr = false }) {
     // useId her <svg> örneğine gerçekten benzersiz bir kimlik verir; gradyan/
     // filtre id'leri ürün id'sine bağlı kalsaydı aynı ürün aynı sayfada iki
     // farklı boyutta render edildiğinde (kart + detay) id çakışması olurdu.
@@ -352,7 +380,7 @@ export function UrunGorseli({ urun, boyut = 'kart' }) {
         return (
             <img
                 src={fotograf}
-                alt={urun?.name ?? ''}
+                alt={urunAdi(urun, isTr)}
                 data-testid={`urun-gorsel-${urun?.id}`}
                 loading="lazy"
                 decoding="async"
@@ -371,7 +399,7 @@ export function UrunGorseli({ urun, boyut = 'kart' }) {
         <svg
             viewBox="0 0 100 100"
             role="img"
-            aria-label={urun?.name ?? ''}
+            aria-label={urunAdi(urun, isTr)}
             data-testid={`urun-gorsel-${urun?.id}`}
             className={`w-full ${oran}`}
             preserveAspectRatio="xMidYMid slice"
@@ -476,6 +504,7 @@ export function Yildizlar({ puan = 0, adet = 0, id, isTr }) {
 // İkisi de adres yazsaydı tek tıkta iki geçmiş kaydı oluşur ve geri tuşu iki
 // kez basmayı gerektirirdi.
 export function UrunKarti({ urun, isTr, darkMode, para, onDetay, onHizliEkle, mesgul, urunAdresi }) {
+    const ad = urunAdi(urun, isTr)
     const [favori, setFavori] = useState(false)
     const kart = darkMode
         ? 'border-slate-800 bg-slate-900 hover:border-slate-700'
@@ -497,11 +526,11 @@ export function UrunKarti({ urun, isTr, darkMode, para, onDetay, onHizliEkle, me
                 data-testid={`urun-detay-${urun.id}`}
                 onClick={() => onDetay(urun)}
                 className="block w-full overflow-hidden text-left"
-                aria-label={urun.name}
+                aria-label={ad}
             >
                 <span className="block overflow-hidden">
                     <span className="block transition-transform duration-300 group-hover:scale-105">
-                        <UrunGorseli urun={urun} />
+                        <UrunGorseli urun={urun} isTr={isTr} />
                     </span>
                 </span>
             </Link>
@@ -535,7 +564,7 @@ export function UrunKarti({ urun, isTr, darkMode, para, onDetay, onHizliEkle, me
                     onClick={() => onDetay(urun)}
                     className="text-left text-sm font-semibold hover:underline"
                 >
-                    <span className="line-clamp-2">{urun.name}</span>
+                    <span className="line-clamp-2">{ad}</span>
                 </Link>
 
                 <Yildizlar puan={urun.rating_avg} adet={urun.rating_count} id={urun.id} isTr={isTr} />

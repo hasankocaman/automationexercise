@@ -29,30 +29,33 @@ insert into brands (sandbox_id, name) values
     (:'TPL', 'Mango'),  (:'TPL', 'Nike'),  (:'TPL', 'Polo'),   (:'TPL', 'Zara');
 
 -- ─── Kategoriler: 4 üst + 8 alt ─────────────────────────────────────────────
-insert into categories (sandbox_id, name, slug, parent_id) values
-    (:'TPL', 'Clothing',    'clothing',    null),
-    (:'TPL', 'Shoes',       'shoes',       null),
-    (:'TPL', 'Accessories', 'accessories', null),
-    (:'TPL', 'Outerwear',   'outerwear',   null);
+-- Kategori adı hem İngilizce hem Türkçe tutulur. Arayüz hangisini göstereceğine
+-- kendi diline göre karar verir; API ikisini de her cevapta döndürür.
+insert into categories (sandbox_id, name, name_tr, slug, parent_id) values
+    (:'TPL', 'Clothing',    'Giyim',      'clothing',    null),
+    (:'TPL', 'Shoes',       'Ayakkabı',   'shoes',       null),
+    (:'TPL', 'Accessories', 'Aksesuar',   'accessories', null),
+    (:'TPL', 'Outerwear',   'Dış Giyim',  'outerwear',   null);
 
-insert into categories (sandbox_id, name, slug, parent_id)
-select :'TPL', c.name, c.slug, p.id
+insert into categories (sandbox_id, name, name_tr, slug, parent_id)
+select :'TPL', c.name, c.name_tr, c.slug, p.id
   from (values
-        ('T-Shirts', 'tshirts',  'clothing'),
-        ('Shirts',   'shirts',   'clothing'),
-        ('Dresses',  'dresses',  'clothing'),
-        ('Jeans',    'jeans',    'clothing'),
-        ('Sneakers', 'sneakers', 'shoes'),
-        ('Boots',    'boots',    'shoes'),
-        ('Bags',     'bags',     'accessories'),
-        ('Coats',    'coats',    'outerwear')
-       ) as c(name, slug, parent_slug)
+        ('T-Shirts', 'Tişört',         'tshirts',  'clothing'),
+        ('Shirts',   'Gömlek',         'shirts',   'clothing'),
+        ('Dresses',  'Elbise',         'dresses',  'clothing'),
+        ('Jeans',    'Kot Pantolon',   'jeans',    'clothing'),
+        ('Sneakers', 'Spor Ayakkabı',  'sneakers', 'shoes'),
+        ('Boots',    'Bot',            'boots',    'shoes'),
+        ('Bags',     'Çanta',          'bags',     'accessories'),
+        ('Coats',    'Mont',           'coats',    'outerwear')
+       ) as c(name, name_tr, slug, parent_slug)
   join categories p on p.sandbox_id = :'TPL' and p.slug = c.parent_slug;
 
 -- ─── Ürünler (120) ──────────────────────────────────────────────────────────
 -- Dikişler:  i % 13 = 0  → pasif ürün (soft delete)  → 9 ürün
 --            i % 11 = 0  → markasız ürün (NULL FK)   → 10 ürün
-insert into products (sandbox_id, sku, name, description, category_id, brand_id,
+insert into products (sandbox_id, sku, name, name_tr, description, description_tr,
+                      category_id, brand_id,
                       price, currency, is_active, created_at)
 -- ⚠ ÜRETEÇ TASARIMI — modüler aritmetikte KORELASYON tuzağı:
 -- İlk sürümde sıfat, tip, renk, marka ve kategori BEŞİ DE `i % 8`in bir
@@ -87,6 +90,17 @@ gen as (
                [1 + (((t.i / 8) * 3 + (t.i / 8) / 8 + (t.i % 8)) % 8)]         as col,
            (array['T-Shirt','Shirt','Dress','Jeans',
                   'Sneakers','Boots','Bag','Coat'])[1 + (t.i % 8)]            as typ,
+           -- Türkçe sözlükler İngilizcelerle AYNI SIRADA ve aynı indeksle
+           -- okunur: bir dilde kayma olursa öbürü de kayar, yani ad çiftleri
+           -- birbirinden ayrışamaz. `Vintage` ve `Premium` Türk perakendesinde
+           -- yerleşik olduğu için çevrilmez.
+           (array['Klasik','Dar Kesim','Bol Kesim','Vintage',
+                  'Premium','Temel','Spor','Günlük'])[1 + ((t.i / 8) % 8)]    as adj_tr,
+           (array['Siyah','Beyaz','Mavi','Kırmızı',
+                  'Gri','Yeşil','Bej','Lacivert'])
+               [1 + (((t.i / 8) * 3 + (t.i / 8) / 8 + (t.i % 8)) % 8)]         as col_tr,
+           (array['Tişört','Gömlek','Elbise','Kot Pantolon',
+                  'Spor Ayakkabı','Bot','Çanta','Mont'])[1 + (t.i % 8)]       as typ_tr,
            -- Tip dizisiyle AYNI sırada: her ürün kendi kategorisine düşer.
            (array['tshirts','shirts','dresses','jeans',
                   'sneakers','boots','bags','coats'])[1 + (t.i % 8)]          as cat_slug,
@@ -95,8 +109,12 @@ gen as (
 )
 select :'TPL',
        'SKU-' || lpad(g.i::text, 4, '0'),
-       g.adj || ' ' || g.col || ' ' || g.typ,
-       g.adj || ' ' || g.typ || ' — QA Shop demo ürünü #' || g.i,
+       g.adj    || ' ' || g.col    || ' ' || g.typ,
+       g.adj_tr || ' ' || g.col_tr || ' ' || g.typ_tr,
+       -- İngilizce açıklama da İngilizce olmalıydı: "demo ürünü" iki dilde de
+       -- yazılıydı, yani EN tarafında Türkçe sızıntısıydı.
+       g.adj    || ' ' || g.typ    || ' — QA Shop demo product #' || g.i,
+       g.adj_tr || ' ' || g.typ_tr || ' — QA Shop demo ürünü #'   || g.i,
        c.id,
        case when g.i % 11 = 0 then null else b.id end,
        ((100 + ((g.i * 37) % 900))::numeric + 0.99),
@@ -108,7 +126,7 @@ select :'TPL',
   join brs  b on b.rn = g.br_rn;
 
 -- ─── Varyantlar (120 × 3 = 360) ─────────────────────────────────────────────
-insert into product_variants (sandbox_id, product_id, size, color, sku, price_delta)
+insert into product_variants (sandbox_id, product_id, size, color, color_tr, sku, price_delta)
 select :'TPL',
        p.id,
        (array['S','M','L'])[v.k + 1],
@@ -120,6 +138,14 @@ select :'TPL',
        -- gibi iki kelimeli sıfatlar yanlış parçayı verirdi.
        (regexp_split_to_array(p.name, ' '))
            [cardinality(regexp_split_to_array(p.name, ' ')) - 1],
+       -- Türkçe renk de Türkçe ADDAN okunur. Türkçe tipler İKİ kelimeli
+       -- olabildiği için (`Kot Pantolon`, `Spor Ayakkabı`) sondan sabit bir
+       -- konum SAYILAMAZ; renk, İngilizce addaki renk indeksiyle eşlenir.
+       (array['Siyah','Beyaz','Mavi','Kırmızı','Gri','Yeşil','Bej','Lacivert'])[
+           array_position(
+               array['Black','White','Blue','Red','Grey','Green','Beige','Navy'],
+               (regexp_split_to_array(p.name, ' '))
+                   [cardinality(regexp_split_to_array(p.name, ' ')) - 1])],
        p.sku || '-' || (array['S','M','L'])[v.k + 1],
        (v.k * 15)::numeric
   from products p

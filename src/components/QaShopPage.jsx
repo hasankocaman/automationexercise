@@ -25,7 +25,10 @@ import useKaranlikMod from '../hooks/useKaranlikMod'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useLanguage } from '../context/LanguageContext'
 import TopicHeader from './TopicHeader'
-import { UrunKarti, UrunGorseli, Yildizlar } from './QaShopStore'
+import {
+    UrunKarti, UrunGorseli, Yildizlar,
+    urunAdi, urunAciklamasi, kategoriAdi, varyantRengi,
+} from './QaShopStore'
 import QaShopManuelTur from './QaShopManuelTur'
 import QaShopGecis from './QaShopGecis'
 import QaShopHizliGecis from './QaShopHizliGecis'
@@ -74,6 +77,23 @@ const SAYFA_BOYU = 24
 // Liste ayrıca bir GÜVENLİK AĞIDIR: sıralama artık adreste taşındığı için elle
 // yazılmış ya da eskimiş bir bağlantı (`?sirala=uydurma`) vitrini kilitleyebilir.
 // Tanınmayan değer sessizce varsayılana düşer.
+// KATALOG İKİ DİLLİDİR ve çeviri VERİDEDİR, arayüzde değil.
+//
+// ⚠ Bir ara kategori adları burada, arayüzde çevrilmişti. Yanlıştı: burası bir
+// otomasyon pratiği hedefi ve öğrenci ekrandaki metni API'nin döndürdüğüyle
+// karşılaştırıyor. Arayüzde çeviri yapmak, ekranda "Klasik Lacivert Mont"
+// gösterip API'de "Classic Navy Coat" döndürmek demekti — öğrencinin yazdığı
+// her karşılaştırma yalan söylerdi.
+//
+// Bu yüzden `name_tr`/`description_tr`/`color_tr`/`category_name_tr` alanları
+// şemaya eklendi ve HER cevapta dönüyor. Accept-Language ile içerik pazarlığı
+// bilerek seçilmedi: başlığa göre değişen bir gövde, "aynı isteği attım başka
+// şey geldi" diyen bir sınıf hata üretirdi. Ekleme yönünde olduğu için `name`e
+// bakan mevcut Postman/REST Assured örnekleri aynen çalışır.
+//
+// Marka adları (Nike, Zara) çevrilmez: özel isimdir. Beden (S/M/L) evrenseldir.
+// Yardımcılar QaShopStore'dan gelir — tek tanım, hem kart hem sayfa.
+
 const SIRALAMA_SECENEKLERI = ['price:asc', 'price:desc', 'created:desc']
 const VARSAYILAN_SIRALAMA = 'price:asc'
 // Kaç defect canlı olacak. Üç, on ihtimalin içinde aramayı anlamlı tutacak
@@ -630,9 +650,25 @@ export default function QaShopPage() {
         const [alan, yon] = siralama.split(':')
         const q = new URLSearchParams({ page: String(sayfa), size: String(SAYFA_BOYU), sort: alan, order: yon })
         if (arama.trim().length >= 2) q.set('q', arama.trim())
-        const yol = aktifKategori
-            ? `/categories/${aktifKategori}/products?${q}`
-            : `/products?${q}`
+        // ⚠ Sözleşme kategori için SAYISAL id ister (/categories/{id}/products).
+        // Adreste ise okunabilir slug taşınır (`?kategori=jeans` paylaşılabilir
+        // bir bağlantıdır, `?kategori=5` değildir); çeviri BURADA yapılır.
+        // Önceden slug doğrudan yola konuyordu ve Docker kipinde her kategori
+        // sekmesi 400 dönüyordu.
+        let yol = `/products?${q}`
+        if (aktifKategori) {
+            const kategori = kategoriler.find((k) => k.slug === aktifKategori)
+            if (!kategori) {
+                // Kategoriler henüz gelmediyse istek ATILMAZ: yanlış listeyi
+                // göstermektense beklemek doğrudur. Liste gelince bu callback'in
+                // kimliği değişir ve onu izleyen effect yeniden koşar.
+                // Liste GELDİĞİ hâlde slug yoksa adres uydurmadır — temizlenir,
+                // yoksa vitrin sonsuza kadar boş kalırdı.
+                if (kategoriler.length) setAktifKategori('')
+                return
+            }
+            yol = `/categories/${kategori.id}/products?${q}`
+        }
         const sonuc = await istek(yol)
         if (sonuc.ok) {
             setUrunler(sonuc.govde?.items ?? [])
@@ -659,7 +695,7 @@ export default function QaShopPage() {
         // hataGoster BİLEREK kullanılmadı: o bir useCallback değil, her
         // render'da yeniden kuruluyor. Bağımlılığa eklenseydi urunleriYukle de
         // her render'da değişir ve onu izleyen effect sonsuz döngüye girerdi.
-    }, [istek, siralama, arama, aktifKategori, sayfa, isTr])
+    }, [istek, siralama, arama, aktifKategori, sayfa, isTr, kategoriler, setAktifKategori])
 
     const kategorileriYukle = useCallback(async () => {
         const sonuc = await istek('/categories')
@@ -1262,7 +1298,7 @@ export default function QaShopPage() {
                                         onClick={() => setAktifKategori(k.slug)}
                                         className={`min-h-[36px] shrink-0 rounded-full px-3 py-1 text-sm font-semibold transition ${
                                             aktifKategori === k.slug ? 'bg-orange-600 text-white' : darkMode ? 'bg-slate-800' : 'bg-slate-200'}`}>
-                                    {k.name}
+                                    {kategoriAdi(k, isTr)}
                                 </button>
                             ))}
                         </div>
@@ -1331,7 +1367,8 @@ export default function QaShopPage() {
                             {arama.trim()
                                 ? `${tx(M.aramaSonucu, isTr)}: ${arama.trim()}`
                                 : aktifKategori
-                                    ? (kategoriler.find((k) => k.slug === aktifKategori)?.name ?? tx(M.tumUrunler, isTr))
+                                    ? (kategoriAdi(kategoriler.find((k) => k.slug === aktifKategori), isTr)
+                                        ?? tx(M.tumUrunler, isTr))
                                     : tx(M.tumUrunler, isTr)}
                         </h1>
                         <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
@@ -1441,12 +1478,12 @@ export default function QaShopPage() {
 
                         <div className="grid gap-6 md:grid-cols-2">
                             <div className={`overflow-hidden rounded-2xl border ${card}`}>
-                                <UrunGorseli urun={secilenUrun} boyut="detay" />
+                                <UrunGorseli urun={secilenUrun} boyut="detay" isTr={isTr} />
                             </div>
 
                             <div>
                                 <p className="text-xs font-bold uppercase tracking-wide opacity-60">{secilenUrun.brand}</p>
-                                <h1 data-testid="detay-ad" className="mt-1 text-2xl font-extrabold">{secilenUrun.name}</h1>
+                                <h1 data-testid="detay-ad" className="mt-1 text-2xl font-extrabold">{urunAdi(secilenUrun, isTr)}</h1>
                                 <div className="mt-2">
                                     <Yildizlar puan={secilenUrun.rating_avg} adet={secilenUrun.rating_count}
                                                id={secilenUrun.id} isTr={isTr} />
@@ -1474,7 +1511,7 @@ export default function QaShopPage() {
 
                                 {secilenVaryant && (
                                     <p className="mt-3 text-sm opacity-80">
-                                        {tx(M.renk, isTr)}: <b>{secilenVaryant.color}</b> ·{' '}
+                                        {tx(M.renk, isTr)}: <b>{varyantRengi(secilenVaryant, isTr)}</b> ·{' '}
                                         <b data-testid={`varyant-stok-${secilenVaryant.id}`}>{secilenVaryant.available}</b>{' '}
                                         {tx(M.stok, isTr)}
                                     </p>
@@ -1496,7 +1533,7 @@ export default function QaShopPage() {
 
                                 <div className={`mt-6 rounded-xl border p-4 ${card}`}>
                                     <p className="text-sm font-bold">{tx(M.aciklama, isTr)}</p>
-                                    <p data-testid="detay-aciklama" className="mt-1 text-sm opacity-80">{secilenUrun.description}</p>
+                                    <p data-testid="detay-aciklama" className="mt-1 text-sm opacity-80">{urunAciklamasi(secilenUrun, isTr)}</p>
                                     <p className="mt-2 text-xs opacity-60">SKU: {secilenUrun.sku}</p>
                                 </div>
                             </div>
@@ -1552,7 +1589,7 @@ export default function QaShopPage() {
                                             <div className="min-w-0 flex-1">
                                                 <p className="text-sm font-bold">{it.product_name}</p>
                                                 <p className="text-xs opacity-60">
-                                                    {it.size} · {it.color} · {para(it.unit_price)}
+                                                    {it.size} · {varyantRengi(it, isTr)} · {para(it.unit_price)}
                                                 </p>
                                             </div>
                                             <div className="flex items-center gap-1">
