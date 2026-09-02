@@ -17,7 +17,9 @@
 // veya REST Assured dışarıdan erişemez — onlar için Docker katmanı gerekir.
 import initSqlJs from 'sql.js'
 import wasmUrl from 'sql.js/dist/sql-wasm.wasm?url'
-import { SQLITE_SEMA, TOHUM_VERI, PBKDF2_TUR, PBKDF2_UZUNLUK } from '../data/generated/qaShopSeed.js'
+import {
+    SQLITE_SEMA, TOHUM_VERI, PBKDF2_TUR, PBKDF2_UZUNLUK, KAYNAK_HASH,
+} from '../data/generated/qaShopSeed.js'
 
 const IDB_AD = 'qa-shop-browser'
 const IDB_DEPO = 'db'
@@ -103,6 +105,12 @@ function tohumYukle(veritabani) {
         stmt.free()
     }
     veritabani.run("INSERT OR REPLACE INTO browser_meta (anahtar, deger) VALUES ('bug_flags', '{}')")
+    // Şema/tohum SÜRÜM DAMGASI. Kalıcı veritabanı ancak bu damga güncel
+    // kaynakla aynıysa yeniden kullanılır (bkz. dbHazirla).
+    veritabani.run(
+        'INSERT OR REPLACE INTO browser_meta (anahtar, deger) VALUES (?, ?)',
+        ['sema_hash', KAYNAK_HASH],
+    )
 }
 
 let SQL = null
@@ -115,12 +123,39 @@ export async function dbHazirla() {
     if (kayitli) {
         try {
             db = new SQL.Database(new Uint8Array(kayitli))
-            // Kayıtlı ikili eski bir şemadan kalmış olabilir; şemanın gerçekten
-            // beklenen tabloları taşıdığını doğrula, taşımıyorsa tohumdan kur.
-            db.exec('select count(*) from products')
             db.run(META_SEMA)
+
+            // ⚠ SÜRÜM DAMGASI KONTROLÜ — tablo varlığına bakmak YETMEZ.
+            //
+            // Buradaki eski kontrol `select count(*) from products` idi: yalnızca
+            // TABLONUN var olduğunu doğruluyordu, SÜTUNLARINI değil. Ölçüldü
+            // (2026-09-02, yayında): katalog iki dilli yapılıp `name_tr` sütunu
+            // eklendiğinde, daha önce siteyi ziyaret etmiş herkesin tarayıcısında
+            // ESKİ şemayla kurulmuş bir veritabanı duruyordu. Kontrol onu
+            // "sağlam" sayıp geçiyor, ilk gerçek sorgu ise
+            // "no such column: p.name_tr" ile patlıyordu — vitrin komple boştu.
+            //
+            // Testler bunu göremezdi: Playwright her testte TEMİZ profil açar,
+            // yani kalıcı eski veritabanı diye bir şey oluşmaz. Kusur yalnızca
+            // GERÇEK bir ziyaretçide, yalnızca İKİNCİ ziyarette ortaya çıkar.
+            //
+            // Çözüm sürüm damgası: türevin kaynak hash'i veritabanının içinde
+            // saklanır. Şema ya da tohum veri değiştiğinde hash değişir ve eski
+            // kopya otomatik olarak atılır. Artık "hangi sütun eklendi" diye
+            // tek tek düşünmek gerekmez.
+            const sonuc = db.exec("select deger from browser_meta where anahtar = 'sema_hash'")
+            const damga = sonuc?.[0]?.values?.[0]?.[0] ?? null
+            if (damga !== KAYNAK_HASH) throw new Error('sema surumu eski')
+
+            // Damga güncel olsa bile tabloyu bir kez yokla: ikili bozuksa
+            // burada anlaşılır ve tohumdan yeniden kurulur.
+            db.exec('select count(*) from products')
             return db
         } catch {
+            // Eski ya da bozuk kopya: sessizce atılır ve tohumdan kurulur.
+            // Kullanıcı sepetini kaybeder ama çalışan bir dükkân görür —
+            // alternatifi boş bir vitrin ve anlaşılmaz bir hata mesajıydı.
+            try { db?.close() } catch { /* zaten kapalı */ }
             db = null
             await idbSil()
         }

@@ -2254,3 +2254,119 @@ test('/qa-shop — katalog iki dilli ve ekran API ile birebir aynı', async ({ p
     const marka = (await page.locator(`[data-testid="urun-marka-${urunId}"]`).innerText()).trim();
     expect(marka, 'ekrandaki marka API ile uyuşmuyor').toBe(govde?.product?.brand ?? '');
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 16. Kalıcı tarayıcı veritabanı: ESKİ sürüm otomatik atılmalı
+// ─────────────────────────────────────────────────────────────────────────────
+// ⚠ BU TESTİN VAR OLMA SEBEBİ (2026-09-02, yayında yaşandı):
+//
+// Tarayıcı katmanı veritabanını IndexedDB'de KALICI saklar. Katalog iki dilli
+// yapılıp `name_tr` sütunu eklendiğinde, daha önce siteyi ziyaret etmiş herkesin
+// tarayıcısında eski şemayla kurulmuş bir kopya duruyordu. Eski sağlamlık
+// kontrolü yalnızca `select count(*) from products` yapıyordu — TABLONUN
+// varlığına bakıp SÜTUNLARINA bakmıyordu — ve o kopyayı "sağlam" sayıyordu.
+// İlk gerçek sorgu "no such column: p.name_tr" ile patlıyor, vitrin boş kalıyordu.
+//
+// Playwright her testte TEMİZ profil açtığı için paketin tamamı yeşildi: kalıcı
+// eski veritabanı diye bir şey hiç oluşmuyordu. Kusur yalnızca gerçek bir
+// ziyaretçide, yalnızca İKİNCİ ziyarette görünüyordu.
+//
+// Bu test o durumu BİLEREK üretir: kaydedilmiş veritabanının sürüm damgasını
+// bozar ve uygulamanın kendini toparlamasını bekler.
+test('/qa-shop — eski sürümlü kalıcı veritabanı sessizce yenilenir', async ({ page }) => {
+    test.setTimeout(180_000);
+    await page.addInitScript((adres) => {
+        localStorage.setItem('qaShopApiBase', adres);
+    }, KAPALI_API);
+
+    const errors = collectErrors(page);
+
+    // 1) İlk ziyaret: veritabanı kurulur ve IndexedDB’ye yazılır.
+    await page.goto('/qa-shop');
+    await waitForAppReady(page, { timeout: 60_000 });
+    await expect(page.locator('[data-testid="urun-listesi"]')).toBeVisible({ timeout: 60_000 });
+    const ilkSayi = Number(await page.getByTestId('urun-sayisi').innerText());
+    expect(ilkSayi, 'ilk ziyarette vitrin boş').toBeGreaterThan(0);
+
+    // 2) DÜKKÂNDAN ÇIK. Bu adım şart: sayfa kapanırken uygulamanın bekleyen
+    //    kaydı diske düşer. Çıkmadan yamasaydık, o kayıt yamamızı EZERDİ ve
+    //    test hiçbir şey sınamadan yeşil kalırdı (ilk yazımda tam olarak
+    //    böyle oldu: sürüm kontrolü kapalıyken bile geçiyordu).
+    await page.goto('/qa-shop-setup');
+    await waitForAppReady(page, { timeout: 60_000 });
+
+    // 3) Kaydı GERÇEKTEN eski bir sürüme çevir. İki şey birden eskitilir,
+    //    çünkü gerçek senaryoda ikisi birlikte eskir:
+    //      · şema  : sqlite_master içindeki `name_tr` → `name_xx` (aynı uzunluk,
+    //                dosya düzeni kaymaz) → sütun artık "yok"
+    //      · damga : sürüm hash’i bozulur → uygulama eskidiğini anlar
+    //    Sürüm kontrolü olmasaydı bu kayıt "sağlam" sanılır ve ilk katalog
+    //    sorgusu "no such column" ile patlardı — yayında yaşanan tam olarak bu.
+    const sonuc = await page.evaluate(async () => {
+        const ac = () => new Promise<IDBDatabase>((res, rej) => {
+            const r = indexedDB.open('qa-shop-browser', 1);
+            r.onsuccess = () => res(r.result);
+            r.onerror = () => rej(r.error);
+        });
+        const oku = async (vt: IDBDatabase) => new Promise<ArrayBuffer | null>((res) => {
+            const t = vt.transaction('db', 'readonly');
+            const g = t.objectStore('db').get('sqlite');
+            g.onsuccess = () => res(g.result ?? null);
+            g.onerror = () => res(null);
+        });
+
+        const vt = await ac();
+        const ikili = await oku(vt);
+        if (!ikili) return 'kayit-yok';
+
+        const bayt = new Uint8Array(ikili);
+        const metin = new TextDecoder('latin1').decode(bayt);
+        const damgaYeri = metin.indexOf('sema_hash');
+
+        let sutun = 0;
+        for (let i = 0; i + 7 <= bayt.length; i += 1) {
+            if (metin.startsWith('name_tr', i)) { bayt[i + 5] = 120; bayt[i + 6] = 120; sutun += 1; }
+        }
+        if (!sutun) return 'sutun-yok';
+        if (damgaYeri >= 0) {
+            for (let i = damgaYeri + 9; i < damgaYeri + 20 && i < bayt.length; i += 1) bayt[i] = 48;
+        }
+
+        await new Promise<void>((res) => {
+            const t = vt.transaction('db', 'readwrite');
+            t.objectStore('db').put(bayt.buffer, 'sqlite');
+            t.oncomplete = () => res();
+            t.onerror = () => res();
+        });
+
+        // Yamanın GERÇEKTEN kalıcı olduğunu geri okuyarak doğrula: bu satır
+        // olmadan test, yama hiç uygulanmasa da yeşil kalırdı.
+        const geri = await oku(vt);
+        if (!geri) return 'geri-okunamadi';
+        const geriMetin = new TextDecoder('latin1').decode(new Uint8Array(geri));
+        return geriMetin.includes('name_xx') ? 'bozuldu' : 'yama-tutmadi';
+    });
+    expect(sonuc, 'eski sürüm simülasyonu uygulanamadı').toBe('bozuldu');
+
+    // 4) Dükkâna dön: eski kopya atılmalı ve vitrin ÇALIŞMALI.
+    await page.goto('/qa-shop');
+    await waitForAppReady(page, { timeout: 60_000 });
+    await expect(page.locator('[data-testid="urun-listesi"]')).toBeVisible({ timeout: 60_000 });
+
+    // Kullanıcı "no such column" görmemeli.
+    await expect(page.getByTestId('bildirim')).toHaveCount(0);
+    await expect.poll(async () => Number(await page.getByTestId('urun-sayisi').innerText()),
+        { timeout: 40_000, message: 'eski veritabanı yenilenmedi, vitrin boş kaldı' })
+        .toBe(ilkSayi);
+
+    // Yenileme tohumun GÜNCEL sürümünü kurdu: adlar Türkçe.
+    await expect.poll(async () => {
+        const adlar = await page.locator('[data-testid^="urun-ad-"]').allInnerTexts();
+        // Türkçe-özgü HARF aramak yanlış olurdu: "Premium Mavi Mont" gibi
+        // adlarda hiç yok. Doğru ölçüt TİP SONEKİ.
+        const trTip = /(Tişört|Gömlek|Elbise|Kot Pantolon|Spor Ayakkabı|Bot|Çanta|Mont)$/;
+        return adlar.length > 0 && adlar.every((a) => trTip.test(a.trim()));
+    }, { timeout: 40_000, message: 'yenilenen veritabanı Türkçe adları taşımıyor' }).toBe(true);
+
+    expect(errors, 'eski veritabanı yenilemesi: console/page hataları').toHaveLength(0);
+});
