@@ -9,7 +9,7 @@
     "dev": "vite --host",
     "dev:prod": "vite --host --mode prodtest",
     "generate:data-stubs": "node scripts/generate-data-stubs.mjs",
-    "build": "node scripts/check-seo.mjs && node scripts/check-test-coverage.mjs && node scripts/generate-section-slugs.mjs --check && node scripts/check-content-integrity.mjs && node scripts/check-i18n-leaks.mjs && node scripts/sync-qa-shop-core.mjs && node scripts/check-qa-shop-sql-map.mjs && node scripts/check-qa-shop-kavramlar.mjs && node scripts/check-qa-shop-backlog.mjs && node scripts/build-sqljs-seed.mjs && node scripts/build-openapi-json.mjs && node scripts/build-qa-shop-downloads.mjs && node scripts/audit-interview-questions.mjs && node scripts/audit-learning-blocks.mjs && node scripts/generate-seo-files.mjs && node scripts/generate-data-stubs.mjs && node scripts/generate-mastery-manifest.mjs && node scripts/generate-interview-showcase.mjs && vite build && node scripts/generate-static-routes.mjs && node scripts/check-dist-seo.mjs",
+    "build": "node scripts/check-seo.mjs && node scripts/check-test-coverage.mjs && node scripts/generate-section-slugs.mjs --check && node scripts/check-content-integrity.mjs && node scripts/check-i18n-leaks.mjs && node scripts/sync-qa-shop-core.mjs && node scripts/check-qa-shop-sql-map.mjs && node scripts/check-qa-shop-kavramlar.mjs && node scripts/check-qa-shop-sort-contract.mjs && node scripts/check-qa-shop-backlog.mjs && node scripts/build-sqljs-seed.mjs && node scripts/build-openapi-json.mjs && node scripts/build-qa-shop-downloads.mjs && node scripts/audit-interview-questions.mjs && node scripts/audit-learning-blocks.mjs && node scripts/generate-seo-files.mjs && node scripts/generate-data-stubs.mjs && node scripts/generate-mastery-manifest.mjs && node scripts/generate-interview-showcase.mjs && vite build && node scripts/generate-static-routes.mjs && node scripts/check-dist-seo.mjs",
     "content:check": "node scripts/check-content-integrity.mjs",
     "i18n:check": "node scripts/check-i18n-leaks.mjs",
     "i18n:baseline": "node scripts/check-i18n-leaks.mjs --update-baseline",
@@ -47,7 +47,8 @@
     "qa-shop:indirmeler": "node scripts/build-qa-shop-downloads.mjs",
     "qa-shop:gorseller": "node scripts/optimize-qa-shop-images.mjs && node scripts/build-qa-shop-images.mjs",
     "qa-shop:sql": "node scripts/check-qa-shop-sql-map.mjs",
-    "qa-shop:kavram": "node scripts/check-qa-shop-kavramlar.mjs"
+    "qa-shop:kavram": "node scripts/check-qa-shop-kavramlar.mjs",
+    "qa-shop:sort": "node scripts/check-qa-shop-sort-contract.mjs"
   },
   "simple-git-hooks": {
     "pre-commit": "node scripts/check-content-integrity.mjs && node scripts/check-i18n-leaks.mjs",

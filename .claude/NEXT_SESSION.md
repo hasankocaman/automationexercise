@@ -104,6 +104,51 @@ bozuldu. Toplu düzenlemede DAİMA fonksiyon değiştirici kullan:
 `s.replace(eski, () => yeni)`.
 
 
+### 🔴 PUSH SONRASI bulunan kusur: iki arka uç sıralamada anlaşmıyordu
+
+Kullanıcı Docker kipinde `/qa-shop?sirala=created_at:desc` adresinde **"0 ürün"**
+gördü. Ölçüldü ve kök neden tek bir yazım hatası değil, **üç yerde ayrışmış bir
+sözleşme** çıktı:
+
+| Katman | Kabul ettiği alanlar | `created_at` gelince |
+|---|---|---|
+| Docker API (`catalog.js` SORTABLE) | `price · name · created · sku` | **400** → vitrin boşalır |
+| Tarayıcı katmanı (`qa-shop-browser/api.js`) | `price · name · created_at · id` | sessizce `id`ye düşer, YANLIŞ sıralar |
+| Arayüz (`<option>`) | `created_at:desc` gönderiyordu | ikisinde de yanlış |
+
+⚠️ **Bu neden testlerden kaçtı:** CI'da Docker yoktur, tüm dükkân testleri
+tarayıcı kipinde koşar ve orada istek 200 döner. Yani kusur yayındaki
+VARSAYILAN kipte görünmez (yalnızca yanlış sıralar), geliştiricinin
+makinesinde ise vitrini boşaltan bir arıza gibi çıkar. Mod körü bir hatanın
+ders kitabı örneği.
+
+Ayrıca adres durumu bu kusuru GÖRÜNÜR yaptı: eskiden bozuk sıralama yalnızca
+açılır listeye tıklayınca seçilebiliyordu ve istek düşünce eski liste ekranda
+kalıyordu; artık sıralama adreste taşındığı için sayfa doğrudan bozuk sırayla
+AÇILIYOR ve vitrin baştan boş geliyor.
+
+**Yapılan üç düzeltme:**
+1. Tarayıcı katmanı sözleşmeye hizalandı (`created`, `sku`).
+2. Arayüz sözleşmedeki adı gönderiyor; ayrıca `SIRALAMA_SECENEKLERI` listesi
+   bir güvenlik ağı — adrese elle yazılmış tanınmayan bir değer artık vitrini
+   kilitlemiyor, sessizce varsayılana düşüyor.
+3. **Başarısız yükleme artık sessiz değil.** Önceden `else` dalı hiç yoktu:
+   istek 400 dönünce vitrin "0 ürün · Aramanla eşleşen ürün yok" gösteriyordu —
+   yani ÇALIŞAN bir sistemi boş katalog gibi sunuyor, kullanıcıya hatanın
+   kendisini değil sonucunu gösteriyordu.
+
+**Kalıcı koruma:** `scripts/check-qa-shop-sort-contract.mjs` build zincirine
+eklendi. Üç kaynağı da düz metin olarak okuyup karşılaştırır; tarayıcı
+GEREKTİRMEZ, çünkü bu kusuru yakalayacak şey tam olarak tarayıcı testlerinin
+göremediği yerdeydi. Mutasyon sınandı: eski `created_at` geri konunca kapı
+kırmızıya döndü.
+
+Ek olarak `tests/qa-shop-pages.spec.ts`'e sıralamanın vitrini GERÇEKTEN
+yeniden dizdiğini doğrulayan bir test eklendi (alan adı doğru olsa bile
+sunucu sessizce başka bir sütuna düşebilirdi).
+
+---
+
 ### 🖐️ ELLE TEST REHBERİ — bu turda değişen her şey nasıl doğrulanır
 
 > Otomatik testler geçti ama gözle de görmek istersen: aşağıdaki 9 kontrol
@@ -236,6 +281,23 @@ bilgisi duruyor.
 
 **Bozuksa:** Rozet hiç görünmüyorsa günlük yine kapalı panelin içinde saklı
 kalmış demektir.
+
+#### 10. Sıralama (Docker kipinde de dene)
+
+**Yap:** Sıralama açılır listesinden sırayla **Fiyat: yüksekten düşüğe** ve
+**En yeniler**'i seç. Sonra adres çubuğuna elle `?sirala=uydurma:desc` yazıp
+sayfayı aç.
+
+**Görmen gereken:** Her seçimde adres değişiyor (`?sirala=created%3Adesc`) ve
+kartların sırası gerçekten değişiyor. Uydurma değerde vitrin boşalmıyor,
+varsayılan (ucuzdan pahalıya) sıraya düşüyor.
+
+**Bozuksa:** "En yeniler"de **0 ürün** görürsen sıralama alan adı sunucunun
+sözleşmesiyle uyuşmuyor demektir. Bu kusur tam olarak yaşandı ve artık build
+kapısı var: `npm run qa-shop:sort`.
+
+⚠️ **Bu maddeyi Docker kipinde de dene.** Tarayıcı kipi yanlış alan adında
+hata vermez, sessizce yanlış sıralar — yani orada "çalışıyor" gibi görünür.
 
 ---
 

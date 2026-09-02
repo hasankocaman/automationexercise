@@ -66,6 +66,16 @@ const DEPO_AV = 'qaShopAvAlani'
 // Vitrin sayfa boyu. Sunucunun kendi tavanı ayrıdır (ve o tavan bilinçli bir
 // test konusudur) — burası yalnızca vitrinin istediği boy.
 const SAYFA_BOYU = 24
+
+// ⚠ SIRALAMA DEĞERLERİ SÖZLEŞMEDEN gelir: sunucu yalnızca price|name|created|sku
+// kabul eder, başkasını 400 ile reddeder. Burada `created_at` yazılıydı ve
+// Docker kipinde vitrin bu yüzden "0 ürün" gösteriyordu.
+//
+// Liste ayrıca bir GÜVENLİK AĞIDIR: sıralama artık adreste taşındığı için elle
+// yazılmış ya da eskimiş bir bağlantı (`?sirala=uydurma`) vitrini kilitleyebilir.
+// Tanınmayan değer sessizce varsayılana düşer.
+const SIRALAMA_SECENEKLERI = ['price:asc', 'price:desc', 'created:desc']
+const VARSAYILAN_SIRALAMA = 'price:asc'
 // Kaç defect canlı olacak. Üç, on ihtimalin içinde aramayı anlamlı tutacak
 // kadar çok; bulguları birbirine karıştırmayacak kadar az.
 const VARSAYILAN_AV_ADEDI = 3
@@ -428,7 +438,8 @@ export default function QaShopPage() {
     const gorunum = adresParams.get('g') || 'katalog'
     const aktifKategori = adresParams.get('kategori') || ''
     const arama = adresParams.get('ara') || ''
-    const siralama = adresParams.get('sirala') || 'price:asc'
+    const siralamaHam = adresParams.get('sirala') || VARSAYILAN_SIRALAMA
+    const siralama = SIRALAMA_SECENEKLERI.includes(siralamaHam) ? siralamaHam : VARSAYILAN_SIRALAMA
     const sayfa = Math.max(1, Number.parseInt(adresParams.get('sayfa') || '1', 10) || 1)
     const adrestekiUrunId = adresParams.get('urun') || ''
 
@@ -630,8 +641,25 @@ export default function QaShopPage() {
             // ayrı doğruluk kaynağı yaratırdı. Yoksa toplamdan türetilir.
             setToplamSayfa(sonuc.govde?.totalPages
                 ?? Math.max(1, Math.ceil((sonuc.govde?.total ?? 0) / SAYFA_BOYU)))
+            return
         }
-    }, [istek, siralama, arama, aktifKategori, sayfa])
+        // Başarısızlıkta SESSİZ kalmak yasak. Önceden burada hiç `else` yoktu:
+        // istek 400 dönünce vitrin "0 ürün · Aramanla eşleşen ürün yok"
+        // gösteriyordu — yani ÇALIŞAN bir sistemi boş katalog gibi sunuyor,
+        // kullanıcıya hatanın kendisini değil sonucunu gösteriyordu.
+        setUrunler([]); setToplamUrun(0); setToplamSayfa(1)
+        // Ağ koptuysa sayfa zaten kendi uyarı şeridini gösteriyor; ikinci bir
+        // hata balonu gürültü olurdu. Söylenmesi gereken sunucunun "hayır"ıdır.
+        if (!sonuc.agKopuk) {
+            const kod = sonuc.govde?.error?.code
+            const metin = sonuc.govde?.error?.message
+                || (isTr ? 'Ürünler yüklenemedi' : 'Could not load products')
+            setMesaj({ tip: 'hata', metin: kod ? `${kod} — ${metin}` : metin })
+        }
+        // hataGoster BİLEREK kullanılmadı: o bir useCallback değil, her
+        // render'da yeniden kuruluyor. Bağımlılığa eklenseydi urunleriYukle de
+        // her render'da değişir ve onu izleyen effect sonsuz döngüye girerdi.
+    }, [istek, siralama, arama, aktifKategori, sayfa, isTr])
 
     const kategorileriYukle = useCallback(async () => {
         const sonuc = await istek('/categories')
@@ -1323,7 +1351,7 @@ export default function QaShopPage() {
                                     value={siralama} onChange={(e) => setSiralama(e.target.value)}>
                                 <option value="price:asc">{tx(M.siralaUcuz, isTr)}</option>
                                 <option value="price:desc">{tx(M.siralaPahali, isTr)}</option>
-                                <option value="created_at:desc">{tx(M.siralaYeni, isTr)}</option>
+                                <option value="created:desc">{tx(M.siralaYeni, isTr)}</option>
                             </select>
                         </div>
 

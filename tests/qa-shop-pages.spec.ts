@@ -1968,3 +1968,64 @@ test('/qa-shop — tohum veri: adlar benzersiz ve ürün kendi kategorisinde', a
         }, { timeout: 40_000, message: `${testId} kategorisinde tipi uymayan ürün var` }).toBe(true);
     }
 });
+
+// Sıralama GERÇEKTEN sıralıyor. Statik kapı alan adlarının üç yerde aynı
+// olduğunu doğruluyor; bu test de seçilen sıranın vitrine yansıdığını.
+// İkisi birlikte gerekli: alan adı doğru olsa bile sunucu sessizce başka bir
+// sütuna düşebilirdi (tarayıcı katmanı tam olarak bunu yapıyordu).
+test('/qa-shop — sıralama seçenekleri vitrini gerçekten yeniden sıralıyor', async ({ page }) => {
+    test.setTimeout(150_000);
+    await page.addInitScript((adres) => {
+        localStorage.setItem('qaShopApiBase', adres);
+    }, KAPALI_API);
+
+    const errors = collectErrors(page);
+
+    await page.goto('/qa-shop');
+    await waitForAppReady(page, { timeout: 60_000 });
+    await expect(page.locator('[data-testid="urun-listesi"]')).toBeVisible({ timeout: 60_000 });
+
+    const fiyatlariOku = async () => {
+        const ham = await page.locator('[data-testid^="urun-fiyat-"]').allInnerTexts();
+        // "₺1.234,50" → 1234.50 : binlik noktası atılır, ondalık virgül noktaya döner.
+        return ham.map((t) => Number(t.replace(/[^\d,]/g, '').replace(/\./g, '').replace(',', '.')));
+    };
+
+    // Varsayılan: ucuzdan pahalıya, artan.
+    const artan = await fiyatlariOku();
+    expect(artan.length, 'fiyat okunamadı').toBeGreaterThan(1);
+    expect(artan, 'varsayılan sıra artan değil').toEqual([...artan].sort((a, b) => a - b));
+
+    // Pahalıdan ucuza: aynı liste TERS sırada gelmeli.
+    await page.getByTestId('urun-sirala').selectOption('price:desc');
+    await expect(page).toHaveURL(/sirala=price%3Adesc/, { timeout: 40_000 });
+    await expect.poll(async () => {
+        const f = await fiyatlariOku();
+        return f.length > 1 && f.every((v, i) => i === 0 || f[i - 1] >= v);
+    }, { timeout: 40_000, message: 'azalan sıralama uygulanmadı' }).toBe(true);
+
+    // "En yeniler": sözleşmedeki alan adı gönderilmeli. Yanlış ad giderse
+    // sunucu 400 döner ve vitrin BOŞALIR — bu tam olarak yaşanan kusurdu.
+    await page.getByTestId('urun-sirala').selectOption('created:desc');
+    await expect(page).toHaveURL(/sirala=created%3Adesc/, { timeout: 40_000 });
+    await expect(page.locator('ul[data-testid="urun-listesi"] > li').first())
+        .toBeVisible({ timeout: 40_000 });
+    const yeniSayi = await page.locator('ul[data-testid="urun-listesi"] > li').count();
+    expect(yeniSayi, '"En yeniler" seçilince vitrin boşaldı').toBeGreaterThan(0);
+    await expect(page.getByTestId('urun-sayisi')).not.toHaveText('0');
+
+    // Sıra gerçekten değişti: fiyat artık azalan DEĞİL (tarihe göre dizildi).
+    const tariheGore = await fiyatlariOku();
+    const halaAzalan = tariheGore.every((v, i) => i === 0 || tariheGore[i - 1] >= v);
+    expect(halaAzalan, '"En yeniler" hiçbir şeyi değiştirmedi — istek yok sayılmış olabilir').toBe(false);
+
+    // Adresteki UYDURMA bir sıralama vitrini kilitlememeli: varsayılana düşer.
+    await page.goto('/qa-shop?sirala=uydurma%3Adesc');
+    await waitForAppReady(page, { timeout: 60_000 });
+    await expect(page.locator('[data-testid="urun-listesi"]')).toBeVisible({ timeout: 60_000 });
+    const guvenli = await fiyatlariOku();
+    expect(guvenli.length, 'geçersiz sıralama vitrini boşalttı').toBeGreaterThan(1);
+    expect(guvenli, 'geçersiz sıralama varsayılana düşmedi').toEqual([...guvenli].sort((a, b) => a - b));
+
+    expect(errors, 'sıralama: console/page hataları').toHaveLength(0);
+});

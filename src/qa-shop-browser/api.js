@@ -255,7 +255,13 @@ function urunler(istek, bayraklar) {
     if (s.q) { kosullar.push('(p.name like ? or p.description like ?)'); p.push(`%${s.q}%`, `%${s.q}%`) }
     const nerede = kosullar.join(' and ')
 
-    const siralanabilir = { price: 'p.price', name: 'p.name', created_at: 'p.created_at', id: 'p.id' }
+    // ⚠ ALAN ADLARI SÖZLEŞMEDEN gelir (qa-shop/api/src/routes/catalog.js
+    // SORTABLE) — burada serbestçe adlandırılamaz. Ölçüldü: burası
+    // `created_at` kabul ederken sunucu `created` istiyordu ve aynı arayüz
+    // iki kipte iki farklı sonuç veriyordu: Docker kipinde istek 400 dönüp
+    // vitrin BOŞALIYOR, tarayıcı kipinde ise sessizce `id`ye düşüp yanlış
+    // sıralıyordu — hata vermediği için kimse fark etmiyordu.
+    const siralanabilir = { price: 'p.price', name: 'p.name', created: 'p.created_at', sku: 'p.sku' }
     const alan = siralanabilir[s.sort] ?? 'p.id'
     const yon = String(s.order ?? 'asc').toLowerCase() === 'desc' ? 'desc' : 'asc'
 
